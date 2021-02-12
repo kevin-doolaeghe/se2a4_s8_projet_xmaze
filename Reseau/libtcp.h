@@ -17,5 +17,10 @@
 
 /** Prototypes **/
 
+int init_serveur(char *service, int connexions);
+
+int boucleServeur(int ecoute, void *(*traitement)(void *));
+
+int connexionServeur(char *hote, char *service);
 
 #endif

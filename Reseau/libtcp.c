@@ -1,158 +1,113 @@
-/**** Bibliotheque graphique ****/
+#include "libtcp.h"
 
-/** Fichiers d'inclusion **/
+int init_serveur(char *service, int connexions) {
+    struct addrinfo precisions, *resultat, *origine;
+    int statut;
+    int s;
 
-#include "SDL2/SDL.h"
-#include "SDL2/SDL2_gfxPrimitives.h"
+    /* Construction de la structure adresse */
+    memset(&precisions, 0, sizeof precisions);
+    precisions.ai_family = AF_UNSPEC;
+    precisions.ai_socktype = SOCK_STREAM;
+    precisions.ai_flags = AI_PASSIVE;
 
-#include "libgraph.h"
+    statut = getaddrinfo(NULL, service, &precisions, &origine);
+    if(statut < 0) {
+        perror("initialisationServeur.getaddrinfo");
+        exit(EXIT_FAILURE);
+    }
+    
+    struct addrinfo *p;
+    for (p = origine, resultat = origine; p != NULL; p = p->ai_next) {
+        if(p->ai_family == AF_INET6) {
+            resultat = p;
+            break;
+        }
+    }
 
-/** Types **/
+    /* Creation d'une socket */
+    s = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol);
+    if(s < 0) {
+        perror("initialisationServeur.socket");
+        exit(EXIT_FAILURE);
+    }
 
-typedef struct { int r,v,b; } couleur;
+    /* Options utiles */
+    int vrai = 1;
+    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &vrai, sizeof(vrai)) < 0) {
+        perror("initialisationServeur.setsockopt (REUSEADDR)");
+        exit(EXIT_FAILURE);
+    }
+    if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, &vrai, sizeof(vrai)) < 0) {
+        perror("initialisationServeur.setsockopt (NODELAY)");
+        exit(EXIT_FAILURE);
+    }
 
-/** Constantes **/
+    /* Specification de l'adresse de la socket */
+    statut = bind(s, resultat->ai_addr, resultat->ai_addrlen);
+    if (statut < 0) return -1;
 
-#define BITS_PAR_PIXEL	32
+    /* Liberation de la structure d'informations */
+    freeaddrinfo(origine);
 
-/** Macros **/
+    /* Taille de la queue d'attente */
+    statut = listen(s, connexions);
+    if (statut < 0) return -1;
 
-#define GFX_COULEUR(r,v,b)	(((((r<<8)|v)<<8)|b)<<8|0xff)
-
-/** Variables globales **/
-
-static const couleur couleurs[]={
-  {255,255,255},
-  {0,0,0},
-  {255,0,0},
-  {0,255,0},
-  {0,0,255},
-  {255,105,180},
-  {-1,-1,-1}
-  };
-
-static SDL_Window *fenetre;
-static SDL_Renderer *support;
-
-/** Fonctions **/
-
-/* Initialisation de la fenetre */
-
-static int fenetre_x=-1,fenetre_y=-1;
-unsigned char creerFenetre(int largeur,int hauteur,char *titre){
-if(SDL_Init(SDL_INIT_VIDEO)!=0) return 0;
-fenetre=SDL_CreateWindow(
-     titre,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,
-     largeur,hauteur,0
-     );
-if(fenetre==NULL) return 0;
-support=SDL_CreateRenderer(fenetre,-1,SDL_RENDERER_ACCELERATED);
-if(support==NULL) return 0;
-fenetre_x=largeur;
-fenetre_y=hauteur;
-return 1;
+    return s;
 }
 
-/* Fermeture de la fenetre */
+int boucleServeur(int ecoute, void *(*traitement)(void *)) {
+    int dialogue;
 
-void fermerFenetre(void){
-if(support!=NULL) SDL_DestroyRenderer(support);
-if(fenetre!=NULL) SDL_DestroyWindow(fenetre);
-SDL_Quit();
+    while(1){
+        /* Attente d'une connexion */
+        if ((dialogue = accept(ecoute, NULL, NULL)) < 0) return -1;
+
+        /* Passage de la socket de dialogue a la fonction de traitement */
+        if (traitement(dialogue) < 0) {
+            shutdown(ecoute, SHUT_RDWR);
+            return 0;
+        }
+    }
 }
 
-/* Effacer la fenêtre */
+int connexionServeur(char *hote, char *service) {
+    struct addrinfo precisions, *resultat, *origine;
+    int statut;
+    int s;
 
-void effacerFenetre(void){
-SDL_SetRenderDrawColor(support,0,0,0,255);
-SDL_RenderClear(support);
-}
+    /* Creation de l'adresse de socket */
+    memset(&precisions, 0, sizeof precisions);
+    precisions.ai_family = AF_UNSPEC;
+    precisions.ai_socktype = SOCK_STREAM;
 
-/* Affiche les dessins effectues */
+    statut = getaddrinfo(hote, service, &precisions, &origine);
+    if (statut < 0) {
+        perror("connexionServeur.getaddrinfo");
+        exit(EXIT_FAILURE);
+    }
+    
+    struct addrinfo *p;
+    for(p = origine, resultat = origine; p != NULL; p = p->ai_next) {
+        if (p->ai_family == AF_INET6) {
+            resultat = p;
+            break;
+        }
+    }
 
-void synchroniserFenetre(void){
-SDL_RenderPresent(support);
-}
+    /* Creation d'une socket */
+    s = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol);
+    if (s < 0) {
+        perror("connexionServeur.socket");
+        exit(EXIT_FAILURE);
+    }
 
-/* Dessin d'un polygone plein */
+    /* Connection de la socket a l'hote */
+    if (connect(s, resultat->ai_addr, resultat->ai_addrlen) < 0) return -1;
 
-void polygonePlein(short int *x,short int *y,int n,int c_int,int c_ext){
-couleur rgb=couleurs[c_int];
-filledPolygonColor(support,x,y,n,GFX_COULEUR(rgb.r,rgb.v,rgb.b));
-rgb=couleurs[c_ext];
-polygonColor(support,x,y,n,GFX_COULEUR(rgb.r,rgb.v,rgb.b));
-}
+    /* Liberation de la structure d'informations */
+    freeaddrinfo(origine);
 
-/* Dessin d'un rectangle plein */
-
-void rectanglePlein(int x,int y,int l,int h,int c_int,int c_ext){
-short int xp[4]={x,x+l,x+l,x};
-short int yp[4]={y,y,y+h,y+h};
-
-polygonePlein(xp,yp,4,c_int,c_ext);
-}
-
-/* Dessin d'un disque */
-
-void disque(int x,int y,int r,int c_int,int c_ext){
-couleur rgb=couleurs[c_int];
-filledCircleColor(support,x,y,r,GFX_COULEUR(rgb.r,rgb.v,rgb.b));
-rgb=couleurs[c_ext];
-circleColor(support,x,y,r,GFX_COULEUR(rgb.r,rgb.v,rgb.b));
-}
-
-/* Manipulation de copie de surface en BMP */
-
-unsigned char sauverSurface(char *fichier){
-int statut=-1;
-SDL_Surface* surface=SDL_CreateRGBSurface(0,fenetre_x,fenetre_y,32,0x00ff0000,0x0000ff00,0x000000ff,0xff000000);
-if(surface){
-  SDL_RenderReadPixels(support,NULL,SDL_PIXELFORMAT_ARGB8888,surface->pixels,surface->pitch);
-  statut=SDL_SaveBMP(surface,fichier);
-  SDL_FreeSurface(surface);
-  }
-return (statut<0)?0:1;
-}
-
-unsigned char chargerSurface(char *fichier){
-SDL_Surface *image=SDL_LoadBMP(fichier);
-if(image!=NULL){
-  SDL_Texture *texture=SDL_CreateTextureFromSurface(support,image);
-  SDL_RenderCopy(support,texture,NULL,NULL);
-  SDL_RenderPresent(support);
-  SDL_DestroyTexture(texture);
-  SDL_FreeSurface(image);
-  }
-return (image!=NULL);
-}
-
-/* Attendre l'appui d'une touche */
-
-unsigned char attendreEvenement(int *touche,unsigned char *fenetre,unsigned char *quitter){
-SDL_Event event;
-*fenetre=0;
-*quitter=0;
-if(SDL_PollEvent(&event)==0) return 0;
-switch(event.type){
-  case SDL_KEYDOWN:
-    switch(event.key.keysym.sym){
-      case SDLK_LEFT: *touche=TOUCHE_GAUCHE; break;
-      case SDLK_RIGHT: *touche=TOUCHE_DROITE; break;
-      case SDLK_UP: *touche=TOUCHE_HAUT; break;
-      case SDLK_DOWN: *touche=TOUCHE_BAS; break;
-      case SDLK_SPACE: *touche=TOUCHE_ESPACE; break;
-      default: *touche=TOUCHE_AUTRE; break;
-      }
-    break;
-  case SDL_KEYUP:
-    *touche=0;
-    break;
-  case SDL_WINDOWEVENT:
-    *fenetre=1;
-    break;
-  case SDL_QUIT:
-    *quitter=1;
-    break;
-  }
-return 1;
+    return s;
 }
