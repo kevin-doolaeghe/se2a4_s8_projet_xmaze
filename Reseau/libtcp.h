@@ -5,15 +5,23 @@
 
 /** Fichiers d'inclusion des bibliotheques **/
 
+#include <stdlib.h>
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <netdb.h>
+#include <netinet/tcp.h>
+
+#include "libthread.h"
+#include "libclientlist.h"
 
 /** Constantes **/
 
 
 /** Variables **/
 
+client_list_t *client_list;
 
 /** Prototypes **/
 
@@ -22,5 +30,7 @@ int init_serveur_tcp(char *service, int connexions);
 int boucle_serveur_tcp(int ecoute, void *(*traitement)(void *));
 
 int init_client_tcp(char *hote, char *service);
+
+void detruire_lien_tcp(int s);
 
 #endif

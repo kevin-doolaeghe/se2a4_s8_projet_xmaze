@@ -52,7 +52,7 @@ int init_serveur_udp(char *service) {
     return s;
 }
 
-int boucle_serveur_udp(int s, void *(*traitement)(void *)) {
+int boucle_serveur_udp(int s, void *(*traitement)(void *, void *)) {
     while (1) {
         struct sockaddr_storage adresse;
         socklen_t taille = sizeof(adresse);
@@ -109,15 +109,18 @@ int init_client_udp(char *hote, char *service) {
     return s;
 }
 
+void detruire_socket(int s) {
+    close(s);
+}
+
 void envoi_message_udp(int s, unsigned char *message, int taille) {
     /* Envoi du message */
+    // TODO: Finir ça
+    /*
     int nboctets = sendto(s, message, taille, 0, resultat->ai_addr, resultat->ai_addrlen);
     if (nboctets < 0) {
         perror("messageUDPgenerique.sento");
         exit(EXIT_FAILURE);
     }
-}
-
-void detruire_socket(int s) {
-    close(s);
+    */
 }

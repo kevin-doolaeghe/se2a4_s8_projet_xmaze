@@ -2,9 +2,9 @@
 
 /** Fonctions **/
 
-int creer_tache(void *(*traitement)(void *)) {
+int creer_tache(void *(*traitement)(void *), void *arg) {
     pthread_t tid;
-    pthread_init(&tid, NULL, traitement, (void *) NULL);
+    pthread_init(&tid, NULL, traitement, (void *) arg);
     pthread_join(tid, NULL);
 
     return tid;

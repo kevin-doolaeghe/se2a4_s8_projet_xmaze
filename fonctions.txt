@@ -3,7 +3,8 @@ demarrer_client_jeu()
 
 -------------------------
 
-init_signaux()
+init_sig()
+handle_sig()
 
 -------------------------
 

@@ -1,14 +1,19 @@
-/**** Programme de creation de labyrinthe ****/
-
 /** Fichiers d'inclusion **/
 
-#include "libsig.h"
+#include "serveur.h"
 
 /** Fonctions **/
 
 /* Fonction principale */
 
-int main(void) {
+int main(int argc,char *argv[]) {
+	// Analyse des arguments
+	if(argc!=2){
+		fprintf(stderr,"Syntaxe : bridge <port>\n");
+		exit(-1);
+	}
+	char *service=argv[1];
+
     bool demarre = false;
 
     init_signaux();

@@ -60,15 +60,22 @@ int init_serveur_tcp(char *service, int connexions) {
 int boucle_serveur_tcp(int ecoute, void *(*traitement)(void *)) {
     int dialogue;
 
-    while(1){
+    while (1) {
         /* Attente d'une connexion */
         if ((dialogue = accept(ecoute, NULL, NULL)) < 0) return -1;
 
+        /* Creation d'un thread avec le socket de dialogue */
+        creer_tache(traitement, dialogue);
+        // Valeur de dialogue directement passée
+        // A voir si c'est possible
+
         /* Passage de la socket de dialogue a la fonction de traitement */
+        /*
         if (traitement(dialogue) < 0) {
             shutdown(ecoute, SHUT_RDWR);
             return 0;
         }
+        */
     }
 }
 
@@ -110,4 +117,8 @@ int init_client_tcp(char *hote, char *service) {
     freeaddrinfo(origine);
 
     return s;
+}
+
+void detruire_lien_tcp(int s) {
+    close(s);
 }

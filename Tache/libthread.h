@@ -5,6 +5,8 @@
 
 /** Fichiers d'inclusion des bibliothèques **/
 
+#include <stdlib.h>
+#include <stdio.h>
 #include <pthread.h>
 
 /** Constantes **/
@@ -15,7 +17,7 @@
 
 /** Prototypes **/
 
-int creer_tache(void *(*traitement)(void *));
+int creer_tache(void *(*traitement)(void *), void* arg);
 
 void *tache_diffusion_udp(void *arg);
 

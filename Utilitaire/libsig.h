@@ -1,10 +1,11 @@
-/**** Bibliotheque table des clients  ****/
+/**** Bibliotheque pour la gestion des signaux  ****/
 
 #ifndef _LIBSIG_H_
 #define _LIBSIG_H_
 
 /** Fichiers d'inclusion des bibliothèques **/
 
+#include <stdio.h>
 #include <signal.h>
 
 /** Constantes **/

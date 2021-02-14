@@ -61,3 +61,13 @@ Le serveur et les clients communiquent leurs informations via des liaisons TCP e
     - id : 2 octets binaires non signés. Identifiant de l'objet courant.
     - objet : Structure de l'objet envoyé (type, position...).
 
+### Fonctionnement du serveur
+
+- Vérification des arguments
+- Récupération des arguments
+- Initialisation des signaux
+- Initialisation des variables du jeu
+- Boucle du serveur tant que l'on ne quitte pas
+    - Lancement du serveur UDP de diffusion dans un thread
+    - Lancement du serveur TCP de connexion/chat dans un thread
+    - Test de la variable pour quitter
