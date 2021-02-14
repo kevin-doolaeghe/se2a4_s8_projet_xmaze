@@ -1,6 +1,6 @@
 #include "libtcp.h"
 
-int init_serveur(char *service, int connexions) {
+int init_serveur_tcp(char *service, int connexions) {
     struct addrinfo precisions, *resultat, *origine;
     int statut;
     int s;
@@ -57,7 +57,7 @@ int init_serveur(char *service, int connexions) {
     return s;
 }
 
-int boucleServeur(int ecoute, void *(*traitement)(void *)) {
+int boucle_serveur_tcp(int ecoute, void *(*traitement)(void *)) {
     int dialogue;
 
     while(1){
@@ -72,7 +72,7 @@ int boucleServeur(int ecoute, void *(*traitement)(void *)) {
     }
 }
 
-int connexionServeur(char *hote, char *service) {
+int init_client_tcp(char *hote, char *service) {
     struct addrinfo precisions, *resultat, *origine;
     int statut;
     int s;

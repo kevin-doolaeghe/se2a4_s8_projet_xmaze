@@ -11,11 +11,11 @@
 int main(void) {
     bool demarre = false;
 
-    init_sig();
+    init_signaux();
 
     while (1) {
         if (demarre == false) {
-            demarrer_jeu();
+            demarrer_serveur_jeu();
         } else {
             sleep(1);
         }

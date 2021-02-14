@@ -65,7 +65,7 @@ int boucle_serveur_udp(int s, void *(*traitement)(void *)) {
     return 0;
 }
 
-void envoi_message_udp(char *hote, char *service, unsigned char *message, int taille) {
+int init_client_udp(char *hote, char *service) {
     struct addrinfo precisions, *resultat, *origine;
     int statut;
     int s;
@@ -103,16 +103,21 @@ void envoi_message_udp(char *hote, char *service, unsigned char *message, int ta
         exit(-1);
     }
 
+    /* Liberation de la structure d'informations */
+    freeaddrinfo(origine);
+
+    return s;
+}
+
+void envoi_message_udp(int s, unsigned char *message, int taille) {
     /* Envoi du message */
     int nboctets = sendto(s, message, taille, 0, resultat->ai_addr, resultat->ai_addrlen);
     if (nboctets < 0) {
         perror("messageUDPgenerique.sento");
         exit(EXIT_FAILURE);
     }
+}
 
-    /* Liberation de la structure d'informations */
-    freeaddrinfo(origine);
-
-    /* Fermeture de la socket d'envoi */
+void detruire_socket(int s) {
     close(s);
 }
