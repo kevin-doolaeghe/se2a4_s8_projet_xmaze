@@ -1,9 +1,17 @@
+/**** Bibliotheque des chaines de caracteres ****/
+
 #ifndef _LIBSTR_H_
 #define -LIBSTR_H_
+
+/** Fichiers d'inclusion des bibliothèques **/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/** Constantes **/
+
+/** Variables **/
 
 typedef struct String String;
 struct String {
@@ -12,7 +20,7 @@ struct String {
     int    alloc;
 };
 
-//----------------------------------------------
+/** Prototypes **/
 
 void init_str(String * str);
 

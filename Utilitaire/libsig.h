@@ -1,4 +1,4 @@
-/**** Bibliotheque pour la gestion des signaux  ****/
+/**** Bibliotheque pour la gestion des signaux ****/
 
 #ifndef _LIBSIG_H_
 #define _LIBSIG_H_
@@ -10,8 +10,8 @@
 
 /** Constantes **/
 
-
 /** Variables **/
+
 static struct sigaction action_sig;
 
 /** Prototypes **/

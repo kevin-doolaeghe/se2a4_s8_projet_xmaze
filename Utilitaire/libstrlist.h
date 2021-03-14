@@ -1,10 +1,18 @@
+/**** Bibliotheque des listes de chaines de caracteres ****/
+
 #ifndef _LIBSTRLIST_H_
 #define _LIBSTRLIST_H_
+
+/** Fichiers d'inclusion des bibliotheques **/
 
 #include "str.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/** Constantes **/
+
+/** Variables **/
 
 typedef struct ListStr ListStr;
 struct ListStr {
@@ -13,7 +21,7 @@ struct ListStr {
     int      alloc;
 };
 
-//----------------------------------------------
+/** Prototypes **/
 
 void init_list_str(ListStr * list);
 

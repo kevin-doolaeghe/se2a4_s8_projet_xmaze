@@ -6,41 +6,41 @@
 
 /** Fonctions **/
 
-PtCellRec allocate_record(Record record) {
-    PtCellRec ptr = malloc(sizeof(CellRec));
+pt_client_cell_t allocate_client(client_t client) {
+    pt_client_cell_t ptr = malloc(sizeof(client_cell_t));
 
-    ptr->record = record;
+    ptr->client = client;
     ptr->next   = NULL;
 
     return ptr;
 }
 
-void append_to_record_list(ListRec * list, Record record) {
-    PtCellRec ptr = allocate_record(record);
+void append_client_to_list(client_list_t *list, client_t client) {
+    pt_client_cell_t ptr = allocate_client(client);
     if (ptr == NULL) { return; }
 
     ptr->next = *list;
     *list     = ptr;
 }
 
-void delete_last_record(ListRec * list) {
-    PtCellRec ptr = *list;
-    *list         = ptr->next;
+void delete_last_client(client_list_t *list) {
+    pt_client_cell_t ptr = *list;
+    *list                = ptr->next;
 
     free(ptr);
 }
 
-void delete_record_list(ListRec * list) {
-    PtCellRec ptr = *list;
+void destroy_client_list(client_list_t *list) {
+    pt_client_cell_t ptr = *list;
 
     while (ptr != NULL) {
-        delete_last_record(&ptr);
+        delete_last_client(&ptr);
     }
 }
 
-int size_of_record_list(ListRec list) {
-    PtCellRec ptr  = list;
-    int       size = 0;
+int size_of_client_list(client_list_t *list) {
+    pt_client_cell_t ptr  = list;
+    int              size = 0;
 
     while (ptr != NULL) {
         size++;
@@ -50,47 +50,34 @@ int size_of_record_list(ListRec list) {
     return size;
 }
 
-bool search_record(ListRec list, Record record) {
-    PtCellRec ptr = list;
+bool search_client(client_list_t *list, client_t client) {
+    pt_client_cell_t ptr = list;
 
     while (ptr != NULL) {
-        if (compare_record(ptr->record, record) == EQUAL) { return true; }
+        if () { return true; }
         ptr = ptr->next;
     }
 
     return false;
 }
 
-void add_record_to_list(ListRec * list, Record record) {
-    if (!search_record(*list, record)) {
-        if (*list == NULL) {
-            append_to_record_list(list, record);
-        } else {
-            if (compare_record((*list)->record, record) == EARLIER) {
-                append_to_record_list(list, record);
-            } else {
-                add_record_to_list(&((*list)->next), record);
-            }
-        }
-    }
-}
-
-void display_record_list(ListRec list) {
-    PtCellRec ptr = list;
+void copy_client_list(client_list_t *src, client_list_t *dst) {
+    pt_client_cell_t ptr = *src;
 
     while (ptr != NULL) {
-        display_record(ptr->record);
+        for (int i = 0; i < size_of_client_list(*src); i++) {
+            append_client_to_list(dst, ptr->record);
+        }
         ptr = ptr->next;
     }
 }
 
-void copy_record_list(ListRec * src, ListRec * dst) {
-    PtCellRec ptr = *src;
+void print_client_list(client_list_t list) {
+    pt_client_cell_t ptr = list;
 
     while (ptr != NULL) {
-        for (int i = 0; i < size_of_record_list(*src); i++) {
-            add_record_to_list(dst, ptr->record);
-        }
+        print_client(ptr->client);
+        printf("-----------------\n");
         ptr = ptr->next;
     }
 }

@@ -21,7 +21,7 @@ void clear_str(String * str) {
     str->data[0] = '\0';
 }
 
-void print_str(String * str) { printf("%s\n", str->data); }
+void print_str(String * str) { printf("%s", str->data); }
 
 void append_char_to_str(String * str, char c) {
     if (str->size + 1 >= str->alloc) {

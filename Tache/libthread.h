@@ -1,4 +1,4 @@
-/**** Bibliotheque thread  ****/
+/**** Bibliotheque de threading ****/
 
 #ifndef _LIBTHREAD_H_
 #define _LIBTHREAD_H_

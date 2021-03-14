@@ -1,4 +1,4 @@
-/**** Header client  ****/
+/**** Header client ****/
 
 #ifndef _CLIENT_H_
 #define _CLIENT_H_
@@ -13,7 +13,6 @@
 #include "libsig.h"
 
 /** Constantes **/
-
 
 /** Variables **/
 

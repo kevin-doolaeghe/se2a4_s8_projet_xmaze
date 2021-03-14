@@ -1,4 +1,4 @@
-/**** Bibliotheque table des clients  ****/
+/**** Bibliotheque de positions  ****/
 
 #ifndef _LIBPOS_H_
 #define _LIBPOS_H_
@@ -26,5 +26,8 @@ struct pos_s {
 
 /** Prototypes **/
 
+void init_pos(pos_t *position);
+void print_pos(pos_t *position);
+void set_pos(pos_t *dst, pos_t *src);
 
 #endif
