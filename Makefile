@@ -1,5 +1,5 @@
 #
-# Makefile pour le projet labyrinthe
+# Makefile pour le projet XMaze
 #
 
 #
@@ -16,7 +16,7 @@ MAKE = make
 # Constantes du projet
 #
 
-DIRS=Graphique Labyrinthe
+DIRS = lib src
 
 #
 # Cible principale
