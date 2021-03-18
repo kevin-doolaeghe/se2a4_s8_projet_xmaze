@@ -4,22 +4,19 @@
 
 /** Fonctions **/
 
-void usage() {
-    fprintf(stderr,"Syntax : client <arg>\n");
-}
+void usage() { fprintf(stderr, "Syntax : client <arg>\n"); }
 
-void demarrer_client_jeu() {
-
-}
+void demarrer_client_jeu() {}
 
 /* Fonction principale */
 
-int main(int argc,char *argv[]) {
-    if(argc != 2){
+int main(int argc, char* argv[])
+{
+    if (argc != 2) {
         usage();
         exit(-1);
     }
-    char *port = argv[1];
+    char* port = argv[1];
 
     bool demarre = false;
 

@@ -1,6 +1,7 @@
 #include "libtcp.h"
 
-int init_serveur_tcp(char *service, int connexions) {
+int init_serveur_tcp(char* service, int connexions)
+{
     struct addrinfo precisions, *resultat, *origine;
     int statut;
     int s;
@@ -12,14 +13,14 @@ int init_serveur_tcp(char *service, int connexions) {
     precisions.ai_flags = AI_PASSIVE;
 
     statut = getaddrinfo(NULL, service, &precisions, &origine);
-    if(statut < 0) {
+    if (statut < 0) {
         perror("initialisationServeur.getaddrinfo");
         exit(EXIT_FAILURE);
     }
-    
-    struct addrinfo *p;
+
+    struct addrinfo* p;
     for (p = origine, resultat = origine; p != NULL; p = p->ai_next) {
-        if(p->ai_family == AF_INET6) {
+        if (p->ai_family == AF_INET6) {
             resultat = p;
             break;
         }
@@ -27,7 +28,7 @@ int init_serveur_tcp(char *service, int connexions) {
 
     /* Creation d'une socket */
     s = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol);
-    if(s < 0) {
+    if (s < 0) {
         perror("initialisationServeur.socket");
         exit(EXIT_FAILURE);
     }
@@ -45,19 +46,22 @@ int init_serveur_tcp(char *service, int connexions) {
 
     /* Specification de l'adresse de la socket */
     statut = bind(s, resultat->ai_addr, resultat->ai_addrlen);
-    if (statut < 0) return -1;
+    if (statut < 0)
+        return -1;
 
     /* Liberation de la structure d'informations */
     freeaddrinfo(origine);
 
     /* Taille de la queue d'attente */
     statut = listen(s, connexions);
-    if (statut < 0) return -1;
+    if (statut < 0)
+        return -1;
 
     return s;
 }
 
-int boucle_serveur_tcp(int ecoute, void *(*traitement)(void *)) {
+int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*))
+{
     int dialogue;
     int client_count = 0;
 
@@ -71,8 +75,9 @@ int boucle_serveur_tcp(int ecoute, void *(*traitement)(void *)) {
 
     while (1) {
         /* Attente d'une connexion */
-        if ((dialogue = accept(ecoute, NULL, NULL)) < 0) return -1;
-        
+        if ((dialogue = accept(ecoute, NULL, NULL)) < 0)
+            return -1;
+
         (&client)->fd = dialogue;
         client_count++;
 
@@ -96,7 +101,8 @@ int boucle_serveur_tcp(int ecoute, void *(*traitement)(void *)) {
     }
 }
 
-int init_client_tcp(char *hote, char *service) {
+int init_client_tcp(char* hote, char* service)
+{
     struct addrinfo precisions, *resultat, *origine;
     int statut;
     int s;
@@ -111,9 +117,9 @@ int init_client_tcp(char *hote, char *service) {
         perror("connexionServeur.getaddrinfo");
         exit(EXIT_FAILURE);
     }
-    
-    struct addrinfo *p;
-    for(p = origine, resultat = origine; p != NULL; p = p->ai_next) {
+
+    struct addrinfo* p;
+    for (p = origine, resultat = origine; p != NULL; p = p->ai_next) {
         if (p->ai_family == AF_INET6) {
             resultat = p;
             break;
@@ -128,7 +134,8 @@ int init_client_tcp(char *hote, char *service) {
     }
 
     /* Connection de la socket a l'hote */
-    if (connect(s, resultat->ai_addr, resultat->ai_addrlen) < 0) return -1;
+    if (connect(s, resultat->ai_addr, resultat->ai_addrlen) < 0)
+        return -1;
 
     /* Liberation de la structure d'informations */
     freeaddrinfo(origine);
@@ -136,10 +143,6 @@ int init_client_tcp(char *hote, char *service) {
     return s;
 }
 
-void detruire_lien_tcp(int s) {
-    shutdown(s, SHUT_RDWR);
-}
+void detruire_lien_tcp(int s) { shutdown(s, SHUT_RDWR); }
 
-void *tache_chat_tcp(void *arg) {
-    return NULL;
-}
+void* tache_chat_tcp(void* arg) { return NULL; }

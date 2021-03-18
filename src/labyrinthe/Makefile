@@ -4,7 +4,7 @@
 
 SOURCES = $(wildcard *.c)
 OBJETS = $(SOURCES:.c=.o)
-BIBLIOTHEQUES = -lm -L ../../lib/graphique -lgraph -lSDL2_gfx -lSDL2
+BIBLIOTHEQUES = -lm -L ../../lib/graphique -lgraphique -lSDL2_gfx -lSDL2
 CFLAGS += -std=c99 -D_DEFAULT_SOURCE -I ../../lib/graphique
 CIBLE = labyrinthe
 
@@ -27,3 +27,10 @@ clean:
 
 $(CIBLE): $(OBJETS)
 	$(CC) -o $@ $^ $(BIBLIOTHEQUES)
+
+#
+# Formatage
+#
+
+format :
+	clang-format -i -style=WebKit *.c

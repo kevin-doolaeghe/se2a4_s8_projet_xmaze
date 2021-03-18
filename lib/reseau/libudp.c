@@ -1,6 +1,7 @@
 #include "libudp.h"
 
-int init_serveur_udp(char *service) {
+int init_serveur_udp(char* service)
+{
     struct addrinfo precisions, *resultat, *origine;
     int statut;
     int s;
@@ -10,14 +11,14 @@ int init_serveur_udp(char *service) {
     precisions.ai_family = AF_UNSPEC;
     precisions.ai_socktype = SOCK_DGRAM;
     precisions.ai_flags = AI_PASSIVE;
-    
+
     statut = getaddrinfo(NULL, service, &precisions, &origine);
     if (statut < 0) {
         perror("initialisationSocketUDP.getaddrinfo");
         exit(EXIT_FAILURE);
     }
 
-    struct addrinfo *p;
+    struct addrinfo* p;
     for (p = origine, resultat = origine; p != NULL; p = p->ai_next) {
         if (p->ai_family == AF_INET6) {
             resultat = p;
@@ -52,20 +53,23 @@ int init_serveur_udp(char *service) {
     return s;
 }
 
-int boucle_serveur_udp(int s, void *(*traitement)(void *, void *)) {
+int boucle_serveur_udp(int s, void* (*traitement)(void*, void*))
+{
     while (1) {
         struct sockaddr_storage adresse;
         socklen_t taille = sizeof(adresse);
         unsigned char message[MAX_UDP_MESSAGE];
 
-        int nboctets = recvfrom(s, message, MAX_UDP_MESSAGE, 0, (struct sockaddr *) &adresse, &taille);
-        if (nboctets < 0) return -1;
+        int nboctets = recvfrom(s, message, MAX_UDP_MESSAGE, 0, (struct sockaddr*)&adresse, &taille);
+        if (nboctets < 0)
+            return -1;
         // if (traitement(message, nboctets) < 0) break;
     }
     return 0;
 }
 
-int init_client_udp(char *hote, char *service) {
+int init_client_udp(char* hote, char* service)
+{
     struct addrinfo precisions, *resultat, *origine;
     int statut;
     int s;
@@ -74,14 +78,14 @@ int init_client_udp(char *hote, char *service) {
     memset(&precisions, 0, sizeof precisions);
     precisions.ai_family = AF_UNSPEC;
     precisions.ai_socktype = SOCK_DGRAM;
-    
+
     statut = getaddrinfo(hote, service, &precisions, &origine);
     if (statut < 0) {
         perror("messageUDPgenerique.getaddrinfo");
         exit(EXIT_FAILURE);
     }
 
-    struct addrinfo *p;
+    struct addrinfo* p;
     for (p = origine, resultat = origine; p != NULL; p = p->ai_next) {
         if (p->ai_family == AF_INET6) {
             resultat = p;
@@ -109,11 +113,10 @@ int init_client_udp(char *hote, char *service) {
     return s;
 }
 
-void detruire_lien_udp(int s) {
-    shutdown(s, SHUT_RDWR);
-}
+void detruire_lien_udp(int s) { shutdown(s, SHUT_RDWR); }
 
-void envoi_message_udp(int s, unsigned char *message, int taille) {
+void envoi_message_udp(int s, unsigned char* message, int taille)
+{
     /* Envoi du message */
     // TODO: Finir ça
     /*
@@ -125,16 +128,13 @@ void envoi_message_udp(int s, unsigned char *message, int taille) {
     */
 }
 
-void *tache_diffusion_udp(void *arg) {
+void* tache_diffusion_udp(void* arg)
+{
     // int status;
     // pthread_exit((void *) &status);
     return NULL;
 }
 
-void *tache_touches_udp(void *arg) {
-    return NULL;
-}
+void* tache_touches_udp(void* arg) { return NULL; }
 
-void *tache_graphique_udp(void *arg) {
-    return NULL;
-}
+void* tache_graphique_udp(void* arg) { return NULL; }

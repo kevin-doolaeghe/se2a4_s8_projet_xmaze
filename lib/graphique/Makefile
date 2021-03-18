@@ -4,7 +4,7 @@
 
 SOURCES = $(wildcard *.c)
 OBJETS = $(SOURCES:.c=.o)
-CIBLE = libgraph.a
+CIBLE = libgraphique.a
 
 #
 # Nom de la cible principale
@@ -27,3 +27,10 @@ $(CIBLE): $(OBJETS)
 	$(AR) rs $@ $?
 
 $(CIBLE:.a=).o: $(CIBLE:.a=).c $(CIBLE:.a=).h
+
+#
+# Formatage
+#
+
+format :
+	clang-format -i -style=WebKit *.c *.h

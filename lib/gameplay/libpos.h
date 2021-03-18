@@ -6,12 +6,11 @@
 /** Fichiers d'inclusion des bibliothèques **/
 
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 /** Constantes **/
-
 
 /** Variables **/
 
@@ -27,8 +26,8 @@ struct pos_s {
 
 /** Prototypes **/
 
-void init_pos(pos_t *position);
-void print_pos(pos_t *position);
-void set_pos(pos_t *dst, pos_t *src);
+void init_pos(pos_t* position);
+void print_pos(pos_t* position);
+void set_pos(pos_t* dst, pos_t* src);
 
 #endif

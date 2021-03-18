@@ -5,9 +5,9 @@
 
 /** Fichiers d'inclusion des bibliothèques **/
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /** Constantes **/
@@ -16,16 +16,16 @@
 
 typedef struct func_arg_s func_arg_t;
 struct func_arg_s {
-    void *(*f)(void *);
-    void *arg;
+    void* (*f)(void*);
+    void* arg;
 };
 
 pthread_mutex_t lock;
 
 /** Prototypes **/
 
-int creer_tache(void *(*traitement)(void *), void *arg, int taille);
-void *func_gen(void *generic);
+int creer_tache(void* (*traitement)(void*), void* arg, int taille);
+void* func_gen(void* generic);
 void p();
 void v();
 

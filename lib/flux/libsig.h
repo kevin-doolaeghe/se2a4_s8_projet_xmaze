@@ -5,15 +5,15 @@
 
 /** Fichiers d'inclusion des bibliothèques **/
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /** Constantes **/
 
 /** Variables **/
 
-static struct sigaction action_sig;
+struct sigaction action_sig;
 
 /** Prototypes **/
 

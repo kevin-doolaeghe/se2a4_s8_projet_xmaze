@@ -5,12 +5,12 @@
 
 /** Fichiers d'inclusion des bibliothèques **/
 
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
-#include "libstr.h"
 #include "libpos.h"
+#include "libstr.h"
 
 /** Constantes **/
 
@@ -27,9 +27,9 @@ struct client_s {
 
 /** Prototypes **/
 
-void init_client(client_t *client);
-void destroy_client(client_t *client);
-void print_client(client_t *client);
-void set_client(client_t *client, int fd, char *pseudo, pos_t *position);
+void init_client(client_t* client);
+void destroy_client(client_t* client);
+void print_client(client_t* client);
+void set_client(client_t* client, int fd, char* pseudo, pos_t* position);
 
 #endif

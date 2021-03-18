@@ -16,19 +16,19 @@
 
 typedef struct ListStr ListStr;
 struct ListStr {
-    String * str_list;
-    int      size;
-    int      alloc;
+    String* str_list;
+    int size;
+    int alloc;
 };
 
 /** Prototypes **/
 
-void init_list_str(ListStr * list);
+void init_list_str(ListStr* list);
 
-void destroy_list_str(ListStr * list);
+void destroy_list_str(ListStr* list);
 
-void clear_list(ListStr * list);
+void clear_list(ListStr* list);
 
-void append_str_to_list(ListStr * list, char * str);
+void append_str_to_list(ListStr* list, char* str);
 
 #endif

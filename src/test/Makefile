@@ -1,5 +1,5 @@
 #
-# Makefile pour l'application serveur
+# Makefile pour l'application client
 #
 
 SOURCES = $(wildcard *.c)
@@ -16,7 +16,7 @@ CFLAGS += -I ../../lib/gameplay
 CFLAGS += -I ../../lib/graphique
 CFLAGS += -I ../../lib/reseau
 CFLAGS += -I ../../lib/utils
-CIBLE = serveur
+CIBLE = test
 
 #
 # Nom de la cible principale

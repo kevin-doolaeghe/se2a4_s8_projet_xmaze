@@ -6,31 +6,37 @@
 
 /** Fonctions **/
 
-pt_client_cell_t allocate_client(client_t client) {
+pt_client_cell_t allocate_client(client_t client)
+{
     pt_client_cell_t ptr = malloc(sizeof(client_cell_t));
 
     ptr->client = client;
-    ptr->next   = NULL;
+    ptr->next = NULL;
 
     return ptr;
 }
 
-void append_client_to_list(client_list_t *list, client_t client) {
+void append_client_to_list(client_list_t* list, client_t client)
+{
     pt_client_cell_t ptr = allocate_client(client);
-    if (ptr == NULL) { return; }
+    if (ptr == NULL) {
+        return;
+    }
 
     ptr->next = *list;
-    *list     = ptr;
+    *list = ptr;
 }
 
-void delete_last_client(client_list_t *list) {
+void delete_last_client(client_list_t* list)
+{
     pt_client_cell_t ptr = *list;
-    *list                = ptr->next;
+    *list = ptr->next;
 
     free(ptr);
 }
 
-void destroy_client_list(client_list_t *list) {
+void destroy_client_list(client_list_t* list)
+{
     pt_client_cell_t ptr = *list;
 
     while (ptr != NULL) {
@@ -38,9 +44,10 @@ void destroy_client_list(client_list_t *list) {
     }
 }
 
-int size_of_client_list(client_list_t *list) {
+int size_of_client_list(client_list_t* list)
+{
     pt_client_cell_t ptr = *list;
-    int             size = 0;
+    int size = 0;
 
     while (ptr != NULL) {
         size++;
@@ -50,7 +57,8 @@ int size_of_client_list(client_list_t *list) {
     return size;
 }
 
-bool search_client(client_list_t *list, client_t client) {
+bool search_client(client_list_t* list, client_t client)
+{
     pt_client_cell_t ptr = *list;
 
     /*
@@ -63,7 +71,8 @@ bool search_client(client_list_t *list, client_t client) {
     return false;
 }
 
-void copy_client_list(client_list_t *src, client_list_t *dst) {
+void copy_client_list(client_list_t* src, client_list_t* dst)
+{
     pt_client_cell_t ptr = *src;
 
     while (ptr != NULL) {
@@ -74,7 +83,8 @@ void copy_client_list(client_list_t *src, client_list_t *dst) {
     }
 }
 
-void print_client_list(client_list_t list) {
+void print_client_list(client_list_t list)
+{
     pt_client_cell_t ptr = list;
 
     while (ptr != NULL) {

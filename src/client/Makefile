@@ -37,3 +37,10 @@ clean:
 
 $(CIBLE): $(OBJETS)
 	$(CC) -o $@ $^ $(BIBLIOTHEQUES)
+
+#
+# Formatage
+#
+
+format :
+	clang-format -i -style=WebKit *.c *.h

@@ -6,7 +6,8 @@
 
 /** Fonctions **/
 
-void init_pos(pos_t *position) {
+void init_pos(pos_t* position)
+{
     position->x = 0;
     position->y = 0;
     position->z = 0;
@@ -15,7 +16,8 @@ void init_pos(pos_t *position) {
     position->z_vec = 0;
 }
 
-void print_pos(pos_t *position) {
+void print_pos(pos_t* position)
+{
     printf("position:\n");
     printf("\tx: %f\n", position->x);
     printf("\ty: %f\n", position->y);
@@ -25,7 +27,8 @@ void print_pos(pos_t *position) {
     printf("\tz_vec: %f\n", position->z_vec);
 }
 
-void set_pos(pos_t *dst, pos_t *src) {
+void set_pos(pos_t* dst, pos_t* src)
+{
     dst->x = src->x;
     dst->y = src->y;
     dst->z = src->z;

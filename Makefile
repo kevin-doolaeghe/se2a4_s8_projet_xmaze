@@ -49,3 +49,12 @@ $(patsubst %,_clean_%,$(DIRS)):
 
 prepare:
 	apt install libsdl2-2.0-0 libsdl2-gfx-1.0-0 libsdl2-gfx-dev
+
+#
+# Formatage
+#
+
+format: $(patsubst %, _format_%, $(DIRS))
+
+$(patsubst %,_format_%,$(DIRS)):
+	cd $(patsubst _format_%,%,$@) && $(MAKE) format

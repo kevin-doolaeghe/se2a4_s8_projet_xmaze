@@ -16,7 +16,7 @@ MAKE = make
 # Constantes du projet
 #
 
-DIRS = client serveur labyrinthe
+DIRS = client serveur labyrinthe test
 
 #
 # Cible principale
@@ -42,3 +42,12 @@ clean: $(patsubst %, _clean_%, $(DIRS))
 
 $(patsubst %,_clean_%,$(DIRS)):
 	cd $(patsubst _clean_%,%,$@) && $(MAKE) clean
+
+#
+# Formatage
+#
+
+format: $(patsubst %, _format_%, $(DIRS))
+
+$(patsubst %,_format_%,$(DIRS)):
+	cd $(patsubst _format_%,%,$@) && $(MAKE) format

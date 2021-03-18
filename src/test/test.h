@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include "libsig.h"
+#include "libthread.h"
 
 /** Constantes **/
 
@@ -21,7 +22,7 @@ static bool connecte;
 /** Prototypes **/
 
 int main(int argc, char* argv[]);
-void demarrer_client_jeu();
+void snippet();
 void usage();
 
 #endif
