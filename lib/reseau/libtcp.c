@@ -62,6 +62,7 @@ int init_serveur_tcp(char* service, int connexions)
 
 int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*))
 {
+    /*
     int dialogue;
     int client_count = 0;
 
@@ -72,12 +73,17 @@ int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*))
     init_pos(&pos);
 
     (&client)->position = pos;
+    */
+
+    int dialogue;
+    char tampon[MAX_TAMPON];
 
     while (1) {
         /* Attente d'une connexion */
         if ((dialogue = accept(ecoute, NULL, NULL)) < 0)
             return -1;
 
+        /*
         (&client)->fd = dialogue;
         client_count++;
 
@@ -85,6 +91,13 @@ int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*))
             *client_list = allocate_client(client);
         } else {
             append_client_to_list(client_list, client);
+        }
+        */
+
+        int ret;
+        while ((ret = read(dialogue, tampon, MAX_TAMPON - 1)) > 0) {
+            tampon[ret] = 0;
+            printf("tampon: %s\n", tampon);
         }
 
         /* Creation d'un thread avec le socket de dialogue */

@@ -1,7 +1,7 @@
 /**** Header client ****/
 
-#ifndef _CLIENT_H_
-#define _CLIENT_H_
+#ifndef _TEST_H_
+#define _TEST_H_
 
 /** Fichiers d'inclusion des bibliothèques **/
 
@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include "libsig.h"
+#include "libtcp.h"
 #include "libthread.h"
 
 /** Constantes **/
@@ -22,7 +23,8 @@ static bool connecte;
 /** Prototypes **/
 
 int main(int argc, char* argv[]);
-void snippet();
 void usage();
+void loop();
+void snippet();
 
 #endif

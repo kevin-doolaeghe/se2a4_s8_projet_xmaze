@@ -20,7 +20,8 @@
 /** Prototypes **/
 
 int main(int argc, char* argv[]);
-void demarrer_serveur_jeu();
 void usage();
+void loop();
+void demarrer_serveur_jeu();
 
 #endif

@@ -6,21 +6,9 @@
 
 void usage() { fprintf(stderr, "Syntax : client <arg>\n"); }
 
-void demarrer_client_jeu() {}
-
-/* Fonction principale */
-
-int main(int argc, char* argv[])
+void loop()
 {
-    if (argc != 2) {
-        usage();
-        exit(-1);
-    }
-    char* port = argv[1];
-
     bool demarre = false;
-
-    init_sig();
 
     while (1) {
         if (demarre == false) {
@@ -29,6 +17,22 @@ int main(int argc, char* argv[])
             sleep(1);
         }
     }
+}
+
+void demarrer_client_jeu() {}
+
+/* Fonction principale */
+
+int main(int argc, char* argv[])
+{
+    // Analyse des arguments
+    if (argc != 2) {
+        usage();
+        exit(-1);
+    }
+    char* port = argv[1];
+
+    init_sig();
 
     return 0;
 }

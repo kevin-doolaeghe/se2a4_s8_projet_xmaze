@@ -1,5 +1,8 @@
 /**** Bibliotheque graphique (definitions) ****/
 
+#ifndef _LIBGRAPH_H_
+#define _LIBGRAPH_H_
+
 /** Constantes **/
 
 #define COULEUR_BLANC 0
@@ -29,3 +32,5 @@ void appliquerDessins(void);
 unsigned char attendreEvenement(int* touche, unsigned char* fenetre, unsigned char* quitter);
 unsigned char sauverSurface(char* fichier);
 unsigned char chargerSurface(char* fichier);
+
+#endif

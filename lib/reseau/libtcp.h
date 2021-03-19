@@ -18,9 +18,11 @@
 
 /** Constantes **/
 
+#define MAX_TAMPON 2048
+
 /** Variables **/
 
-client_list_t* client_list = NULL;
+client_list_t* client_list;
 
 /** Prototypes **/
 

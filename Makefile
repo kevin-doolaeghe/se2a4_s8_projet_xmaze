@@ -44,6 +44,12 @@ $(patsubst %,_clean_%,$(DIRS)):
 	cd $(patsubst _clean_%,%,$@) && $(MAKE) clean
 
 #
+# Cible de recompilation
+#
+
+rebuild: clean all
+
+#
 # Installation SDL
 #
 

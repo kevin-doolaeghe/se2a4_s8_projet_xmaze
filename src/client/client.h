@@ -21,7 +21,8 @@ static bool connecte;
 /** Prototypes **/
 
 int main(int argc, char* argv[]);
-void demarrer_client_jeu();
+void loop();
 void usage();
+void demarrer_client_jeu();
 
 #endif

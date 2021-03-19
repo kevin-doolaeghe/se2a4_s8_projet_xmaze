@@ -6,6 +6,19 @@
 
 void usage() { fprintf(stderr, "Syntax : server <arg>\n"); }
 
+void loop()
+{
+    bool demarre = false;
+
+    while (1) {
+        if (demarre == false) {
+            demarrer_serveur_jeu();
+        } else {
+            sleep(1);
+        }
+    }
+}
+
 void demarrer_serveur_jeu() {}
 
 /* Fonction principale */
@@ -17,19 +30,11 @@ int main(int argc, char* argv[])
         usage();
         exit(-1);
     }
-    char* service = argv[1];
-
-    bool demarre = false;
+    // char* service = argv[1];
 
     init_sig();
 
-    while (1) {
-        if (demarre == false) {
-            demarrer_serveur_jeu();
-        } else {
-            sleep(1);
-        }
-    }
+    loop();
 
     return 0;
 }

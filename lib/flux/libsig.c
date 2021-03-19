@@ -9,7 +9,7 @@ void init_sig()
 void handle_sig(int sig)
 {
     if (sig == SIGINT) {
-        // TODO: Action à faire
+        printf("SIGINT recieved !\n");
 
     } else {
         fprintf(stderr, "Signal error!\n");
