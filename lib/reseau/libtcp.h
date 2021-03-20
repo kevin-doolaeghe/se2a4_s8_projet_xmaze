@@ -12,6 +12,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #include "libclientlist.h"
 #include "libthread.h"
@@ -19,6 +20,7 @@
 /** Constantes **/
 
 #define MAX_TAMPON 2048
+#define MAX_CONNEXION 16
 
 /** Variables **/
 
@@ -26,10 +28,12 @@ client_list_t* client_list;
 
 /** Prototypes **/
 
-int init_serveur_tcp(char* service, int connexions);
+int init_serveur_tcp(char* service);
 int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*));
 int init_client_tcp(char* hote, char* service);
 void detruire_lien_tcp(int s);
 void* tache_chat_tcp(void* arg);
+int lire_message_tcp(int s, char* message, int size);
+void envoi_message_tcp(int s, char* message, int size);
 
 #endif

@@ -24,7 +24,7 @@ pthread_mutex_t lock;
 
 /** Prototypes **/
 
-int creer_tache(void* (*traitement)(void*), void* arg, int taille);
+void creer_tache(void* (*traitement)(void*), void* arg, int taille);
 void* func_gen(void* generic);
 void p();
 void v();

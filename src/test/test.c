@@ -6,7 +6,7 @@
 
 void usage()
 {
-    fprintf(stderr, "Syntax : test <arg>\n");
+    fprintf(stderr, "Syntax : test <port>\n");
 }
 
 void loop()
@@ -15,18 +15,24 @@ void loop()
 
     while (1) {
         if (demarre == false) {
-            //int a = 4;
-            //creer_tache((void* (*)(void*))snippet, (void*)a, sizeof(a));
+
         } else {
             sleep(1);
         }
     }
 }
 
-void snippet(int a)
+void snippet()
 {
-    printf("hello a=%i\n", a);
-    sleep(2);
+    while (1) {
+        printf("Hello World !\n");
+        sleep(1);
+    }
+}
+
+void lancer_serveur(int* ecoute)
+{
+    boucle_serveur_tcp(*ecoute, tache_chat_tcp);
 }
 
 /* Fonction principale */
@@ -42,8 +48,12 @@ int main(int argc, char* argv[])
 
     init_sig();
 
-    int ecoute = init_serveur_tcp(service, 1);
-    boucle_serveur_tcp(ecoute, snippet);
+    creer_tache((void* (*)(void*))snippet, NULL, 0);
+
+    int ecoute = init_serveur_tcp(service);
+    creer_tache((void* (*)(void*))lancer_serveur, (void*)&ecoute, sizeof(ecoute));
+
+    pause();
 
     return 0;
 }

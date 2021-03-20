@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include "libsig.h"
+#include "libtcp.h"
 #include "libthread.h"
 
 /** Constantes **/

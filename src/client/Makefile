@@ -4,7 +4,7 @@
 
 SOURCES = $(wildcard *.c)
 OBJETS = $(SOURCES:.c=.o)
-BIBLIOTHEQUES = -lm -lSDL2_gfx -lSDL2
+BIBLIOTHEQUES = -lm -lpthread -lSDL2_gfx -lSDL2
 BIBLIOTHEQUES += -L ../../lib/flux -lflux
 BIBLIOTHEQUES += -L ../../lib/gameplay -lgameplay
 BIBLIOTHEQUES += -L ../../lib/graphique -lgraphique

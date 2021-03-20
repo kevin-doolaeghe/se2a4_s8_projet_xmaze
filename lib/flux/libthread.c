@@ -2,9 +2,10 @@
 
 /** Fonctions **/
 
-int creer_tache(void* (*traitement)(void*), void* arg, int taille)
+void creer_tache(void* (*traitement)(void*), void* arg, int taille)
 {
-    func_arg_t* fa = (func_arg_t*)malloc(sizeof(func_arg_t));
+    func_arg_t* fa;
+    fa = malloc(sizeof(func_arg_t));
     fa->arg = malloc(taille);
     memcpy(fa->arg, arg, taille);
     fa->f = traitement;
@@ -12,16 +13,16 @@ int creer_tache(void* (*traitement)(void*), void* arg, int taille)
     pthread_t tid;
     pthread_create(&tid, NULL, func_gen, (void*)fa);
     // pthread_join(tid, NULL);
-
-    return tid;
 }
 
 void* func_gen(void* generic)
 {
     func_arg_t* fa = (func_arg_t*)generic;
+
     fa->f(fa->arg);
     free(fa->arg);
     free(fa);
+
     return NULL;
 }
 

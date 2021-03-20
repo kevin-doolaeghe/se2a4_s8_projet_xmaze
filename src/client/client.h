@@ -11,8 +11,12 @@
 #include <unistd.h>
 
 #include "libsig.h"
+#include "libtcp.h"
+#include "libthread.h"
 
 /** Constantes **/
+
+#define MAX_MESSAGE 30
 
 /** Variables **/
 
@@ -23,6 +27,6 @@ static bool connecte;
 int main(int argc, char* argv[]);
 void loop();
 void usage();
-void demarrer_client_jeu();
+void demarrer_client_jeu(int* socket);
 
 #endif

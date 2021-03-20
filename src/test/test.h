@@ -18,13 +18,12 @@
 
 /** Variables **/
 
-static bool connecte;
-
 /** Prototypes **/
 
 int main(int argc, char* argv[]);
 void usage();
 void loop();
 void snippet();
+void lancer_serveur(int* ecoute);
 
 #endif

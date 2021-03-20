@@ -1,6 +1,6 @@
 #include "libtcp.h"
 
-int init_serveur_tcp(char* service, int connexions)
+int init_serveur_tcp(char* service)
 {
     struct addrinfo precisions, *resultat, *origine;
     int statut;
@@ -53,7 +53,7 @@ int init_serveur_tcp(char* service, int connexions)
     freeaddrinfo(origine);
 
     /* Taille de la queue d'attente */
-    statut = listen(s, connexions);
+    statut = listen(s, MAX_CONNEXION);
     if (statut < 0)
         return -1;
 
@@ -62,10 +62,10 @@ int init_serveur_tcp(char* service, int connexions)
 
 int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*))
 {
-    /*
     int dialogue;
     int client_count = 0;
 
+    /*
     client_t client;
     init_client(&client);
 
@@ -75,42 +75,36 @@ int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*))
     (&client)->position = pos;
     */
 
-    int dialogue;
-    char tampon[MAX_TAMPON];
-
     while (1) {
         /* Attente d'une connexion */
         if ((dialogue = accept(ecoute, NULL, NULL)) < 0)
             return -1;
 
-        /*
-        (&client)->fd = dialogue;
         client_count++;
-
-        if (client_list == NULL) {
-            *client_list = allocate_client(client);
+        if (client_count > MAX_CONNEXION) {
+            detruire_lien_tcp(dialogue);
         } else {
-            append_client_to_list(client_list, client);
-        }
-        */
+            /*
+            (&client)->fd = dialogue;
 
-        int ret;
-        while ((ret = read(dialogue, tampon, MAX_TAMPON - 1)) > 0) {
-            tampon[ret] = 0;
-            printf("tampon: %s\n", tampon);
-        }
+            if (client_list == NULL) {
+                *client_list = allocate_client(client);
+            } else {
+                append_client_to_list(client_list, client);
+            }
+            */
 
-        /* Creation d'un thread avec le socket de dialogue */
-        // TODO
-        // creer_tache(tache_chat_tcp, (void *) client, sizeof(int));
+            /* Creation d'un thread avec le socket de dialogue */
+            creer_tache((void* (*)(void*))traitement, (void*)&dialogue, sizeof(dialogue));
 
-        /* Passage de la socket de dialogue a la fonction de traitement */
-        /*
-        if (traitement(dialogue) < 0) {
-            shutdown(ecoute, SHUT_RDWR);
-            return 0;
+            /* Passage de la socket de dialogue a la fonction de traitement */
+            /*
+            if (traitement(dialogue) < 0) {
+                shutdown(ecoute, SHUT_RDWR);
+                return 0;
+            }
+            */
         }
-        */
     }
 }
 
@@ -158,4 +152,30 @@ int init_client_tcp(char* hote, char* service)
 
 void detruire_lien_tcp(int s) { shutdown(s, SHUT_RDWR); }
 
-void* tache_chat_tcp(void* arg) { return NULL; }
+void* tache_chat_tcp(void* arg)
+{
+    int dialogue = *(int*)arg;
+    char tampon[MAX_TAMPON];
+    int ret;
+
+    while ((ret = lire_message_tcp(dialogue, tampon, MAX_TAMPON - 1)) > 0) {
+        if (ret <= 0) {
+            detruire_lien_tcp(dialogue);
+            return NULL;
+        }
+        tampon[ret] = 0;
+        printf("tampon: %s\n", tampon);
+    }
+
+    return NULL;
+}
+
+int lire_message_tcp(int s, char* message, int size)
+{
+    return read(s, message, size);
+}
+
+void envoi_message_tcp(int s, char* message, int size)
+{
+    write(s, message, size);
+}
