@@ -6,22 +6,9 @@
 
 void usage() { fprintf(stderr, "Syntax : server <port>\n"); }
 
-void loop()
-{
-    bool demarre = false;
-
-    while (1) {
-        if (demarre == false) {
-
-        } else {
-            sleep(1);
-        }
-    }
-}
-
 void demarrer_serveur_jeu(int* ecoute)
 {
-    boucle_serveur_tcp(*ecoute, tache_chat_tcp);
+    boucle_serveur_tcp(*ecoute, (void* (*)(void*))tache_chat_tcp);
 }
 
 /* Fonction principale */

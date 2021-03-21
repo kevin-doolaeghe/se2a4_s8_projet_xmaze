@@ -13,8 +13,8 @@
 
 /** Variables **/
 
-typedef struct String String;
-struct String {
+typedef struct str_s str_t;
+struct str_s {
     char* data;
     int size;
     int alloc;
@@ -22,20 +22,15 @@ struct String {
 
 /** Prototypes **/
 
-void init_str(String* str);
-
-void destroy_str(String* str);
-
-void clear_str(String* str);
-
-void print_str(String* str);
-
-void append_char_to_str(String* str, char c);
-
-void append_str_to_str(String* dst, char* src);
-
-void set_str(String* dst, char* src);
-
-char* to_string(String str);
+void init_str(str_t* str);
+void destroy_str(str_t* str);
+void clear_str(str_t* str);
+void append_char_to_str(str_t* str, char c);
+void append_str_to_str(str_t* dst, char* src);
+void set_str(str_t* dst, char* src);
+void print_str(str_t* str);
+char* to_string(str_t* str);
+void copy_str(str_t* dst, str_t* src);
+int compare_str(str_t* str1, str_t* str2);
 
 #endif

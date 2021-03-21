@@ -1,4 +1,8 @@
+/** Fichiers d'inclusions **/
+
 #include "libsig.h"
+
+/** Fonctions **/
 
 void init_sig()
 {

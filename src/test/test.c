@@ -9,20 +9,7 @@ void usage()
     fprintf(stderr, "Syntax : test <port>\n");
 }
 
-void loop()
-{
-    bool demarre = false;
-
-    while (1) {
-        if (demarre == false) {
-
-        } else {
-            sleep(1);
-        }
-    }
-}
-
-void snippet()
+void hello_world()
 {
     while (1) {
         printf("Hello World !\n");
@@ -32,7 +19,7 @@ void snippet()
 
 void lancer_serveur(int* ecoute)
 {
-    boucle_serveur_tcp(*ecoute, tache_chat_tcp);
+    boucle_serveur_tcp(*ecoute, (void* (*)(void*))tache_chat_tcp);
 }
 
 /* Fonction principale */
@@ -48,7 +35,7 @@ int main(int argc, char* argv[])
 
     init_sig();
 
-    creer_tache((void* (*)(void*))snippet, NULL, 0);
+    creer_tache((void* (*)(void*))hello_world, NULL, 0);
 
     int ecoute = init_serveur_tcp(service);
     creer_tache((void* (*)(void*))lancer_serveur, (void*)&ecoute, sizeof(ecoute));

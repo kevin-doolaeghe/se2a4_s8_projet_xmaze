@@ -5,7 +5,6 @@
 
 /** Fichiers d'inclusion des bibliothèques **/
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -22,7 +21,6 @@
 
 int main(int argc, char* argv[]);
 void usage();
-void loop();
 void demarrer_serveur_jeu();
 
 #endif

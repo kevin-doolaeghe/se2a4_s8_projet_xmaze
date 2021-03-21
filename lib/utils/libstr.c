@@ -1,6 +1,10 @@
+/** Fichiers d'inclusions **/
+
 #include "libstr.h"
 
-void init_str(String* str)
+/** Fonctions **/
+
+void init_str(str_t* str)
 {
     str->alloc = 1;
     str->size = 0;
@@ -8,7 +12,7 @@ void init_str(String* str)
     str->data[0] = '\0';
 }
 
-void destroy_str(String* str)
+void destroy_str(str_t* str)
 {
     str->alloc = 0;
     str->size = 0;
@@ -16,7 +20,7 @@ void destroy_str(String* str)
     str->data = NULL;
 }
 
-void clear_str(String* str)
+void clear_str(str_t* str)
 {
     str->alloc = 1;
     str->size = 0;
@@ -24,9 +28,7 @@ void clear_str(String* str)
     str->data[0] = '\0';
 }
 
-void print_str(String* str) { printf("%s", str->data); }
-
-void append_char_to_str(String* str, char c)
+void append_char_to_str(str_t* str, char c)
 {
     if (str->size + 1 >= str->alloc) {
         str->alloc++;
@@ -38,17 +40,29 @@ void append_char_to_str(String* str, char c)
     str->data[str->size] = '\0';
 }
 
-void append_str_to_str(String* dst, char* src)
+void append_str_to_str(str_t* dst, char* src)
 {
     for (unsigned int i = 0; i < strlen(src); i++) {
         append_char_to_str(dst, src[i]);
     }
 }
 
-void set_str(String* dst, char* src)
+void set_str(str_t* dst, char* src)
 {
     clear_str(dst);
     append_str_to_str(dst, src);
 }
 
-char* to_string(String str) { return str.data; }
+void print_str(str_t* str) { printf("%s", str->data); }
+
+char* to_string(str_t* str) { return str->data; }
+
+void copy_str(str_t* dst, str_t* src)
+{
+    set_str(dst, src->data);
+}
+
+int compare_str(str_t* str1, str_t* str2)
+{
+    return strcmp(str1->data, str2->data);
+}

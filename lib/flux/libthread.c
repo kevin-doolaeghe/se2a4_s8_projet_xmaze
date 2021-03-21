@@ -1,3 +1,5 @@
+/** Fichiers d'inclusions **/
+
 #include "libthread.h"
 
 /** Fonctions **/

@@ -1,5 +1,3 @@
-/**** Bibliotheque client ****/
-
 /** Fichiers d'inclusions **/
 
 #include "libpos.h"
@@ -8,31 +6,65 @@
 
 void init_pos(pos_t* position)
 {
-    position->x = 0;
-    position->y = 0;
-    position->z = 0;
-    position->x_vec = 0;
-    position->y_vec = 0;
-    position->z_vec = 0;
+    set_pos(position, 0, 0, 0, 0, 0, 0);
 }
 
-void print_pos(pos_t* position)
+void set_pos(pos_t* position, float x, float y, float z, float dx, float dy, float dz)
 {
-    printf("position:\n");
-    printf("\tx: %f\n", position->x);
-    printf("\ty: %f\n", position->y);
-    printf("\tz: %f\n", position->z);
-    printf("\tx_vec: %f\n", position->x_vec);
-    printf("\ty_vec: %f\n", position->y_vec);
-    printf("\tz_vec: %f\n", position->z_vec);
+    set_pos_x(position, x);
+    set_pos_y(position, y);
+    set_pos_z(position, z);
+    set_pos_dx(position, dx);
+    set_pos_dy(position, dy);
+    set_pos_dz(position, dz);
 }
 
-void set_pos(pos_t* dst, pos_t* src)
+void set_pos_x(pos_t* position, float x)
+{
+    position->x = x;
+}
+
+void set_pos_y(pos_t* position, float y)
+{
+    position->y = y;
+}
+
+void set_pos_z(pos_t* position, float z)
+{
+    position->z = z;
+}
+
+void set_pos_dx(pos_t* position, float dx)
+{
+    position->dx = dx;
+}
+
+void set_pos_dy(pos_t* position, float dy)
+{
+    position->dy = dy;
+}
+
+void set_pos_dz(pos_t* position, float dz)
+{
+    position->dz = dz;
+}
+
+void copy_pos(pos_t* dst, pos_t* src)
 {
     dst->x = src->x;
     dst->y = src->y;
     dst->z = src->z;
-    dst->x_vec = src->x_vec;
-    dst->y_vec = src->y_vec;
-    dst->z_vec = src->z_vec;
+    dst->dx = src->dx;
+    dst->dy = src->dy;
+    dst->dz = src->dz;
+}
+
+void print_pos(pos_t* position)
+{
+    printf("x: %f\n", position->x);
+    printf("y: %f\n", position->y);
+    printf("z: %f\n", position->z);
+    printf("dx: %f\n", position->dx);
+    printf("dy: %f\n", position->dy);
+    printf("dz: %f\n", position->dz);
 }

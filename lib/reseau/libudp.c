@@ -1,4 +1,8 @@
+/** Fichiers d'inclusions **/
+
 #include "libudp.h"
+
+/** Fonctions **/
 
 int init_serveur_udp(char* service)
 {

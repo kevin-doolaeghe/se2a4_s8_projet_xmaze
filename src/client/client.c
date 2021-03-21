@@ -6,19 +6,6 @@
 
 void usage() { fprintf(stderr, "Syntax : client <host> <port>\n"); }
 
-void loop()
-{
-    bool demarre = false;
-
-    while (1) {
-        if (demarre == false) {
-
-        } else {
-            sleep(1);
-        }
-    }
-}
-
 void demarrer_client_jeu(int* socket)
 {
     char message[MAX_MESSAGE] = "Hello World!";
