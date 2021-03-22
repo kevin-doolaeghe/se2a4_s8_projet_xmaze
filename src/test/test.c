@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     /*
     client_list_t client_list;
     append_client_to_list(&client_list, &client);
-    print_client_list(&client_list);
+    //print_client_list(&client_list);
     destroy_client_list(&client_list);
     */
     destroy_client(&client);

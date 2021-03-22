@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-//#include "libclient.h"
-//#include "libclientlist.h"
+#include "libclient.h"
+#include "libclientlist.h"
 #include "libsig.h"
 #include "libstrlist.h"
 #include "libtcp.h"
