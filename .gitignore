@@ -7,6 +7,6 @@
 
 # Executable files
 src/client/client
-src/server/server
+src/serveur/serveur
 src/labyrinthe/labyrinthe
 src/test/test

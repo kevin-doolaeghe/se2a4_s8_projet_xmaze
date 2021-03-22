@@ -5,6 +5,7 @@
 
 /** Fichiers d'inclusion des bibliothèques **/
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -19,10 +20,13 @@
 
 /** Variables **/
 
+bool running = true;
+
 /** Prototypes **/
 
 int main(int argc, char* argv[]);
 void usage();
+void gestion_sig();
 void demarrer_client_jeu(int* socket);
 
 #endif

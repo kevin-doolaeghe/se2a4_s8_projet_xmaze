@@ -67,7 +67,7 @@ int boucle_serveur_udp(int s, void* (*traitement)(void*, void*))
         int nboctets = recvfrom(s, message, MAX_UDP_MESSAGE, 0, (struct sockaddr*)&adresse, &taille);
         if (nboctets < 0)
             return -1;
-        // if (traitement(message, nboctets) < 0) break;
+        traitement(message, &nboctets);
     }
     return 0;
 }

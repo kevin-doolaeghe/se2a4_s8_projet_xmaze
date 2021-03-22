@@ -35,6 +35,7 @@ void delete_last_client_from_list(client_list_t* list)
     pt_client_cell_t ptr = *list;
     *list = ptr->next;
 
+    destroy_client(&(ptr->client));
     free(ptr);
 }
 
@@ -56,6 +57,7 @@ void delete_client_from_list(client_list_t* list, client_t* client)
             pt_client_cell_t tmp = ptr->next;
             ptr->next = ptr->next->next;
 
+            destroy_client(&(tmp->client));
             free(tmp);
             break;
         }

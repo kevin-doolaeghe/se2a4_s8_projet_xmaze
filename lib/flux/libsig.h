@@ -14,10 +14,11 @@
 /** Variables **/
 
 struct sigaction action_sig;
+void* (*handle_sig_func)(void*);
 
 /** Prototypes **/
 
-void init_sig();
+void init_sig(void* (*traitement)(void*));
 void handle_sig(int sig);
 
 #endif

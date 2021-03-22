@@ -6,6 +6,13 @@
 
 void usage() { fprintf(stderr, "Syntax : server <port>\n"); }
 
+void gestion_sig()
+{
+    running = false;
+    printf("\nBye !\n");
+    sleep(1);
+}
+
 void tache_chat_tcp(void* arg)
 {
     int dialogue = *(int*)arg;
@@ -58,7 +65,7 @@ int main(int argc, char* argv[])
     }
     char* service = argv[1];
 
-    init_sig();
+    init_sig((void* (*)(void*))gestion_sig);
 
     int ecoute = init_serveur_tcp(service);
     creer_tache((void* (*)(void*))demarrer_serveur_jeu, (void*)&ecoute, sizeof(ecoute));
