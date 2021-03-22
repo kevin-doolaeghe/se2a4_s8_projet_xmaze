@@ -12,6 +12,7 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 /** Constantes **/
 
@@ -25,9 +26,7 @@ int init_serveur_udp(char* service);
 int boucle_serveur_udp(int s, void* (*traitement)(void*, void*));
 int init_client_udp(char* hote, char* service);
 void detruire_lien_udp(int s);
-void envoi_message_udp(int s, unsigned char* message, int taille);
-void* tache_diffusion_udp(void* arg);
-void* tache_touches_udp(void* arg);
-void* tache_graphique_udp(void* arg);
+int lire_message_udp(int s, char* message, int size);
+void envoi_message_udp(int s, char* message, int size);
 
 #endif

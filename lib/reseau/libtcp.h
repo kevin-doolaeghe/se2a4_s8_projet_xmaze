@@ -7,14 +7,13 @@
 
 #include <netdb.h>
 #include <netinet/tcp.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include "libclient.h"
-#include "libclientlist.h"
-#include "libthread.h"
 
 /** Constantes **/
 
@@ -23,7 +22,6 @@
 
 /** Variables **/
 
-client_list_t client_list;
 int client_count;
 
 /** Prototypes **/
@@ -34,6 +32,5 @@ int init_client_tcp(char* hote, char* service);
 void detruire_lien_tcp(int s);
 int lire_message_tcp(int s, char* message, int size);
 void envoi_message_tcp(int s, char* message, int size);
-void tache_chat_tcp(void* arg);
 
 #endif

@@ -14,7 +14,7 @@ void creer_tache(void* (*traitement)(void*), void* arg, int taille)
 
     pthread_t tid;
     pthread_create(&tid, NULL, func_gen, (void*)fa);
-    // pthread_join(tid, NULL);
+    pthread_detach(tid);
 }
 
 void* func_gen(void* generic)

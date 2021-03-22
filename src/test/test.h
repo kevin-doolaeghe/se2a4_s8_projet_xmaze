@@ -20,11 +20,12 @@
 
 /** Variables **/
 
+client_list_t client_list;
+
 /** Prototypes **/
 
 int main(int argc, char* argv[]);
 void usage();
 void hello_world();
-void lancer_serveur(int* ecoute);
 
 #endif

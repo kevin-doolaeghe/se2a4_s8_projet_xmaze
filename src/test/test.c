@@ -17,11 +17,6 @@ void hello_world()
     }
 }
 
-void lancer_serveur(int* ecoute)
-{
-    //boucle_serveur_tcp(*ecoute, (void* (*)(void*))tache_chat_tcp);
-}
-
 /* Fonction principale */
 
 int main(int argc, char* argv[])
@@ -64,10 +59,7 @@ int main(int argc, char* argv[])
     destroy_str(&str);
     destroy_str_list(&str_list);
 
-    //creer_tache((void* (*)(void*))hello_world, NULL, 0);
-
-    //int ecoute = init_serveur_tcp(service);
-    //creer_tache((void* (*)(void*))lancer_serveur, (void*)&ecoute, sizeof(ecoute));
+    creer_tache((void* (*)(void*))hello_world, NULL, 0);
 
     pause();
 

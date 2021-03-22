@@ -119,26 +119,12 @@ int init_client_udp(char* hote, char* service)
 
 void detruire_lien_udp(int s) { shutdown(s, SHUT_RDWR); }
 
-void envoi_message_udp(int s, unsigned char* message, int taille)
+int lire_message_udp(int s, char* message, int size)
 {
-    /* Envoi du message */
-    // TODO: Finir ça
-    /*
-    int nboctets = sendto(s, message, taille, 0, resultat->ai_addr, resultat->ai_addrlen);
-    if (nboctets < 0) {
-        perror("messageUDPgenerique.sento");
-        exit(EXIT_FAILURE);
-    }
-    */
+    return read(s, message, size);
 }
 
-void* tache_diffusion_udp(void* arg)
+void envoi_message_udp(int s, char* message, int size)
 {
-    // int status;
-    // pthread_exit((void *) &status);
-    return NULL;
+    write(s, message, size);
 }
-
-void* tache_touches_udp(void* arg) { return NULL; }
-
-void* tache_graphique_udp(void* arg) { return NULL; }

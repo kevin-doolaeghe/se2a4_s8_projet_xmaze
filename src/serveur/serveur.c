@@ -6,9 +6,45 @@
 
 void usage() { fprintf(stderr, "Syntax : server <port>\n"); }
 
+void tache_chat_tcp(void* arg)
+{
+    int dialogue = *(int*)arg;
+    char tampon[MAX_TAMPON];
+    int ret;
+
+    while ((ret = lire_message_tcp(dialogue, tampon, MAX_TAMPON - 1)) > 0) {
+        if (ret <= 0) {
+            detruire_lien_tcp(dialogue);
+            client_count--;
+            return;
+        }
+        tampon[ret] = 0;
+        printf("tampon: %s\n", tampon);
+        print_client_list(&client_list);
+    }
+}
+
+void tache_diffusion_udp(void* arg)
+{
+}
+
+void tache_touches_udp(void* arg)
+{
+}
+
+void tache_graphique_udp(void* arg)
+{
+}
+
+void gestion_client_chat_tcp(void* arg)
+{
+    int dialogue = *((int*)arg);
+    creer_tache((void* (*)(void*))tache_chat_tcp, (void*)&dialogue, sizeof(dialogue));
+}
+
 void demarrer_serveur_jeu(int* ecoute)
 {
-    boucle_serveur_tcp(*ecoute, (void* (*)(void*))tache_chat_tcp);
+    boucle_serveur_tcp(*ecoute, (void* (*)(void*))gestion_client_chat_tcp);
 }
 
 /* Fonction principale */
