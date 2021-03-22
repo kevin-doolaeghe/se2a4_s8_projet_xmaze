@@ -48,12 +48,11 @@ int main(int argc, char* argv[])
     set_client(&client, 1, "Kevin", &pos);
     copy_str_list(&(client.message_list), &str_list);
     print_client(&client);
-    /*
-    client_list_t client_list;
+
+    client_list_t client_list = NULL;
     append_client_to_list(&client_list, &client);
-    //print_client_list(&client_list);
+    print_client_list(&client_list);
     destroy_client_list(&client_list);
-    */
     destroy_client(&client);
 
     destroy_str(&str);
