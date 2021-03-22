@@ -11,41 +11,11 @@ void init_pos(pos_t* position)
 
 void set_pos(pos_t* position, float x, float y, float z, float dx, float dy, float dz)
 {
-    set_pos_x(position, x);
-    set_pos_y(position, y);
-    set_pos_z(position, z);
-    set_pos_dx(position, dx);
-    set_pos_dy(position, dy);
-    set_pos_dz(position, dz);
-}
-
-void set_pos_x(pos_t* position, float x)
-{
     position->x = x;
-}
-
-void set_pos_y(pos_t* position, float y)
-{
     position->y = y;
-}
-
-void set_pos_z(pos_t* position, float z)
-{
     position->z = z;
-}
-
-void set_pos_dx(pos_t* position, float dx)
-{
     position->dx = dx;
-}
-
-void set_pos_dy(pos_t* position, float dy)
-{
     position->dy = dy;
-}
-
-void set_pos_dz(pos_t* position, float dz)
-{
     position->dz = dz;
 }
 

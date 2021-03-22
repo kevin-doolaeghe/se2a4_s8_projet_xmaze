@@ -40,29 +40,34 @@ void append_char_to_str(str_t* str, char c)
     str->data[str->size] = '\0';
 }
 
-void append_str_to_str(str_t* dst, char* src)
+void append_cstr_to_str(str_t* dst, char* src)
 {
     for (unsigned int i = 0; i < strlen(src); i++) {
         append_char_to_str(dst, src[i]);
     }
 }
 
-void set_str(str_t* dst, char* src)
+void append_str_to_str(str_t* dst, str_t* src)
 {
-    clear_str(dst);
-    append_str_to_str(dst, src);
+    append_cstr_to_str(dst, src->data);
 }
 
-void print_str(str_t* str) { printf("%s", str->data); }
-
-char* to_string(str_t* str) { return str->data; }
-
-void copy_str(str_t* dst, str_t* src)
+void set_str_from_cstr(str_t* dst, char* src)
 {
-    set_str(dst, src->data);
+    clear_str(dst);
+    append_cstr_to_str(dst, src);
+}
+
+void set_str_from_str(str_t* dst, str_t* src)
+{
+    set_str_from_cstr(dst, src->data);
 }
 
 int compare_str(str_t* str1, str_t* str2)
 {
     return strcmp(str1->data, str2->data);
 }
+
+void print_str(str_t* str) { printf("%s", str->data); }
+
+char* to_cstr(str_t* str) { return str->data; }

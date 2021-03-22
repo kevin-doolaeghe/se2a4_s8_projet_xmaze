@@ -23,7 +23,8 @@ struct str_list_s {
 void init_str_list(str_list_t* list);
 void destroy_str_list(str_list_t* list);
 void clear_str_list(str_list_t* list);
-void append_str_to_list(str_list_t* list, char* str);
+void append_cstr_to_list(str_list_t* list, char* str);
+void append_str_to_list(str_list_t* list, str_t* str);
 void copy_str_list(str_list_t* dst, str_list_t* src);
 void print_str_list(str_list_t* list);
 

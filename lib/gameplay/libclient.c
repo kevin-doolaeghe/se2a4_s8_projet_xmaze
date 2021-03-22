@@ -16,7 +16,6 @@ void destroy_client(client_t* client)
 {
     destroy_str(&(client->pseudo));
     destroy_str_list(&(client->message_list));
-    free(client);
 }
 
 void set_client(client_t* client, int fd, char* pseudo, pos_t* position)
@@ -33,7 +32,7 @@ void set_client_fd(client_t* client, int fd)
 
 void set_client_pseudo(client_t* client, char* pseudo)
 {
-    set_str(&(client->pseudo), pseudo);
+    set_str_from_cstr(&(client->pseudo), pseudo);
 }
 
 void set_client_position(client_t* client, pos_t* position)
@@ -44,7 +43,7 @@ void set_client_position(client_t* client, pos_t* position)
 void copy_client(client_t* dst, client_t* src)
 {
     dst->fd = src->fd;
-    copy_str(&(dst->pseudo), &(src->pseudo));
+    set_str_from_str(&(dst->pseudo), &(src->pseudo));
     dst->position = src->position;
     copy_str_list(&(dst->message_list), &(src->message_list));
 }

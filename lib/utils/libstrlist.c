@@ -34,7 +34,7 @@ void clear_str_list(str_list_t* list)
     init_str(&(list->str_list[0]));
 }
 
-void append_str_to_list(str_list_t* list, char* str)
+void append_cstr_to_list(str_list_t* list, char* str)
 {
     if (list->size + 1 > list->alloc) {
         list->alloc++;
@@ -42,14 +42,19 @@ void append_str_to_list(str_list_t* list, char* str)
         init_str(&(list->str_list[list->alloc - 1]));
     }
 
-    set_str(&(list->str_list[list->size]), str);
+    set_str_from_cstr(&(list->str_list[list->size]), str);
     list->size++;
+}
+
+void append_str_to_list(str_list_t* list, str_t* str)
+{
+    append_cstr_to_list(list, str->data);
 }
 
 void copy_str_list(str_list_t* dst, str_list_t* src)
 {
     for (int i = 0; i < src->alloc; i++) {
-        append_str_to_list(dst, src->str_list[i].data);
+        append_str_to_list(dst, &(src->str_list[i]));
     }
 }
 

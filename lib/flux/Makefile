@@ -5,6 +5,7 @@
 SOURCES = $(wildcard *.c)
 OBJETS = $(SOURCES:.c=.o)
 CIBLE = libflux.a
+CFLAGS += -std=c99 -D_DEFAULT_SOURCE
 
 #
 # Nom de la cible principale

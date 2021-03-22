@@ -1,0 +1,12 @@
+# Build files
+*.o
+*.a
+
+# Edited files
+*~
+
+# Executable files
+src/client/client
+src/server/server
+src/labyrinthe/labyrinthe
+src/test/test

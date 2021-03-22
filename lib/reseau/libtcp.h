@@ -23,8 +23,8 @@
 
 /** Variables **/
 
-volatile client_list_t client_list;
-volatile int client_count;
+client_list_t client_list;
+int client_count;
 
 /** Prototypes **/
 

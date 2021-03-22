@@ -72,7 +72,7 @@ int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*))
     int dialogue;
 
     client_t client;
-    //init_client(&client);
+    init_client(&client);
 
     while (1) {
         /* Attente d'une connexion */
@@ -83,7 +83,7 @@ int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*))
             client_count++;
             client.fd = dialogue;
 
-            //append_client_to_list(&client_list, &client);
+            append_client_to_list(&client_list, &client);
 
             /* Creation d'un thread avec le socket de dialogue */
             creer_tache((void* (*)(void*))traitement, (void*)&dialogue, sizeof(dialogue));
@@ -161,6 +161,6 @@ void tache_chat_tcp(void* arg)
         }
         tampon[ret] = 0;
         printf("tampon: %s\n", tampon);
-        //print_client_list(&client_list);
+        print_client_list(&client_list);
     }
 }

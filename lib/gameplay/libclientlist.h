@@ -15,7 +15,7 @@
 
 typedef struct client_cell_s client_cell_t;
 struct client_cell_s {
-    client_t* client;
+    client_t client;
     client_cell_t* next;
 };
 
