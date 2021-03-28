@@ -119,12 +119,24 @@ int init_client_udp(char* hote, char* service)
 
 void detruire_lien_udp(int s) { shutdown(s, SHUT_RDWR); }
 
-int lire_message_udp(int s, char* message, int size)
+int lire_message_udp(int s, char* message, int size, char* ip, int port)
 {
-    return read(s, message, size);
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = inet_addr(ip);
+    socklen_t len = sizeof(addr);
+
+    return recvfrom(s, message, size, 0, (struct sockaddr*)&addr, (socklen_t*)&len);
 }
 
-void envoi_message_udp(int s, char* message, int size)
+int envoi_message_udp(int s, char* message, int size, char* ip, int port)
 {
-    write(s, message, size);
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = inet_addr(ip);
+    socklen_t len = sizeof(addr);
+
+    return sendto(s, message, size, 0, (struct sockaddr*)&addr, (socklen_t)len);
 }

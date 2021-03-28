@@ -28,14 +28,20 @@ void* func_gen(void* generic)
     return NULL;
 }
 
-void p()
+void init_mutex_list()
 {
-    pthread_mutex_init(&lock, NULL);
-    pthread_mutex_lock(&lock);
+    int id;
+    for (id = 0; id < MAX_MUTEX; id++) {
+        pthread_mutex_init(&lock[id], NULL);
+    }
 }
 
-void v()
+void p(int id)
 {
-    pthread_mutex_unlock(&lock);
-    pthread_mutex_destroy(&lock);
+    pthread_mutex_lock(&lock[id]);
+}
+
+void v(int id)
+{
+    pthread_mutex_unlock(&lock[id]);
 }

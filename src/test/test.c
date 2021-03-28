@@ -45,9 +45,13 @@ void gestion_client_tcp(int* s)
     }
 }
 
-void tache_serveur_udp(int* s)
+void tache_serveur_udp(char* message, int* size)
 {
+    message[*size] = 0;
+    printf("received %d bytes: %s\n", *size, message);
 }
+
+/* Fonctions de test */
 
 void test_str()
 {
@@ -116,11 +120,7 @@ void test_serveur_tcp(char* service)
 void test_serveur_udp(char* service)
 {
     int s = init_serveur_udp(service);
-
-    char tampon[MAX_TAMPON];
-    int ret = lire_message_udp(s, tampon, MAX_TAMPON - 1);
-    tampon[ret] = 0;
-    printf("tampon: %s\n", tampon);
+    boucle_serveur_udp(s, (void* (*)(void*, void*))tache_serveur_udp);
 }
 
 /* Fonction principale */
@@ -136,13 +136,29 @@ int main(int argc, char* argv[])
 
     init_sig((void* (*)(void*))gestion_sig);
 
-    //test_str();
-    //test_str_list();
-    //test_client();
-    //test_client_list();
-    //test_tache();
-    //test_serveur_tcp(service);
-    test_serveur_udp(service);
+    switch (TEST) {
+    case TEST_STR:
+        test_str();
+        break;
+    case TEST_STR_LIST:
+        test_str_list();
+        break;
+    case TEST_CLIENT:
+        test_client();
+        break;
+    case TEST_CLIENT_LIST:
+        test_client_list();
+        break;
+    case TEST_TACHE:
+        test_tache();
+        break;
+    case TEST_SERVEUR_TCP:
+        test_serveur_tcp(service);
+        break;
+    case TEST_SERVEUR_UDP:
+        test_serveur_udp(service);
+        break;
+    }
 
     pause();
 

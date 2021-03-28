@@ -5,7 +5,9 @@
 
 /** Fichiers d'inclusion des bibliotheques **/
 
+#include <arpa/inet.h>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +28,7 @@ int init_serveur_udp(char* service);
 int boucle_serveur_udp(int s, void* (*traitement)(void*, void*));
 int init_client_udp(char* hote, char* service);
 void detruire_lien_udp(int s);
-int lire_message_udp(int s, char* message, int size);
-void envoi_message_udp(int s, char* message, int size);
+int lire_message_udp(int s, char* message, int size, char* ip, int port);
+int envoi_message_udp(int s, char* message, int size, char* ip, int port);
 
 #endif

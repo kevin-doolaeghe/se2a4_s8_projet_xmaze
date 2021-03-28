@@ -31,6 +31,6 @@ int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*));
 int init_client_tcp(char* hote, char* service);
 void detruire_lien_tcp(int s);
 int lire_message_tcp(int s, char* message, int size);
-void envoi_message_tcp(int s, char* message, int size);
+int envoi_message_tcp(int s, char* message, int size);
 
 #endif

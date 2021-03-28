@@ -132,7 +132,7 @@ int lire_message_tcp(int s, char* message, int size)
     return read(s, message, size);
 }
 
-void envoi_message_tcp(int s, char* message, int size)
+int envoi_message_tcp(int s, char* message, int size)
 {
-    write(s, message, size);
+    return write(s, message, size);
 }
