@@ -11,6 +11,7 @@ void gestion_sig()
     running = false;
     printf("\nBye !\n");
     sleep(1);
+    exit(0);
 }
 
 void demarrer_client_jeu(int* socket)
@@ -18,6 +19,7 @@ void demarrer_client_jeu(int* socket)
     char message[MAX_MESSAGE] = "Hello World!";
     // envoi_message_tcp(*socket, message, MAX_MESSAGE);
     envoi_message_udp(*socket, message, MAX_MESSAGE, "127.0.0.1", 9999);
+    broacast_message("Hi!", MAX_MESSAGE, "100.115.92.196", 9999);
 }
 
 /* Fonction principale */
@@ -34,11 +36,11 @@ int main(int argc, char* argv[])
 
     init_sig((void* (*)(void*))gestion_sig);
 
-    // int socket = init_client_tcp(host, port);
+    //int socket = init_client_tcp(host, port);
     int socket = init_client_udp(host, port);
     creer_tache((void* (*)(void*))demarrer_client_jeu, (void*)&socket, sizeof(socket));
 
-    getchar();
+    pause();
 
     return 0;
 }

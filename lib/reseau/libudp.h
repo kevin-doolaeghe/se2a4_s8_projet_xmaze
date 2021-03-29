@@ -30,5 +30,6 @@ int init_client_udp(char* hote, char* service);
 void detruire_lien_udp(int s);
 int lire_message_udp(int s, char* message, int size, char* ip, int port);
 int envoi_message_udp(int s, char* message, int size, char* ip, int port);
+void broacast_message(char* message, int size, char* ip, int port);
 
 #endif

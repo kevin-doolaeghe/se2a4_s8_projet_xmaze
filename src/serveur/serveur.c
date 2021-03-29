@@ -8,9 +8,17 @@ void usage() { fprintf(stderr, "Syntax : server <port>\n"); }
 
 void gestion_sig()
 {
-    running = false;
+    partie_en_cours = false;
+    quitter_serveur = true;
     printf("\nBye !\n");
     sleep(1);
+    exit(0);
+}
+
+void init_server()
+{
+    quitter_serveur = false;
+    partie_en_cours = false;
 }
 
 void tache_chat_tcp(void* arg)
@@ -66,6 +74,8 @@ int main(int argc, char* argv[])
     char* service = argv[1];
 
     init_sig((void* (*)(void*))gestion_sig);
+
+    init_server();
 
     int ecoute = init_serveur_tcp(service);
     creer_tache((void* (*)(void*))demarrer_serveur_jeu, (void*)&ecoute, sizeof(ecoute));

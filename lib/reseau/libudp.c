@@ -140,3 +140,18 @@ int envoi_message_udp(int s, char* message, int size, char* ip, int port)
 
     return sendto(s, message, size, 0, (struct sockaddr*)&addr, (socklen_t)len);
 }
+
+void broacast_message(char* message, int size, char* ip, int port)
+{
+    int s = socket(AF_INET, SOCK_DGRAM, 0);
+    int broadcastEnable = 1;
+    int ret = setsockopt(s, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
+
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    addr.sin_addr.s_addr = inet_addr(ip);
+    socklen_t len = sizeof(addr);
+
+    envoi_message_udp(s, message, size, ip, port);
+}

@@ -20,7 +20,9 @@
 
 /** Variables **/
 
-bool running = true;
+bool quitter_serveur;
+bool partie_en_cours;
+
 client_list_t client_list;
 
 /** Prototypes **/
@@ -28,6 +30,7 @@ client_list_t client_list;
 int main(int argc, char* argv[]);
 void usage();
 void gestion_sig();
+void init_server();
 void tache_chat_tcp(void* arg);
 void tache_diffusion_udp(void* arg);
 void tache_touches_udp(void* arg);

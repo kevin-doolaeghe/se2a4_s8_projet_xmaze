@@ -14,6 +14,7 @@ void gestion_sig()
     running = false;
     printf("\nBye !\n");
     sleep(1);
+    exit(0);
 }
 
 void tache_hello_world()
