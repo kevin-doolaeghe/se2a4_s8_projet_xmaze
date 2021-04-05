@@ -41,14 +41,14 @@ int init_serveur_udp(char* service)
     int vrai = 1;
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &vrai, sizeof(vrai)) < 0) {
         perror("initialisationServeurUDPgenerique.setsockopt (REUSEADDR)");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     /* Specification de l'adresse de la socket */
     statut = bind(s, resultat->ai_addr, resultat->ai_addrlen);
     if (statut < 0) {
         perror("initialisationServeurUDP.bind");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     /* Liberation de la structure d'informations */
@@ -64,9 +64,24 @@ int boucle_serveur_udp(int s, void* (*traitement)(void*, void*))
         socklen_t taille = sizeof(adresse);
         unsigned char message[MAX_UDP_MESSAGE];
 
-        int nboctets = recvfrom(s, message, MAX_UDP_MESSAGE, 0, (struct sockaddr*)&adresse, &taille);
+        int nboctets = recvfrom(s, message, MAX_UDP_MESSAGE - 1, 0, (struct sockaddr*)&adresse, &taille);
         if (nboctets < 0)
             return -1;
+
+        message[nboctets] = '\0';
+
+        char ip[INET6_ADDRSTRLEN];
+        struct sockaddr* sa = (struct sockaddr*)&adresse;
+        if (sa->sa_family == AF_INET) {
+            inet_ntop(adresse.ss_family, &(((struct sockaddr_in*)sa)->sin_addr), ip, sizeof ip);
+        } else {
+            inet_ntop(adresse.ss_family, &(((struct sockaddr_in6*)sa)->sin6_addr), ip, sizeof ip);
+        }
+
+        printf("listener: got packet from %s\n", ip);
+        printf("listener: packet is %d bytes long\n", nboctets);
+        printf("listener: packet contains \"%s\"\n", message);
+
         traitement(message, &nboctets);
     }
     return 0;
@@ -108,7 +123,7 @@ void envoi_message_udp(char* hote, char* service, char* message, int taille)
     int vrai = 1;
     if (setsockopt(s, SOL_SOCKET, SO_BROADCAST, &vrai, sizeof(vrai)) < 0) {
         perror("initialisationServeurUDPgenerique.setsockopt (BROADCAST)");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     /* Envoi du message */
@@ -125,8 +140,7 @@ void envoi_message_udp(char* hote, char* service, char* message, int taille)
     close(s);
 }
 
-void detruire_lien_udp(int s) { shutdown(s, SHUT_RDWR); }
-
+/*
 void envoi_broadcast_udp(char* reseau, char* masque, char* service, char* message, int taille)
 {
     struct sockaddr_in sa_reseau, sa_masque, sa_hote;
@@ -159,3 +173,4 @@ void envoi_broadcast_udp(char* reseau, char* masque, char* service, char* messag
         envoi_message_udp(hote, service, message, taille);
     }
 }
+*/

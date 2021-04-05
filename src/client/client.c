@@ -35,12 +35,10 @@ int main(int argc, char* argv[])
     init_sig((void* (*)(void*))gestion_sig);
 
     char message[MAX_MESSAGE] = "Broadcast UDP message";
+    envoi_message_udp(host, port, message, MAX_MESSAGE);
 
-    envoi_broadcast_udp(host, "255.255.255.0", port, message, MAX_MESSAGE);
-    //envoi_message_udp(host, port, message, MAX_MESSAGE);
-
-    //int socket = init_client_tcp(host, port);
-    //creer_tache((void* (*)(void*))demarrer_client_jeu, (void*)&socket, sizeof(socket));
+    int socket = init_client_tcp(host, port);
+    creer_tache((void* (*)(void*))demarrer_client_jeu, (void*)&socket, sizeof(socket));
 
     pause();
 

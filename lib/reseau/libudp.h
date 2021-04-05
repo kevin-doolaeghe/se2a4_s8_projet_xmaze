@@ -28,6 +28,5 @@ int init_serveur_udp(char* service);
 int boucle_serveur_udp(int s, void* (*traitement)(void*, void*));
 int init_client_udp(char* hote, char* service);
 void envoi_message_udp(char* hote, char* service, char* message, int taille);
-void envoi_broadcast_udp(char* reseau, char* masque, char* service, char* message, int taille);
 
 #endif

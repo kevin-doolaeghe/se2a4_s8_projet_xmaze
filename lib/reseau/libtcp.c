@@ -125,7 +125,7 @@ int init_client_tcp(char* hote, char* service)
     return s;
 }
 
-void detruire_lien_tcp(int s) { shutdown(s, SHUT_RDWR); }
+void detruire_lien_tcp(int s) { close(s); }
 
 int lire_message_tcp(int s, char* message, int size)
 {
