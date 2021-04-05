@@ -129,6 +129,17 @@ void detruire_lien_tcp(int s) { shutdown(s, SHUT_RDWR); }
 
 int lire_message_tcp(int s, char* message, int size)
 {
+    /*
+    struct sockaddr_in addr;
+    socklen_t len;
+
+    int ret = getpeername(s, (struct sockaddr*)&addr, &len);
+    if (ret < 0) {
+        perror("Error : Could not get socket info");
+        close(s);
+        exit(-1);
+    }
+    */
     return read(s, message, size);
 }
 

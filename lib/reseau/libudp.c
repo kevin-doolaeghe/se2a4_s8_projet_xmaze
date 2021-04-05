@@ -72,7 +72,7 @@ int boucle_serveur_udp(int s, void* (*traitement)(void*, void*))
     return 0;
 }
 
-int init_client_udp(char* hote, char* service)
+void envoi_message_udp(char* hote, char* service, char* message, int taille)
 {
     struct addrinfo precisions, *resultat, *origine;
     int statut;
@@ -111,47 +111,51 @@ int init_client_udp(char* hote, char* service)
         exit(-1);
     }
 
+    /* Envoi du message */
+    int nboctets = sendto(s, message, taille, 0, resultat->ai_addr, resultat->ai_addrlen);
+    if (nboctets < 0) {
+        perror("messageUDPgenerique.sento");
+        exit(EXIT_FAILURE);
+    }
+
     /* Liberation de la structure d'informations */
     freeaddrinfo(origine);
 
-    return s;
+    /* Fermeture de la socket d'envoi */
+    close(s);
 }
 
 void detruire_lien_udp(int s) { shutdown(s, SHUT_RDWR); }
 
-int lire_message_udp(int s, char* message, int size, char* ip, int port)
+void envoi_broadcast_udp(char* reseau, char* masque, char* service, char* message, int taille)
 {
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = inet_addr(ip);
-    socklen_t len = sizeof(addr);
+    struct sockaddr_in sa_reseau, sa_masque, sa_hote;
+    char hote[INET_ADDRSTRLEN];
 
-    return recvfrom(s, message, size, 0, (struct sockaddr*)&addr, (socklen_t*)&len);
-}
+    inet_pton(AF_INET, reseau, &(sa_reseau.sin_addr));
+    sa_reseau.sin_addr.s_addr = htonl(sa_reseau.sin_addr.s_addr);
 
-int envoi_message_udp(int s, char* message, int size, char* ip, int port)
-{
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = inet_addr(ip);
-    socklen_t len = sizeof(addr);
+    inet_pton(AF_INET, masque, &(sa_masque.sin_addr));
+    sa_masque.sin_addr.s_addr = htonl(sa_masque.sin_addr.s_addr);
 
-    return sendto(s, message, size, 0, (struct sockaddr*)&addr, (socklen_t)len);
-}
+    sa_reseau.sin_addr.s_addr &= sa_masque.sin_addr.s_addr;
+    int32_t nb_hotes = ~sa_masque.sin_addr.s_addr;
 
-void broacast_message(char* message, int size, char* ip, int port)
-{
-    int s = socket(AF_INET, SOCK_DGRAM, 0);
-    int broadcastEnable = 1;
-    int ret = setsockopt(s, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable));
+    // printf("reseau: %x\n", sa_reseau.sin_addr.s_addr);
+    // printf("masque: %x\n", sa_masque.sin_addr.s_addr);
+    // printf("nb_hotes: %u\n", nb_hotes);
 
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
-    addr.sin_addr.s_addr = inet_addr(ip);
-    socklen_t len = sizeof(addr);
+    sa_hote = sa_reseau;
 
-    envoi_message_udp(s, message, size, ip, port);
+    int i;
+    for (i = 0; i < nb_hotes; i++) {
+        sa_hote.sin_addr.s_addr++;
+        sa_hote.sin_addr.s_addr = ntohl(sa_hote.sin_addr.s_addr);
+
+        inet_ntop(AF_INET, &(sa_hote.sin_addr), hote, INET_ADDRSTRLEN);
+        sa_hote.sin_addr.s_addr = htonl(sa_hote.sin_addr.s_addr);
+
+        // printf("hote n°%d: %s\n", i, hote);
+        envoi_message_udp(hote, service, message, taille);
+    }
 }
