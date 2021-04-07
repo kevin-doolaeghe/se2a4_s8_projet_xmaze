@@ -69,8 +69,10 @@ int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*))
     int dialogue;
     while (1) {
         /* Attente d'une connexion */
-        if ((dialogue = accept(ecoute, NULL, NULL)) < 0)
-            return -1;
+        if ((dialogue = accept(ecoute, NULL, NULL)) < 0) {
+            perror("boucleServeur.accept");
+            exit(EXIT_FAILURE);
+        }
 
         if (client_count < MAX_CONNEXION) {
             client_count++;
@@ -129,7 +131,31 @@ void detruire_lien_tcp(int s) { close(s); }
 
 int lire_message_tcp(int s, char* message, int size)
 {
-    /*
+    return read(s, message, size);
+}
+
+int envoi_message_tcp(int s, char* message, int size)
+{
+    return write(s, message, size);
+}
+
+char* get_ip(int s)
+{
+    struct sockaddr_in addr;
+    socklen_t len = sizeof(addr);
+
+    int ret = getpeername(s, (struct sockaddr*)&addr, &len);
+    if (ret < 0) {
+        perror("Error : Could not get socket info");
+        close(s);
+        exit(-1);
+    }
+
+    return inet_ntoa(addr.sin_addr);
+}
+
+short get_port(int s)
+{
     struct sockaddr_in addr;
     socklen_t len;
 
@@ -139,11 +165,6 @@ int lire_message_tcp(int s, char* message, int size)
         close(s);
         exit(-1);
     }
-    */
-    return read(s, message, size);
-}
 
-int envoi_message_tcp(int s, char* message, int size)
-{
-    return write(s, message, size);
+    return ntohs(addr.sin_port);
 }

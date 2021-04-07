@@ -13,18 +13,18 @@
 
 typedef struct pos_s pos_t;
 struct pos_s {
-    float x;
-    float y;
-    float z;
-    float dx;
-    float dy;
-    float dz;
+    int x;
+    int y;
+    int z;
+    int dx;
+    int dy;
+    int dz;
 };
 
 /** Prototypes **/
 
 void init_pos(pos_t* position);
-void set_pos(pos_t* position, float x, float y, float z, float dx, float dy, float dz);
+void set_pos(pos_t* position, int x, int y, int z, int dx, int dy, int dz);
 void copy_pos(pos_t* dst, pos_t* src);
 void print_pos(pos_t* position);
 

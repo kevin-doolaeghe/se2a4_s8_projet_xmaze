@@ -5,6 +5,9 @@
 # Edited files
 *~
 
+# VS Code files
+.vscode/
+
 # Executable files
 src/client/client
 src/serveur/serveur

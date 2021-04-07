@@ -32,6 +32,6 @@ void set_str_from_cstr(str_t* dst, char* src);
 void set_str_from_str(str_t* dst, str_t* src);
 int compare_str(str_t* str1, str_t* str2);
 void print_str(str_t* str);
-char* to_string(str_t* str);
+char* to_cstr(str_t* str);
 
 #endif

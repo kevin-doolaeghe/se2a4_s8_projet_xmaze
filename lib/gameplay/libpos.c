@@ -9,7 +9,7 @@ void init_pos(pos_t* position)
     set_pos(position, 0, 0, 0, 0, 0, 0);
 }
 
-void set_pos(pos_t* position, float x, float y, float z, float dx, float dy, float dz)
+void set_pos(pos_t* position, int x, int y, int z, int dx, int dy, int dz)
 {
     position->x = x;
     position->y = y;
@@ -31,10 +31,10 @@ void copy_pos(pos_t* dst, pos_t* src)
 
 void print_pos(pos_t* position)
 {
-    printf("x: %f\n", position->x);
-    printf("y: %f\n", position->y);
-    printf("z: %f\n", position->z);
-    printf("dx: %f\n", position->dx);
-    printf("dy: %f\n", position->dy);
-    printf("dz: %f\n", position->dz);
+    printf("x: %d\n", position->x);
+    printf("y: %d\n", position->y);
+    printf("z: %d\n", position->z);
+    printf("dx: %d\n", position->dx);
+    printf("dy: %d\n", position->dy);
+    printf("dz: %d\n", position->dz);
 }

@@ -57,14 +57,14 @@ int init_serveur_udp(char* service)
     return s;
 }
 
-int boucle_serveur_udp(int s, void* (*traitement)(void*, void*))
+int boucle_serveur_udp(int s, void* (*traitement)(void*, void*, void*))
 {
     while (1) {
         struct sockaddr_storage adresse;
         socklen_t taille = sizeof(adresse);
-        unsigned char message[MAX_UDP_MESSAGE];
+        unsigned char message[MAX_TAMPON_UDP];
 
-        int nboctets = recvfrom(s, message, MAX_UDP_MESSAGE - 1, 0, (struct sockaddr*)&adresse, &taille);
+        int nboctets = recvfrom(s, message, MAX_TAMPON_UDP - 1, 0, (struct sockaddr*)&adresse, &taille);
         if (nboctets < 0)
             return -1;
 
@@ -78,11 +78,11 @@ int boucle_serveur_udp(int s, void* (*traitement)(void*, void*))
             inet_ntop(adresse.ss_family, &(((struct sockaddr_in6*)sa)->sin6_addr), ip, sizeof ip);
         }
 
-        printf("listener: got packet from %s\n", ip);
-        printf("listener: packet is %d bytes long\n", nboctets);
-        printf("listener: packet contains \"%s\"\n", message);
+        // printf("listener: got packet from %s\n", ip);
+        // printf("listener: packet is %d bytes long\n", nboctets);
+        // printf("listener: packet contains \"%s\"\n", message);
 
-        traitement(message, &nboctets);
+        traitement(message, &nboctets, ip);
     }
     return 0;
 }

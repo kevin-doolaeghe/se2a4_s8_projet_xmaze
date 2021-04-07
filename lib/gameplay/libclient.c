@@ -7,6 +7,7 @@
 void init_client(client_t* client)
 {
     client->fd = -1;
+    init_str(&(client->ip));
     init_str(&(client->pseudo));
     init_pos(&(client->position));
     init_str_list(&(client->message_list));
@@ -14,13 +15,15 @@ void init_client(client_t* client)
 
 void destroy_client(client_t* client)
 {
+    destroy_str(&(client->ip));
     destroy_str(&(client->pseudo));
     destroy_str_list(&(client->message_list));
 }
 
-void set_client(client_t* client, int fd, char* pseudo, pos_t* position)
+void set_client(client_t* client, int fd, char* ip, char* pseudo, pos_t* position)
 {
     set_client_fd(client, fd);
+    set_client_ip(client, ip);
     set_client_pseudo(client, pseudo);
     set_client_position(client, position);
 }
@@ -28,6 +31,11 @@ void set_client(client_t* client, int fd, char* pseudo, pos_t* position)
 void set_client_fd(client_t* client, int fd)
 {
     client->fd = fd;
+}
+
+void set_client_ip(client_t* client, char* ip)
+{
+    set_str_from_cstr(&(client->ip), ip);
 }
 
 void set_client_pseudo(client_t* client, char* pseudo)
@@ -43,6 +51,7 @@ void set_client_position(client_t* client, pos_t* position)
 void copy_client(client_t* dst, client_t* src)
 {
     dst->fd = src->fd;
+    set_str_from_str(&(dst->ip), &(src->ip));
     set_str_from_str(&(dst->pseudo), &(src->pseudo));
     dst->position = src->position;
     copy_str_list(&(dst->message_list), &(src->message_list));
@@ -51,6 +60,10 @@ void copy_client(client_t* dst, client_t* src)
 void print_client(client_t* client)
 {
     printf("fd: %d\n", client->fd);
+
+    printf("ip: ");
+    print_str(&(client->ip));
+    printf("\n");
 
     printf("pseudo: ");
     print_str(&(client->pseudo));

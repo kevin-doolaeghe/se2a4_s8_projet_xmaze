@@ -12,9 +12,12 @@
 
 #include "libclient.h"
 #include "libclientlist.h"
+#include "libprotocole.h"
 #include "libsig.h"
+#include "libstr.h"
 #include "libtcp.h"
 #include "libthread.h"
+#include "libudp.h"
 
 /** Constantes **/
 
@@ -31,11 +34,15 @@ int main(int argc, char* argv[]);
 void usage();
 void gestion_sig();
 void init_server();
-void tache_chat_tcp(void* arg);
-void tache_diffusion_udp(void* arg);
-void tache_touches_udp(void* arg);
-void tache_graphique_udp(void* arg);
+
 void gestion_client_chat_tcp(void* arg);
-void demarrer_serveur_jeu();
+
+void tache_chat_tcp(int* s);
+void tache_diffusion_udp();
+void tache_touches_udp(char* message, int* size, char* ip);
+void tache_graphique_udp();
+
+void demarrer_chat_tcp(int* s);
+void demarrer_touches_udp(int* s);
 
 #endif

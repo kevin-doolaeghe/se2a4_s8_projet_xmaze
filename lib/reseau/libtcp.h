@@ -5,6 +5,7 @@
 
 /** Fichiers d'inclusion des bibliotheques **/
 
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <netinet/tcp.h>
 #include <stdio.h>
@@ -17,7 +18,7 @@
 
 /** Constantes **/
 
-#define MAX_TAMPON 2048
+#define MAX_TAMPON_TCP 2048
 #define MAX_CONNEXION 16
 
 /** Variables **/
@@ -32,5 +33,7 @@ int init_client_tcp(char* hote, char* service);
 void detruire_lien_tcp(int s);
 int lire_message_tcp(int s, char* message, int size);
 int envoi_message_tcp(int s, char* message, int size);
+char* get_ip(int s);
+short get_port(int s);
 
 #endif

@@ -42,7 +42,7 @@ void gestion_sig();
 void tache_hello_world();
 void tache_serveur_tcp(int* s);
 void gestion_client_tcp(int* s);
-void tache_serveur_udp(char* message, int* size);
+void tache_serveur_udp(char* message, int* size, char* ip);
 
 void test_str();
 void test_str_list();

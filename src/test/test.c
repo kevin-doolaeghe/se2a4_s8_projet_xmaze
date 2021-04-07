@@ -32,10 +32,10 @@ void tache_serveur_tcp(int* s)
 
 void gestion_client_tcp(int* s)
 {
-    char tampon[MAX_TAMPON];
+    char tampon[MAX_TAMPON_TCP];
     int ret;
 
-    while ((ret = lire_message_tcp(*s, tampon, MAX_TAMPON - 1)) > 0) {
+    while ((ret = lire_message_tcp(*s, tampon, MAX_TAMPON_TCP - 1)) > 0) {
         if (ret <= 0) {
             detruire_lien_tcp(*s);
             client_count--;
@@ -46,10 +46,9 @@ void gestion_client_tcp(int* s)
     }
 }
 
-void tache_serveur_udp(char* message, int* size)
+void tache_serveur_udp(char* message, int* size, char* ip)
 {
-    message[*size] = 0;
-    printf("received %d bytes: %s\n", *size, message);
+    printf("received %d bytes from %s: %s\n", *size, ip, message);
 }
 
 /* Fonctions de test */
@@ -121,7 +120,7 @@ void test_serveur_tcp(char* service)
 void test_serveur_udp(char* service)
 {
     int s = init_serveur_udp(service);
-    boucle_serveur_udp(s, (void* (*)(void*, void*))tache_serveur_udp);
+    boucle_serveur_udp(s, (void* (*)(void*, void*, void*))tache_serveur_udp);
 }
 
 /* Fonction principale */
