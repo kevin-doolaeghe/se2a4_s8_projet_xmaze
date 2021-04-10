@@ -18,7 +18,7 @@ int init_serveur_udp(char* service)
 
     statut = getaddrinfo(NULL, service, &precisions, &origine);
     if (statut < 0) {
-        perror("initialisationSocketUDP.getaddrinfo");
+        perror("init_serveur_udp.getaddrinfo");
         exit(EXIT_FAILURE);
     }
 
@@ -33,21 +33,21 @@ int init_serveur_udp(char* service)
     /* Creation d'une socket */
     s = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol);
     if (s < 0) {
-        perror("initialisationSocketUDP.socket");
+        perror("init_serveur_udp.socket");
         exit(EXIT_FAILURE);
     }
 
     /* Options utiles */
     int vrai = 1;
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &vrai, sizeof(vrai)) < 0) {
-        perror("initialisationServeurUDPgenerique.setsockopt (REUSEADDR)");
+        perror("init_serveur_udp.setsockopt (REUSEADDR)");
         exit(EXIT_FAILURE);
     }
 
     /* Specification de l'adresse de la socket */
     statut = bind(s, resultat->ai_addr, resultat->ai_addrlen);
     if (statut < 0) {
-        perror("initialisationServeurUDP.bind");
+        perror("init_serveur_udp.bind");
         exit(EXIT_FAILURE);
     }
 
@@ -57,19 +57,24 @@ int init_serveur_udp(char* service)
     return s;
 }
 
-int boucle_serveur_udp(int s, void* (*traitement)(void*, void*, void*))
+int boucle_serveur_udp(int ecoute, void* (*traitement)(char*, int, char*))
 {
+    char message[MAX_TAMPON_UDP];
+    int nboctets;
+
+    struct sockaddr_storage adresse;
+    socklen_t taille = sizeof(adresse);
+
     while (1) {
-        struct sockaddr_storage adresse;
-        socklen_t taille = sizeof(adresse);
-        unsigned char message[MAX_TAMPON_UDP];
-
-        int nboctets = recvfrom(s, message, MAX_TAMPON_UDP - 1, 0, (struct sockaddr*)&adresse, &taille);
-        if (nboctets < 0)
+        /* Attente d'un message */
+        nboctets = recvfrom(ecoute, message, MAX_TAMPON_UDP - 1, 0, (struct sockaddr*)&adresse, &taille);
+        if (nboctets <= 0) {
+            close(ecoute);
             return -1;
+        }
+        message[nboctets] = 0;
 
-        message[nboctets] = '\0';
-
+        /* Recuperation de l'adresse IP */
         char ip[INET6_ADDRSTRLEN];
         struct sockaddr* sa = (struct sockaddr*)&adresse;
         if (sa->sa_family == AF_INET) {
@@ -78,11 +83,8 @@ int boucle_serveur_udp(int s, void* (*traitement)(void*, void*, void*))
             inet_ntop(adresse.ss_family, &(((struct sockaddr_in6*)sa)->sin6_addr), ip, sizeof ip);
         }
 
-        // printf("listener: got packet from %s\n", ip);
-        // printf("listener: packet is %d bytes long\n", nboctets);
-        // printf("listener: packet contains \"%s\"\n", message);
-
-        traitement(message, &nboctets, ip);
+        /* Traitement du message */
+        traitement(message, nboctets, ip);
     }
     return 0;
 }
@@ -100,7 +102,7 @@ void envoi_message_udp(char* hote, char* service, char* message, int taille)
 
     statut = getaddrinfo(hote, service, &precisions, &origine);
     if (statut < 0) {
-        perror("messageUDPgenerique.getaddrinfo");
+        perror("envoi_message_udp.getaddrinfo");
         exit(EXIT_FAILURE);
     }
 
@@ -115,21 +117,21 @@ void envoi_message_udp(char* hote, char* service, char* message, int taille)
     /* Creation d'une socket */
     s = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol);
     if (s < 0) {
-        perror("messageUDPgenerique.socket");
+        perror("envoi_message_udp.socket");
         exit(EXIT_FAILURE);
     }
 
     /* Option sur la socket */
     int vrai = 1;
     if (setsockopt(s, SOL_SOCKET, SO_BROADCAST, &vrai, sizeof(vrai)) < 0) {
-        perror("initialisationServeurUDPgenerique.setsockopt (BROADCAST)");
+        perror("envoi_message_udp.setsockopt (BROADCAST)");
         exit(EXIT_FAILURE);
     }
 
     /* Envoi du message */
     int nboctets = sendto(s, message, taille, 0, resultat->ai_addr, resultat->ai_addrlen);
     if (nboctets < 0) {
-        perror("messageUDPgenerique.sento");
+        perror("envoi_message_udp.sento");
         exit(EXIT_FAILURE);
     }
 
@@ -145,30 +147,22 @@ void envoi_broadcast_udp(char* reseau, char* masque, char* service, char* messag
 {
     struct sockaddr_in sa_reseau, sa_masque, sa_hote;
     char hote[INET_ADDRSTRLEN];
-
     inet_pton(AF_INET, reseau, &(sa_reseau.sin_addr));
     sa_reseau.sin_addr.s_addr = htonl(sa_reseau.sin_addr.s_addr);
-
     inet_pton(AF_INET, masque, &(sa_masque.sin_addr));
     sa_masque.sin_addr.s_addr = htonl(sa_masque.sin_addr.s_addr);
-
     sa_reseau.sin_addr.s_addr &= sa_masque.sin_addr.s_addr;
     int32_t nb_hotes = ~sa_masque.sin_addr.s_addr;
-
     // printf("reseau: %x\n", sa_reseau.sin_addr.s_addr);
     // printf("masque: %x\n", sa_masque.sin_addr.s_addr);
     // printf("nb_hotes: %u\n", nb_hotes);
-
     sa_hote = sa_reseau;
-
     int i;
     for (i = 0; i < nb_hotes; i++) {
         sa_hote.sin_addr.s_addr++;
         sa_hote.sin_addr.s_addr = ntohl(sa_hote.sin_addr.s_addr);
-
         inet_ntop(AF_INET, &(sa_hote.sin_addr), hote, INET_ADDRSTRLEN);
         sa_hote.sin_addr.s_addr = htonl(sa_hote.sin_addr.s_addr);
-
         // printf("hote n°%d: %s\n", i, hote);
         envoi_message_udp(hote, service, message, taille);
     }

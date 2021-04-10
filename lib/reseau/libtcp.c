@@ -18,7 +18,7 @@ int init_serveur_tcp(char* service)
 
     statut = getaddrinfo(NULL, service, &precisions, &origine);
     if (statut < 0) {
-        perror("initialisationServeur.getaddrinfo");
+        perror("init_serveur_tcp.getaddrinfo");
         exit(EXIT_FAILURE);
     }
 
@@ -33,18 +33,18 @@ int init_serveur_tcp(char* service)
     /* Creation d'une socket */
     s = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol);
     if (s < 0) {
-        perror("initialisationServeur.socket");
+        perror("init_serveur_tcp.socket");
         exit(EXIT_FAILURE);
     }
 
     /* Options utiles */
     int vrai = 1;
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &vrai, sizeof(vrai)) < 0) {
-        perror("initialisationServeur.setsockopt (REUSEADDR)");
+        perror("init_serveur_tcp.setsockopt (REUSEADDR)");
         exit(EXIT_FAILURE);
     }
     if (setsockopt(s, IPPROTO_TCP, TCP_NODELAY, &vrai, sizeof(vrai)) < 0) {
-        perror("initialisationServeur.setsockopt (NODELAY)");
+        perror("init_serveur_tcp.setsockopt (NODELAY)");
         exit(EXIT_FAILURE);
     }
 
@@ -64,24 +64,60 @@ int init_serveur_tcp(char* service)
     return s;
 }
 
-int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*))
+int boucle_serveur_tcp(int ecoute, void* (*traitement)(int, char*))
 {
     int dialogue;
+    int ret;
+
+    struct sockaddr_in addr;
+    socklen_t len = sizeof(addr);
+
     while (1) {
         /* Attente d'une connexion */
         if ((dialogue = accept(ecoute, NULL, NULL)) < 0) {
-            perror("boucleServeur.accept");
+            perror("boucle_serveur_tcp.accept");
             exit(EXIT_FAILURE);
         }
 
-        if (client_count < MAX_CONNEXION) {
-            client_count++;
+        if (nbclients < MAX_CONNEXION) {
+            nbclients++;
 
-            /* Creation d'un thread avec le socket de dialogue */
-            traitement((void*)&dialogue);
+            /* Recuperation des informations du client */
+            ret = getpeername(dialogue, (struct sockaddr*)&addr, &len);
+            if (ret < 0) {
+                close(dialogue);
+
+                perror("boucle_serveur_tcp.getpeername");
+                exit(EXIT_FAILURE);
+            }
+            char* ip = inet_ntoa(addr.sin_addr);
+            // int port = ntohs(addr.sin_port);
+
+            /* Traitement pour la socket de dialogue */
+            traitement(dialogue, ip);
         } else {
-            detruire_lien_tcp(dialogue);
+            close(ecoute);
         }
+    }
+}
+
+int boucle_reception_tcp(int ecoute, void* (*traitement)(char*, int))
+{
+    char message[MAX_TAMPON_TCP];
+    int nboctets;
+
+    while (1) {
+        /* Attente d'un message */
+        nboctets = read(ecoute, message, MAX_TAMPON_TCP - 1);
+        if (nboctets <= 0) {
+            close(ecoute);
+            nbclients--;
+            return 0;
+        }
+        message[nboctets] = 0;
+
+        /* Traitement de la trame recue */
+        traitement(message, nboctets);
     }
 }
 
@@ -98,7 +134,7 @@ int init_client_tcp(char* hote, char* service)
 
     statut = getaddrinfo(hote, service, &precisions, &origine);
     if (statut < 0) {
-        perror("connexionServeur.getaddrinfo");
+        perror("init_client_tcp.getaddrinfo");
         exit(EXIT_FAILURE);
     }
 
@@ -113,7 +149,7 @@ int init_client_tcp(char* hote, char* service)
     /* Creation d'une socket */
     s = socket(resultat->ai_family, resultat->ai_socktype, resultat->ai_protocol);
     if (s < 0) {
-        perror("connexionServeur.socket");
+        perror("init_client_tcp.socket");
         exit(EXIT_FAILURE);
     }
 
@@ -129,42 +165,12 @@ int init_client_tcp(char* hote, char* service)
 
 void detruire_lien_tcp(int s) { close(s); }
 
-int lire_message_tcp(int s, char* message, int size)
+int lire_message_tcp(int s, char* message, int taille)
 {
-    return read(s, message, size);
+    return read(s, message, taille - 1);
 }
 
-int envoi_message_tcp(int s, char* message, int size)
+int envoi_message_tcp(int s, char* message, int taille)
 {
-    return write(s, message, size);
-}
-
-char* get_ip(int s)
-{
-    struct sockaddr_in addr;
-    socklen_t len = sizeof(addr);
-
-    int ret = getpeername(s, (struct sockaddr*)&addr, &len);
-    if (ret < 0) {
-        perror("Error : Could not get socket info");
-        close(s);
-        exit(-1);
-    }
-
-    return inet_ntoa(addr.sin_addr);
-}
-
-short get_port(int s)
-{
-    struct sockaddr_in addr;
-    socklen_t len;
-
-    int ret = getpeername(s, (struct sockaddr*)&addr, &len);
-    if (ret < 0) {
-        perror("Error : Could not get socket info");
-        close(s);
-        exit(-1);
-    }
-
-    return ntohs(addr.sin_port);
+    return write(s, message, taille);
 }

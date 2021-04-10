@@ -23,17 +23,16 @@
 
 /** Variables **/
 
-int client_count;
+int nbclients;
 
 /** Prototypes **/
 
 int init_serveur_tcp(char* service);
-int boucle_serveur_tcp(int ecoute, void* (*traitement)(void*));
+int boucle_serveur_tcp(int ecoute, void* (*traitement)(int, char*));
+int boucle_reception_tcp(int ecoute, void* (*traitement)(char*, int));
 int init_client_tcp(char* hote, char* service);
 void detruire_lien_tcp(int s);
-int lire_message_tcp(int s, char* message, int size);
-int envoi_message_tcp(int s, char* message, int size);
-char* get_ip(int s);
-short get_port(int s);
+int lire_message_tcp(int s, char* message, int taille);
+int envoi_message_tcp(int s, char* message, int taille);
 
 #endif

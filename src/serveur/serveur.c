@@ -4,9 +4,27 @@
 
 /** Fonctions **/
 
-void usage() { fprintf(stderr, "Syntax : server\n"); }
+void usage() { fprintf(stderr, "Syntaxe : serveur\n"); }
 
-void gestion_sig()
+void init_serveur()
+{
+    init_sig((void* (*)(void*))detruire_serveur);
+
+    quitter_serveur = false;
+    partie_en_cours = false;
+
+    int chat_sock = init_serveur_tcp(PORT_CHAT_TCP);
+    creer_tache((void* (*)(void*))tache_gestion_chat, (void*)&chat_sock, sizeof(chat_sock));
+
+    creer_tache((void* (*)(void*))tache_diffusion_udp, NULL, 0);
+
+    int touches_sock = init_serveur_udp(PORT_TOUCHES_UDP);
+    creer_tache((void* (*)(void*))tache_gestion_touches, (void*)&touches_sock, sizeof(touches_sock));
+
+    creer_tache((void* (*)(void*))tache_gestion_graphique, NULL, 0);
+}
+
+void detruire_serveur()
 {
     quitter_serveur = true;
     partie_en_cours = false;
@@ -14,103 +32,108 @@ void gestion_sig()
     destroy_client_list(&client_list);
 
     printf("\nBye !\n");
-    sleep(1);
-    exit(0);
+    usleep(100);
+    exit(EXIT_SUCCESS);
 }
 
 /** ------------------------------------------------- **/
 
-void init_server()
+/**** Chat TCP ****/
+
+void tache_gestion_chat(int* dialogue)
 {
-    quitter_serveur = false;
-    partie_en_cours = false;
-
-    int chat_sock = init_serveur_tcp(PORT_CHAT_TCP);
-    creer_tache((void* (*)(void*))demarrer_chat_tcp, (void*)&chat_sock, sizeof(chat_sock));
-
-    creer_tache((void* (*)(void*))tache_diffusion_udp, NULL, 0);
-
-    int touches_sock = init_serveur_udp(PORT_TOUCHES_UDP);
-    creer_tache((void* (*)(void*))demarrer_touches_udp, (void*)&touches_sock, sizeof(touches_sock));
-
-    creer_tache((void* (*)(void*))tache_graphique_udp, NULL, 0);
+    boucle_serveur_tcp(*dialogue, (void* (*)(int, char*))gestion_client);
 }
 
-void gestion_client_chat_tcp(void* arg)
+void gestion_client(int dialogue, char* ip)
 {
-    int dialogue = *((int*)arg);
-    creer_tache((void* (*)(void*))tache_chat_tcp, (void*)&dialogue, sizeof(dialogue));
-}
-
-/** ------------------------------------------------- **/
-
-void tache_chat_tcp(int* s)
-{
-    int dialogue = *(int*)s;
-    char tampon[MAX_TAMPON_TCP];
-    int ret;
+    //char tampon[MAX_TAMPON_TCP];
+    //int ret;
 
     client_t client;
     init_client(&client);
 
-    char* ip = get_ip(*s);
-    set_client_fd(&client, *s);
+    /*
+    ret = lire_message_tcp(dialogue, tampon, MAX_TAMPON_TCP);
+    if (ret <= 0)
+        return;
+    */
+
+    set_client_fd(&client, dialogue);
     set_client_ip(&client, ip);
     set_client_pseudo(&client, "pseudotest");
 
     append_client_to_list(&client_list, &client);
+    print_client_list(&client_list);
 
-    while (quitter_serveur == false) {
-        ret = lire_message_tcp(dialogue, tampon, MAX_TAMPON_TCP - 1);
-        if (ret <= 0) {
-            detruire_lien_tcp(dialogue);
-            destroy_client(&client);
-            client_count--;
-            return;
-        }
-        tampon[ret] = 0;
+    creer_tache((void* (*)(void*))tache_discussion_client, (void*)&dialogue, sizeof(dialogue));
 
-        printf("chat_tcp: message from %s: %s\n", to_cstr(&client.ip), tampon);
-        print_client_list(&client_list);
+    destroy_client(&client);
+}
+
+void tache_discussion_client(int* dialogue)
+{
+    boucle_reception_tcp(*dialogue, (void* (*)(char*, int))reception_message);
+
+    delete_client_from_list(&client_list, *dialogue);
+    print_client_list(&client_list);
+}
+
+void reception_message(char* message, int taille)
+{
+    printf("chat_tcp: message of %d bytes: %s\n", taille, message);
+
+    pt_client_cell_t ptr = client_list;
+
+    while (ptr != NULL) {
+        envoi_message_tcp(ptr->client.fd, message, taille);
+        ptr = ptr->next;
     }
 }
+
+/**** Diffusion UDP ****/
 
 void tache_diffusion_udp()
 {
-    while (partie_en_cours == false) {
-        envoi_message_udp("127.0.0.1", PORT_DIFFUSION_UDP, "TRAME DIFF UDP\0", MAX_TAMPON_UDP);
-        sleep(1);
-    }
-}
-
-void tache_touches_udp(char* message, int* size, char* ip)
-{
-    printf("udp_touches: message of %d bytes from %s: %s\n", *size, ip, message);
-}
-
-void tache_graphique_udp()
-{
-    while (partie_en_cours == true) {
-        pt_client_cell_t ptr = client_list;
-
-        while (ptr != NULL) {
-            envoi_message_udp(to_cstr(&(ptr->client.ip)), PORT_GRAPHIQUE_UDP, "TACHE GRAPH UDP\0", MAX_TAMPON_UDP);
-            ptr = ptr->next;
+    while (quitter_serveur == false) {
+        if (partie_en_cours == false) {
+            char message[MAX_TAMPON_UDP] = "TRAME DIFF UDP";
+            envoi_message_udp(BROADCAST, PORT_DIFFUSION_UDP, message, MAX_TAMPON_UDP);
         }
         sleep(1);
     }
 }
 
-/** ------------------------------------------------- **/
+/**** Touches UDP ****/
 
-void demarrer_chat_tcp(int* s)
+void tache_gestion_touches(int* ecoute)
 {
-    boucle_serveur_tcp(*s, (void* (*)(void*))gestion_client_chat_tcp);
+    boucle_serveur_udp(*ecoute, (void* (*)(char*, int, char*))reception_touches_udp);
 }
 
-void demarrer_touches_udp(int* s)
+void reception_touches_udp(char* message, int taille, char* ip)
 {
-    boucle_serveur_udp(*s, (void* (*)(void*, void*, void*))tache_touches_udp);
+    printf("udp_touches: message of %d bytes from %s: %s\n", taille, ip, message);
+    if (quitter_serveur == true)
+        exit(EXIT_SUCCESS);
+}
+
+/**** Graphiques UDP ****/
+
+void tache_gestion_graphique()
+{
+    while (quitter_serveur == false) {
+        if (partie_en_cours == true) {
+            pt_client_cell_t ptr = client_list;
+
+            while (ptr != NULL) {
+                char message[MAX_TAMPON_UDP] = "TRAME GRAPH UDP";
+                envoi_message_udp(to_cstr(&(ptr->client.ip)), PORT_GRAPHIQUE_UDP, message, MAX_TAMPON_UDP);
+                ptr = ptr->next;
+            }
+        }
+        sleep(1);
+    }
 }
 
 /** ------------------------------------------------- **/
@@ -119,18 +142,13 @@ void demarrer_touches_udp(int* s)
 
 int main(int argc, char* argv[])
 {
-    /*
     // Analyse des arguments
-    if (argc != 2) {
+    if (argc > 1) {
         usage();
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
-    char* service = argv[1];
-    */
 
-    init_sig((void* (*)(void*))gestion_sig);
-
-    init_server();
+    init_serveur();
 
     pause();
 

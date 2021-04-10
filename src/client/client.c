@@ -4,41 +4,131 @@
 
 /** Fonctions **/
 
-void usage() { fprintf(stderr, "Syntax : client <host> <port>\n"); }
+void usage() { fprintf(stderr, "Syntaxe : client <ip_serveur>\n"); }
 
-void gestion_sig()
+/** ------------------------------------------------- **/
+
+void init_client()
 {
-    running = false;
+    init_sig((void* (*)(void*))detruire_client);
+
+    init_server(&serveur);
+    set_server_ip(&serveur, HOST);
+
+    quitter_client = false;
+    partie_en_cours = false;
+
+    int chat_sock = init_client_tcp(HOST, PORT_CHAT_TCP);
+    creer_tache((void* (*)(void*))tache_ecoute_chat, (void*)&chat_sock, sizeof(chat_sock));
+
+    int diffusion_sock = init_serveur_udp(PORT_DIFFUSION_UDP);
+    creer_tache((void* (*)(void*))tache_diffusion_udp, (void*)&diffusion_sock, sizeof(diffusion_sock));
+
+    creer_tache((void* (*)(void*))tache_touches_udp, NULL, 0);
+
+    int graphique_sock = init_serveur_udp(PORT_GRAPHIQUE_UDP);
+    creer_tache((void* (*)(void*))tache_gestion_graphique, (void*)&graphique_sock, sizeof(graphique_sock));
+}
+
+void detruire_client()
+{
+    quitter_client = true;
+    partie_en_cours = false;
+
+    destroy_server_list(&serveur_list);
+    destroy_server(&serveur);
+
     printf("\nBye !\n");
-    sleep(1);
-    exit(0);
+    usleep(100);
+    exit(EXIT_SUCCESS);
 }
 
-void demarrer_client_jeu(int* socket)
+/** ------------------------------------------------- **/
+
+/**** Chat TCP ****/
+
+void tache_ecoute_chat(int* ecoute)
 {
-    char message[MAX_MESSAGE] = "TCP message";
-    envoi_message_tcp(*socket, message, MAX_MESSAGE);
+    boucle_reception_tcp(*ecoute, (void* (*)(char*, int))reception_message);
 }
+
+void reception_message(char* message, int taille)
+{
+    printf("tcp_chat: message of %d bytes: %s\n", taille, message);
+}
+
+void envoi_message()
+{
+    while (quitter_client == false) {
+        char message[MAX_TAMPON_TCP] = "MESSAGE TCP";
+        envoi_message_tcp(serveur.fd, message, MAX_TAMPON_TCP);
+        sleep(1);
+    }
+}
+
+/**** Diffusion UDP ****/
+
+void tache_diffusion_udp(int* ecoute)
+{
+    boucle_serveur_udp(*ecoute, (void* (*)(char*, int, char*))reception_diffusion_udp);
+}
+
+void reception_diffusion_udp(char* message, int taille, char* ip)
+{
+    printf("udp_diffusion: message of %d bytes from %s: %s\n", taille, ip, message);
+
+    server_t tmp;
+    decode_server_from_cstr(&tmp, message);
+    add_server_to_list(&serveur_list, &tmp);
+    print_server_list(&serveur_list);
+
+    if (quitter_client == true)
+        exit(EXIT_SUCCESS);
+}
+
+/**** Touches UDP ****/
+
+void tache_touches_udp()
+{
+    while (quitter_client == false) {
+        if (partie_en_cours == false) {
+            char message[MAX_TAMPON_UDP] = "TRAME TOUCHE UDP";
+            envoi_message_udp(hote, PORT_TOUCHES_UDP, message, MAX_TAMPON_UDP);
+        }
+        sleep(1);
+    }
+}
+
+/**** Graphique UDP ****/
+
+void tache_gestion_graphique(int* ecoute)
+{
+    boucle_serveur_udp(*ecoute, (void* (*)(char*, int, char*))reception_graphique_udp);
+}
+
+void reception_graphique_udp(char* message, int taille, char* ip)
+{
+    printf("udp_graphique: message of %d bytes from %s: %s\n", taille, ip, message);
+    if (quitter_client == true)
+        exit(EXIT_SUCCESS);
+}
+
+/** ------------------------------------------------- **/
 
 /* Fonction principale */
 
 int main(int argc, char* argv[])
 {
     // Analyse des arguments
-    if (argc != 3) {
+    if (argc != 2) {
         usage();
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
-    char* host = argv[1];
-    char* port = argv[2];
+    hote = argv[1];
 
-    init_sig((void* (*)(void*))gestion_sig);
+    init_client();
 
-    char message[MAX_MESSAGE] = "Broadcast UDP message";
-    envoi_message_udp(host, port, message, MAX_MESSAGE);
-
-    int socket = init_client_tcp(host, port);
-    creer_tache((void* (*)(void*))demarrer_client_jeu, (void*)&socket, sizeof(socket));
+    envoi_message();
 
     pause();
 

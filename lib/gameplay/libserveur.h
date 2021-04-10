@@ -14,7 +14,6 @@
 typedef struct server_s server_t;
 struct server_s {
     int fd;
-    unsigned short id;
     str_t ip;
     unsigned short port_tcp;
     unsigned short port_udp_touches;
@@ -24,8 +23,13 @@ struct server_s {
 
 void init_server(server_t* server);
 void destroy_server(server_t* server);
-void set_server(server_t* server, int fd, unsigned short id, char* ip, unsigned short port_tcp, unsigned short port_udp_touches);
+void set_server(server_t* server, int fd, char* ip, unsigned short port_tcp, unsigned short port_udp_touches);
+void set_server_fd(server_t* server, int fd);
+void set_server_ip(server_t* server, char* ip);
+void set_server_port_tcp(server_t* server, unsigned short port_tcp);
+void set_server_port_udp_touches(server_t* server, unsigned short port_udp_touches);
 void copy_server(server_t* dst, server_t* src);
+int decode_server_from_cstr(server_t* server, char* str);
 void print_server(server_t* server);
 
 #endif

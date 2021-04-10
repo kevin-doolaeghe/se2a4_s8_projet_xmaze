@@ -18,15 +18,14 @@
 
 /** Constantes **/
 
-#define MAX_TAMPON_UDP 256
+#define MAX_TAMPON_UDP 1024
 
 /** Variables **/
 
 /** Prototypes **/
 
 int init_serveur_udp(char* service);
-int boucle_serveur_udp(int s, void* (*traitement)(void*, void*, void*));
-int init_client_udp(char* hote, char* service);
+int boucle_serveur_udp(int ecoute, void* (*traitement)(char*, int, char*));
 void envoi_message_udp(char* hote, char* service, char* message, int taille);
 
 #endif
