@@ -21,7 +21,8 @@
 
 /** Constantes **/
 
-#define BROADCAST "127.0.0.1"
+#define BROADCAST "255.255.255.255"
+#define ID_SERVEUR 34567
 
 /** Variables **/
 

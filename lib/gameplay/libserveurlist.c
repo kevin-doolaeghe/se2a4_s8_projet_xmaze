@@ -53,13 +53,13 @@ void destroy_server_list(server_list_t* list)
     }
 }
 
-void delete_server_from_list(server_list_t* list, int fd)
+void delete_server_from_list(server_list_t* list, int id)
 {
     pt_server_cell_t ptr = *list;
     pt_server_cell_t previous = NULL;
 
     while (ptr != NULL) {
-        if (ptr->server.fd == fd) {
+        if (ptr->server.id == id) {
             if (previous == NULL) {
                 delete_last_server_from_list(list);
             } else {
@@ -93,7 +93,7 @@ bool search_server_in_list(server_list_t* list, server_t* server)
     bool found = false;
 
     while (ptr != NULL) {
-        if (ptr->server.fd == server->fd) {
+        if (ptr->server.id == server->id) {
             found = true;
             break;
         }

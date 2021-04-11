@@ -51,6 +51,25 @@ void append_str_to_list(str_list_t* list, str_t* str)
     append_cstr_to_list(list, str->data);
 }
 
+void split_cstr_to_str_list(str_list_t* list, const char* delim, char* str)
+{
+    clear_str_list(list);
+
+    int i;
+    char* tmp = NULL;
+    char* token = NULL;
+
+    for (i = 0, tmp = str;; i++, tmp = NULL) {
+        token = strtok(tmp, delim);
+        if (token == NULL) {
+            break;
+        }
+
+        // printf("%d: %s\n", i, token);
+        append_cstr_to_list(list, token);
+    }
+}
+
 void copy_str_list(str_list_t* dst, str_list_t* src)
 {
     for (int i = 0; i < src->alloc; i++) {

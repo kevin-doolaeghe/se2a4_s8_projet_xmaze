@@ -6,7 +6,7 @@
 *~
 
 # VS Code files
-.vscode/
+.vscode
 
 # Executable files
 src/client/client

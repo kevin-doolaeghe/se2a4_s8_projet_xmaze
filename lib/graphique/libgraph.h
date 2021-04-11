@@ -22,7 +22,23 @@
 #define TOUCHE_HAUT '^'
 #define TOUCHE_BAS 'v'
 #define TOUCHE_ESPACE ' '
+#define TOUCHE_O 'o' | 'O'
+#define TOUCHE_P 'p' | 'P'
 #define TOUCHE_AUTRE -1
+
+/** Types **/
+
+typedef struct {
+    int r, v, b;
+} couleur;
+
+/** Constantes **/
+
+#define BITS_PAR_PIXEL 32
+
+/** Macros **/
+
+#define GFX_COULEUR(r, v, b) (((((r << 8) | v) << 8) | b) << 8 | 0xff)
 
 /** Prototypes **/
 

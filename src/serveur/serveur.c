@@ -4,7 +4,7 @@
 
 /** Fonctions **/
 
-void usage() { fprintf(stderr, "Syntaxe : serveur\n"); }
+void usage() { fprintf(stderr, "Syntaxe : ./serveur\n"); }
 
 void init_serveur()
 {
@@ -97,8 +97,15 @@ void tache_diffusion_udp()
 {
     while (quitter_serveur == false) {
         if (partie_en_cours == false) {
-            char message[MAX_TAMPON_UDP] = "TRAME DIFF UDP";
-            envoi_message_udp(BROADCAST, PORT_DIFFUSION_UDP, message, MAX_TAMPON_UDP);
+            pr_udp_identite_t trame;
+            trame.id_serveur = ID_SERVEUR;
+            trame.port_tcp = atoi(PORT_CHAT_TCP);
+            trame.port_udp_touches = atoi(PORT_TOUCHES_UDP);
+
+            char message[sizeof(pr_udp_identite_t)];
+            memcpy(message, &trame, sizeof(pr_udp_identite_t));
+
+            envoi_message_udp(BROADCAST, PORT_DIFFUSION_UDP, message, sizeof(pr_udp_identite_t));
         }
         sleep(1);
     }
@@ -113,7 +120,11 @@ void tache_gestion_touches(int* ecoute)
 
 void reception_touches_udp(char* message, int taille, char* ip)
 {
-    printf("udp_touches: message of %d bytes from %s: %s\n", taille, ip, message);
+    printf("udp_touches: message of %d bytes from %s:", taille, ip);
+    int i;
+    for (i = 0; i < sizeof(message); i++)
+        printf("%x", message[i]);
+    printf("\n");
     if (quitter_serveur == true)
         exit(EXIT_SUCCESS);
 }
@@ -143,7 +154,7 @@ void tache_gestion_graphique()
 int main(int argc, char* argv[])
 {
     // Analyse des arguments
-    if (argc > 1) {
+    if (argc != 1) {
         usage();
         exit(EXIT_FAILURE);
     }

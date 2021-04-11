@@ -2,21 +2,9 @@
 
 #include "libgraph.h"
 
-/** Types **/
-
-typedef struct {
-    int r, v, b;
-} couleur;
-
-/** Constantes **/
-
-#define BITS_PAR_PIXEL 32
-
-/** Macros **/
-
-#define GFX_COULEUR(r, v, b) (((((r << 8) | v) << 8) | b) << 8 | 0xff)
-
 /** Variables globales **/
+
+static int fenetre_x = -1, fenetre_y = -1;
 
 static const couleur couleurs[] = { { 255, 255, 255 }, { 0, 0, 0 }, { 255, 0, 0 },
     { 0, 255, 0 }, { 0, 0, 255 }, { 255, 105, 180 },
@@ -25,11 +13,7 @@ static const couleur couleurs[] = { { 255, 255, 255 }, { 0, 0, 0 }, { 255, 0, 0 
 static SDL_Window* fenetre;
 static SDL_Renderer* support;
 
-/** Fonctions **/
-
 /* Initialisation de la fenetre */
-
-static int fenetre_x = -1, fenetre_y = -1;
 
 unsigned char creerFenetre(int largeur, int hauteur, char* titre)
 {
