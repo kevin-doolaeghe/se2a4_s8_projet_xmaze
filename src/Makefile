@@ -16,7 +16,7 @@ MAKE = make
 # Constantes du projet
 #
 
-DIRS = client serveur labyrinthe
+DIRS = client serveur labyrinthe test
 
 #
 # Cible principale

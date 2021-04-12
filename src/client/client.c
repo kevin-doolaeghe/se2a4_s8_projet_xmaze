@@ -54,7 +54,7 @@ void connexion_chat(int id)
         int graphique_sock = init_serveur_udp(PORT_GRAPHIQUE_UDP);
         creer_tache((void* (*)(void*))tache_gestion_graphique, (void*)&graphique_sock, sizeof(graphique_sock));
 
-        //creer_tache((void* (*)(void*))gestion_evenements, NULL, 0);
+        creer_tache((void* (*)(void*))gestion_evenements, NULL, 0);
     }
 }
 
@@ -160,11 +160,9 @@ void gestion_evenements()
         fprintf(stderr, "Problème graphique !\n");
         exit(-1);
     }
-    /*
     int nb = dessin_vers_murs(laby, murs);
     point p = { LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE };
     int angle = 0;
-    */
 
     int touche;
     unsigned char fenetre, quitter;
@@ -200,7 +198,6 @@ void gestion_evenements()
         }
         */
 
-        /*
         if (touche || fenetre) {
             mur* m2 = duplique_murs(murs, nb);
             decale_murs(m2, nb, p);
@@ -215,7 +212,6 @@ void gestion_evenements()
             free(objets);
             synchroniserFenetre();
         }
-        */
     }
     fermerFenetre();
 }

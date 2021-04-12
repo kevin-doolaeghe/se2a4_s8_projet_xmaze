@@ -161,3 +161,14 @@ unsigned char attendreEvenement(int* touche, unsigned char* fenetre, unsigned ch
     }
     return 1;
 }
+
+void centrer_curseur()
+{
+    int w, h;
+    //SDL_ShowCursor(SDL_FALSE);
+    //SDL_SetWindowGrab(fenetre, SDL_TRUE);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_GetWindowSize(fenetre, &w, &h);
+    SDL_WarpMouseInWindow(fenetre, w / 2, h / 2);
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+}
