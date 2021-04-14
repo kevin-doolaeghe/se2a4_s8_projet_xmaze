@@ -141,30 +141,3 @@ void envoi_message_udp(char* hote, char* service, char* message, int taille)
     /* Fermeture de la socket d'envoi */
     close(s);
 }
-
-/*
-void envoi_broadcast_udp(char* reseau, char* masque, char* service, char* message, int taille)
-{
-    struct sockaddr_in sa_reseau, sa_masque, sa_hote;
-    char hote[INET_ADDRSTRLEN];
-    inet_pton(AF_INET, reseau, &(sa_reseau.sin_addr));
-    sa_reseau.sin_addr.s_addr = htonl(sa_reseau.sin_addr.s_addr);
-    inet_pton(AF_INET, masque, &(sa_masque.sin_addr));
-    sa_masque.sin_addr.s_addr = htonl(sa_masque.sin_addr.s_addr);
-    sa_reseau.sin_addr.s_addr &= sa_masque.sin_addr.s_addr;
-    int32_t nb_hotes = ~sa_masque.sin_addr.s_addr;
-    // printf("reseau: %x\n", sa_reseau.sin_addr.s_addr);
-    // printf("masque: %x\n", sa_masque.sin_addr.s_addr);
-    // printf("nb_hotes: %u\n", nb_hotes);
-    sa_hote = sa_reseau;
-    int i;
-    for (i = 0; i < nb_hotes; i++) {
-        sa_hote.sin_addr.s_addr++;
-        sa_hote.sin_addr.s_addr = ntohl(sa_hote.sin_addr.s_addr);
-        inet_ntop(AF_INET, &(sa_hote.sin_addr), hote, INET_ADDRSTRLEN);
-        sa_hote.sin_addr.s_addr = htonl(sa_hote.sin_addr.s_addr);
-        // printf("hote n°%d: %s\n", i, hote);
-        envoi_message_udp(hote, service, message, taille);
-    }
-}
-*/

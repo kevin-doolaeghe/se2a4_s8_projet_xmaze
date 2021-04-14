@@ -80,6 +80,21 @@ int size_of_client_list(client_list_t* list)
     return size;
 }
 
+client_t* get_client_by_id(client_list_t* list, int id)
+{
+    pt_client_cell_t ptr = *list;
+    int cnt = 0;
+
+    while (ptr != NULL) {
+        if (cnt == id)
+            return &(ptr->client);
+        cnt++;
+        ptr = ptr->next;
+    }
+
+    return NULL;
+}
+
 void copy_client_list(client_list_t* src, client_list_t* dst)
 {
     pt_client_cell_t ptr = *src;

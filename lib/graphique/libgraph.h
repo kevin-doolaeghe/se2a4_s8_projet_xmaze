@@ -22,8 +22,6 @@
 #define TOUCHE_HAUT '^'
 #define TOUCHE_BAS 'v'
 #define TOUCHE_ESPACE ' '
-#define TOUCHE_O 'o' | 'O'
-#define TOUCHE_P 'p' | 'P'
 #define TOUCHE_AUTRE -1
 
 /** Types **/

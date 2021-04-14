@@ -14,6 +14,15 @@ void init_client()
 
     init_server(&serveur);
 
+    unsigned char resultat = creerFenetre(LARGEUR, HAUTEUR, TITRE);
+    if (!resultat) {
+        fprintf(stderr, "Problème graphique !\n");
+        exit(EXIT_FAILURE);
+    }
+
+    effacerFenetre();
+    synchroniserFenetre();
+
     quitter_client = false;
     partie_en_cours = false;
 
@@ -25,6 +34,8 @@ void detruire_client()
 {
     quitter_client = true;
     partie_en_cours = false;
+
+    fermerFenetre();
 
     destroy_server_list(&serveur_list);
     destroy_server(&serveur);
@@ -83,7 +94,9 @@ void tache_diffusion_udp(int* ecoute)
 
 void reception_diffusion_udp(char* message, int taille, char* ip)
 {
-    // printf("udp_diffusion: message of %d bytes from %s: %s\n", taille, ip, message);
+#ifdef DEBUG
+    printf("udp_diffusion: message of %d bytes from %s: %s\n", taille, ip, message);
+#endif
 
     if (sizeof(message) > sizeof(pr_udp_identite_t)) {
         pr_udp_identite_t* trame = (pr_udp_identite_t*)message;
@@ -108,24 +121,26 @@ void reception_diffusion_udp(char* message, int taille, char* ip)
 
 void tache_touches_udp(int touche)
 {
-    //if (touche) {
     pr_udp_touches_t trame;
     trame.id_client = id;
     trame.touches = 0;
 
     switch (touche) {
     case TOUCHE_HAUT:
-        trame.touches |= BIT_TOUCHE_HAUT;
+        trame.touches = BIT_TOUCHE_HAUT;
+        break;
     case TOUCHE_BAS:
-        trame.touches |= BIT_TOUCHE_BAS;
+        trame.touches = BIT_TOUCHE_BAS;
+        break;
     case TOUCHE_GAUCHE:
-        trame.touches |= BIT_TOUCHE_GAUCHE;
+        trame.touches = BIT_TOUCHE_GAUCHE;
+        break;
     case TOUCHE_DROITE:
-        trame.touches |= BIT_TOUCHE_DROITE;
+        trame.touches = BIT_TOUCHE_DROITE;
+        break;
     case TOUCHE_ESPACE:
-        trame.touches |= BIT_TOUCHE_SAUTER;
-    case TOUCHE_P:
-        trame.touches |= BIT_TOUCHE_TIRER;
+        trame.touches = BIT_TOUCHE_TIRER;
+        break;
     default:
         break;
     }
@@ -134,7 +149,29 @@ void tache_touches_udp(int touche)
     memcpy(message, &trame, sizeof(pr_udp_touches_t));
 
     envoi_message_udp(to_cstr(&(serveur.ip)), PORT_TOUCHES_UDP, message, sizeof(pr_udp_touches_t));
-    //}
+}
+
+void gestion_evenements()
+{
+    int touche;
+    unsigned char fenetre, quitter;
+    while (1) {
+        int evenement = attendreEvenement(&touche, &fenetre, &quitter);
+        if (!evenement) {
+            usleep(ATTENTE);
+            continue;
+        }
+
+        if (quitter == 1)
+            break;
+
+        if (touche) {
+#ifdef DEBUG
+            printf("touche: %x\n", touche);
+#endif
+            tache_touches_udp(touche);
+        }
+    }
 }
 
 /**** Graphique UDP ****/
@@ -146,74 +183,18 @@ void tache_gestion_graphique(int* ecoute)
 
 void reception_graphique_udp(char* message, int taille, char* ip)
 {
+#ifdef DEBUG
     printf("udp_graphique: message of %d bytes from %s: %s\n", taille, ip, message);
+#endif
+
+    pr_udp_graph_t* trame = (pr_udp_graph_t*)message;
+
+    effacerFenetre();
+    dessine_2D(trame->objets, trame->nb_objets);
+    synchroniserFenetre();
+
     if (quitter_client == true)
         exit(EXIT_SUCCESS);
-}
-
-/** ------------------------------------------------- **/
-
-void gestion_evenements()
-{
-    unsigned char resultat = creerFenetre(LARGEUR, HAUTEUR, TITRE);
-    if (!resultat) {
-        fprintf(stderr, "Problème graphique !\n");
-        exit(-1);
-    }
-    int nb = dessin_vers_murs(laby, murs);
-    point p = { LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE };
-    int angle = 0;
-
-    int touche;
-    unsigned char fenetre, quitter;
-    while (quitter_client != true) {
-        int evenement = attendreEvenement(&touche, &fenetre, &quitter);
-        if (!evenement) {
-            usleep(ATTENTE);
-            continue;
-        }
-
-        printf("touches actuelles : %d\n", touche);
-        tache_touches_udp(touche);
-
-        if (quitter == 1)
-            break;
-
-        /*
-        if (touche) {
-            if (touche == TOUCHE_DROITE)
-                angle += 5;
-            if (touche == TOUCHE_GAUCHE)
-                angle -= 5;
-            if (angle < 0 || angle > 360)
-                angle = angle % 360;
-            if (touche == TOUCHE_HAUT) {
-                p.x += MUR_TAILLE / 10 * sin(2 * M_PI * angle / 360);
-                p.z += MUR_TAILLE / 10 * cos(2 * M_PI * angle / 360);
-            }
-            if (touche == TOUCHE_BAS) {
-                p.x -= MUR_TAILLE / 10 * sin(2 * M_PI * angle / 360);
-                p.z -= MUR_TAILLE / 10 * cos(2 * M_PI * angle / 360);
-            }
-        }
-        */
-
-        if (touche || fenetre) {
-            mur* m2 = duplique_murs(murs, nb);
-            decale_murs(m2, nb, p);
-            rotation_murs(m2, nb, angle);
-            tri_murs(m2, nb);
-            objet2D* objets = malloc(nb * sizeof(objet2D));
-            int no;
-            projete_murs(m2, nb, objets, &no);
-            free(m2);
-            effacerFenetre();
-            dessine_2D(objets, no);
-            free(objets);
-            synchroniserFenetre();
-        }
-    }
-    fermerFenetre();
 }
 
 /** ------------------------------------------------- **/
@@ -254,7 +235,6 @@ void boucle_commande()
             }
             strcat(message, "\0");
 
-            printf("final message : %s\n", message);
             envoi_message_chat(message);
         } else {
             printf("Commande non reconnue..\n");

@@ -10,6 +10,8 @@ void init_serveur()
 {
     init_sig((void* (*)(void*))detruire_serveur);
 
+    nb = dessin_vers_murs(laby, murs);
+
     quitter_serveur = false;
     partie_en_cours = false;
 
@@ -47,6 +49,10 @@ void tache_gestion_chat(int* dialogue)
 
 void gestion_client(int dialogue, char* ip)
 {
+#ifdef DEBUG
+    printf("Recieved TCP connection demmand from %s\n", ip);
+#endif
+
     //char tampon[MAX_TAMPON_TCP];
     //int ret;
 
@@ -62,6 +68,8 @@ void gestion_client(int dialogue, char* ip)
     set_client_fd(&client, dialogue);
     set_client_ip(&client, ip);
     set_client_pseudo(&client, "pseudotest");
+    pos_t pos = { LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0 };
+    set_client_position(&client, &pos);
 
     append_client_to_list(&client_list, &client);
     print_client_list(&client_list);
@@ -107,7 +115,7 @@ void tache_diffusion_udp()
 
             envoi_message_udp(BROADCAST, PORT_DIFFUSION_UDP, message, sizeof(pr_udp_identite_t));
         }
-        sleep(1);
+        sleep(3);
     }
 }
 
@@ -120,11 +128,34 @@ void tache_gestion_touches(int* ecoute)
 
 void reception_touches_udp(char* message, int taille, char* ip)
 {
-    printf("udp_touches: message of %d bytes from %s:", taille, ip);
+#ifdef DEBUG
+    printf("udp_touches: message of %d bytes from %s: ", taille, ip);
     int i;
     for (i = 0; i < sizeof(message); i++)
         printf("%x", message[i]);
     printf("\n");
+#endif
+
+    pr_udp_touches_t* trame = (pr_udp_touches_t*)message;
+
+    int touche = trame->touches;
+    client_t* client = get_client_by_id(&client_list, trame->id_client);
+
+    if (touche == TOUCHE_DROITE)
+        client->position.angle += 10;
+    if (touche == TOUCHE_GAUCHE)
+        client->position.angle -= 10;
+    if (client->position.angle < 0 || client->position.angle > 360)
+        client->position.angle = client->position.angle % 360;
+    if (touche == TOUCHE_HAUT) {
+        client->position.x += MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
+        client->position.z += MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
+    }
+    if (touche == TOUCHE_BAS) {
+        client->position.x -= MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
+        client->position.z -= MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
+    }
+
     if (quitter_serveur == true)
         exit(EXIT_SUCCESS);
 }
@@ -134,16 +165,50 @@ void reception_touches_udp(char* message, int taille, char* ip)
 void tache_gestion_graphique()
 {
     while (quitter_serveur == false) {
-        if (partie_en_cours == true) {
-            pt_client_cell_t ptr = client_list;
+        //if (partie_en_cours == true) {
+        pt_client_cell_t ptr = client_list;
 
-            while (ptr != NULL) {
-                char message[MAX_TAMPON_UDP] = "TRAME GRAPH UDP";
-                envoi_message_udp(to_cstr(&(ptr->client.ip)), PORT_GRAPHIQUE_UDP, message, MAX_TAMPON_UDP);
-                ptr = ptr->next;
+        while (ptr != NULL) {
+            point p = { ptr->client.position.x, ptr->client.position.y, ptr->client.position.z };
+            int angle = ptr->client.position.angle;
+
+            mur* m2 = duplique_murs(murs, nb);
+            decale_murs(m2, nb, p);
+            rotation_murs(m2, nb, angle);
+            tri_murs(m2, nb);
+            objet2D* objets = malloc(nb * sizeof(objet2D));
+            int no;
+            projete_murs(m2, nb, objets, &no);
+
+            /*
+            pr_udp_graph_t trame;
+            trame.nb_objets = no;
+            trame.objets = objets;
+            */
+
+            char* message = malloc(sizeof(unsigned short) + nb * sizeof(objet2D));
+            memcpy(message, &no, sizeof(unsigned short));
+
+            int i;
+            for (i = 0; i < no; i++) {
+                memcpy(message + sizeof(unsigned short) + i * sizeof(objet2D), &(objets[i]), sizeof(objet2D));
             }
+
+#ifdef DEBUG
+            printf("sizeof(objet2D)=%ld; no=%d\n", sizeof(objet2D), no);
+            printf("Sending graphic of %ld bytes: %s\n", sizeof(message), message);
+#endif
+
+            envoi_message_udp(to_cstr(&(ptr->client.ip)), PORT_GRAPHIQUE_UDP, message, sizeof(message));
+
+            free(message);
+            free(m2);
+            free(objets);
+
+            ptr = ptr->next;
         }
-        sleep(1);
+        //}
+        usleep(ATTENTE);
     }
 }
 

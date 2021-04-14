@@ -31,7 +31,7 @@ $(patsubst %,_dir_%,$(DIRS)):
 # Cible de deverminage
 #
 
-debug: CFLAGS += -DDEVERMINE
+debug: CFLAGS += -DDEVERMINE -DDEBUG
 debug: all
 
 #

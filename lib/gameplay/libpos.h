@@ -16,15 +16,13 @@ struct pos_s {
     int x;
     int y;
     int z;
-    int dx;
-    int dy;
-    int dz;
+    int angle;
 };
 
 /** Prototypes **/
 
 void init_pos(pos_t* position);
-void set_pos(pos_t* position, int x, int y, int z, int dx, int dy, int dz);
+void set_pos(pos_t* position, int x, int y, int z, int angle);
 void copy_pos(pos_t* dst, pos_t* src);
 void print_pos(pos_t* position);
 

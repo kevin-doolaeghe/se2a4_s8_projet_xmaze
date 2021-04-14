@@ -10,6 +10,8 @@
     ****************************************
 */
 
+#include "libaffiche.h"
+
 /*** Définition des constantes ***/
 
 /* Définition des ports de communication */
@@ -30,8 +32,7 @@
 #define BIT_TOUCHE_BAS 0x02
 #define BIT_TOUCHE_GAUCHE 0x04
 #define BIT_TOUCHE_DROITE 0x08
-#define BIT_TOUCHE_SAUTER 0x10
-#define BIT_TOUCHE_TIRER 0x20
+#define BIT_TOUCHE_TIRER 0x10
 
 /*** Définition des structures de communication UDP ***/
 
@@ -48,18 +49,10 @@ typedef struct UDP_Touches {
     unsigned char touches;
 } pr_udp_touches_t;
 
-/* Objet graphique */
-/***** NON DEFINITIF *****/
-typedef struct objet {
-    //	unsigned short type;
-    //	unsigned short pos_x;
-    //	unsigned short pos_z;
-} pr_objet_t;
-
 /* Paquet d'envoi des objets graphiques */
 typedef struct UDP_graph {
     unsigned short nb_objets;
-    pr_objet_t* objets;
+    objet2D* objets;
 } pr_udp_graph_t;
 
 #endif
