@@ -53,6 +53,5 @@ void appliquerDessins(void);
 unsigned char attendreEvenement(int* touche, unsigned char* fenetre, unsigned char* quitter);
 unsigned char sauverSurface(char* fichier);
 unsigned char chargerSurface(char* fichier);
-void centrer_curseur();
 
 #endif
