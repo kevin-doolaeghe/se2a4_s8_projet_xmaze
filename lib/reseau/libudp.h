@@ -18,7 +18,7 @@
 
 /** Constantes **/
 
-#define MAX_TAMPON_UDP 1024
+#define MAX_TAMPON_UDP 4096
 
 /** Variables **/
 

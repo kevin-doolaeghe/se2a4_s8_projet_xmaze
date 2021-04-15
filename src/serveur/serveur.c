@@ -132,13 +132,14 @@ void reception_touches_udp(char* message, int taille, char* ip)
     printf("udp_touches: message of %d bytes from %s: ", taille, ip);
     int i;
     for (i = 0; i < sizeof(message); i++)
-        printf("%x", message[i]);
+        printf("%08x", message[i]);
     printf("\n");
 #endif
 
     pr_udp_touches_t* trame = (pr_udp_touches_t*)message;
 
     int touche = trame->touches;
+    printf("touche: %d\n", touche);
     client_t* client = get_client_by_id(&client_list, trame->id_client);
 
     if (touche == TOUCHE_DROITE)
@@ -180,26 +181,23 @@ void tache_gestion_graphique()
             int no;
             projete_murs(m2, nb, objets, &no);
 
-            /*
-            pr_udp_graph_t trame;
-            trame.nb_objets = no;
-            trame.objets = objets;
-            */
+            int taille = sizeof(uint32_t) + no * sizeof(objet2D);
 
-            char* message = malloc(sizeof(unsigned short) + nb * sizeof(objet2D));
-            memcpy(message, &no, sizeof(unsigned short));
-
+            char* message = malloc(taille);
             int i;
-            for (i = 0; i < no; i++) {
-                memcpy(message + sizeof(unsigned short) + i * sizeof(objet2D), &(objets[i]), sizeof(objet2D));
-            }
+            for (i = 0; i < sizeof(uint32_t); i++)
+                message[i] = (no >> (3 - i) * 8) & 0xFF;
+            for (i = 0; i < no; i++)
+                memcpy(message + sizeof(uint32_t) + i * sizeof(objet2D), &(objets[i]), sizeof(objet2D));
 
 #ifdef DEBUG
-            printf("sizeof(objet2D)=%ld; no=%d\n", sizeof(objet2D), no);
-            printf("Sending graphic of %ld bytes: %s\n", sizeof(message), message);
+            printf("Sending graphic of %d bytes: ", taille);
+            for (i = 0; i < taille; i++)
+                printf("%02x", message[i]);
+            printf("\n");
 #endif
 
-            envoi_message_udp(to_cstr(&(ptr->client.ip)), PORT_GRAPHIQUE_UDP, message, sizeof(message));
+            envoi_message_udp(to_cstr(&(ptr->client.ip)), PORT_GRAPHIQUE_UDP, message, taille);
 
             free(message);
             free(m2);
@@ -208,7 +206,7 @@ void tache_gestion_graphique()
             ptr = ptr->next;
         }
         //}
-        usleep(ATTENTE);
+        usleep(100000);
     }
 }
 

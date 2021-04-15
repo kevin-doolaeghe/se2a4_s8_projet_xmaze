@@ -27,13 +27,6 @@
 #define CMD_CRASH "c_cho"
 #define CMD_IDCLIENT "iencli"
 
-/* Définition des touches UDP */
-#define BIT_TOUCHE_HAUT 0x01
-#define BIT_TOUCHE_BAS 0x02
-#define BIT_TOUCHE_GAUCHE 0x04
-#define BIT_TOUCHE_DROITE 0x08
-#define BIT_TOUCHE_TIRER 0x10
-
 /*** Définition des structures de communication UDP ***/
 
 /* Paquet d'identité du serveur */
@@ -51,7 +44,7 @@ typedef struct UDP_Touches {
 
 /* Paquet d'envoi des objets graphiques */
 typedef struct UDP_graph {
-    unsigned short nb_objets;
+    uint32_t nb_objets;
     objet2D* objets;
 } pr_udp_graph_t;
 

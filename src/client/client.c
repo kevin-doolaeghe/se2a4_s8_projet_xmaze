@@ -123,27 +123,7 @@ void tache_touches_udp(int touche)
 {
     pr_udp_touches_t trame;
     trame.id_client = id;
-    trame.touches = 0;
-
-    switch (touche) {
-    case TOUCHE_HAUT:
-        trame.touches = BIT_TOUCHE_HAUT;
-        break;
-    case TOUCHE_BAS:
-        trame.touches = BIT_TOUCHE_BAS;
-        break;
-    case TOUCHE_GAUCHE:
-        trame.touches = BIT_TOUCHE_GAUCHE;
-        break;
-    case TOUCHE_DROITE:
-        trame.touches = BIT_TOUCHE_DROITE;
-        break;
-    case TOUCHE_ESPACE:
-        trame.touches = BIT_TOUCHE_TIRER;
-        break;
-    default:
-        break;
-    }
+    trame.touches = touche;
 
     char message[sizeof(pr_udp_touches_t)];
     memcpy(message, &trame, sizeof(pr_udp_touches_t));
@@ -165,10 +145,11 @@ void gestion_evenements()
         if (quitter == 1)
             break;
 
-        if (touche) {
+        if (touche != 0 && touche != TOUCHE_AUTRE) {
 #ifdef DEBUG
-            printf("touche: %x\n", touche);
+            printf("touche: %08x\n", touche);
 #endif
+
             tache_touches_udp(touche);
         }
     }
@@ -183,14 +164,23 @@ void tache_gestion_graphique(int* ecoute)
 
 void reception_graphique_udp(char* message, int taille, char* ip)
 {
+    pr_udp_graph_t trame;
+    trame.nb_objets = 0;
+    int i;
+    for (i = 0; i < sizeof(trame.nb_objets); i++)
+        trame.nb_objets += message[3 - i] << (i * 8);
+    trame.objets = (objet2D*)&(message[sizeof(trame.nb_objets)]);
+
 #ifdef DEBUG
-    printf("udp_graphique: message of %d bytes from %s: %s\n", taille, ip, message);
+    printf("udp_graphique: message of %d bytes from %s.\n", taille, ip);
+    printf("%d objets graphiques reçus:\n", trame.nb_objets);
+    for (i = 0; i < taille; i++)
+        printf("%02x", message[i]);
+    printf("\n");
 #endif
 
-    pr_udp_graph_t* trame = (pr_udp_graph_t*)message;
-
     effacerFenetre();
-    dessine_2D(trame->objets, trame->nb_objets);
+    dessine_2D(trame.objets, trame.nb_objets);
     synchroniserFenetre();
 
     if (quitter_client == true)
