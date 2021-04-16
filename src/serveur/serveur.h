@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "libaffiche.h"
 #include "libclient.h"
 #include "libclientlist.h"
 #include "libprotocole.h"

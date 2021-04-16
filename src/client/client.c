@@ -28,6 +28,8 @@ void init_client()
 
     int diffusion_sock = init_serveur_udp(PORT_DIFFUSION_UDP);
     creer_tache((void* (*)(void*))tache_diffusion_udp, (void*)&diffusion_sock, sizeof(diffusion_sock));
+
+    creer_tache((void* (*)(void*))gestion_evenements, NULL, 0);
 }
 
 void detruire_client()
@@ -64,8 +66,6 @@ void connexion_chat(int id)
 
         int graphique_sock = init_serveur_udp(PORT_GRAPHIQUE_UDP);
         creer_tache((void* (*)(void*))tache_gestion_graphique, (void*)&graphique_sock, sizeof(graphique_sock));
-
-        creer_tache((void* (*)(void*))gestion_evenements, NULL, 0);
     }
 }
 
@@ -145,7 +145,7 @@ void gestion_evenements()
         if (quitter == 1)
             detruire_client();
 
-        if (touche != 0 && touche != TOUCHE_AUTRE) {
+        if (touche != 0 && touche != TOUCHE_AUTRE && serveur.fd != -1) {
 #ifdef DEBUG
             printf("touche: %08x\n", touche);
 #endif
@@ -168,7 +168,7 @@ void reception_graphique_udp(char* message, int taille, char* ip)
     int i;
     for (i = 0; i < sizeof(trame.nb_objets); i++)
         trame.nb_objets += message[3 - i] << (i * 8);
-    trame.objets = (objet2D*)&(message[sizeof(trame.nb_objets)]);
+    trame.objets = (objet_2d_t*)&(message[sizeof(trame.nb_objets)]);
 
 #ifdef DEBUG
     printf("udp_graphique: message of %d bytes from %s.\n", taille, ip);
@@ -179,7 +179,7 @@ void reception_graphique_udp(char* message, int taille, char* ip)
 #endif
 
     effacerFenetre();
-    dessine_2D(trame.objets, trame.nb_objets);
+    dessine_2D((objet2D*)trame.objets, trame.nb_objets);
     synchroniserFenetre();
 
     if (quitter_client == true)

@@ -10,17 +10,17 @@
     ****************************************
 */
 
-#include "libaffiche.h"
-
 /*** Définition des constantes ***/
 
 /* Définition des ports de communication */
+
 #define PORT_CHAT_TCP "9999"
 #define PORT_DIFFUSION_UDP "9998"
 #define PORT_TOUCHES_UDP "9997"
 #define PORT_GRAPHIQUE_UDP "9996"
 
 /* Définition des commandes TCP */
+
 #define CMD_IDENTIFIANT "\\"
 #define CMD_CONNECTION "pseudo"
 #define CMD_ENDGAME "endgame"
@@ -30,6 +30,7 @@
 /*** Définition des structures de communication UDP ***/
 
 /* Paquet d'identité du serveur */
+
 typedef struct UDP_Diffusion {
     unsigned short id_serveur;
     unsigned short port_tcp;
@@ -37,15 +38,30 @@ typedef struct UDP_Diffusion {
 } pr_udp_identite_t;
 
 /* Paquet d'envoi des touches */
+
 typedef struct UDP_Touches {
     unsigned char id_client;
     unsigned char touches;
 } pr_udp_touches_t;
 
+/* Structures graphiques */
+
+typedef struct {
+    int x, y;
+} coords_t;
+
+typedef struct {
+    int type;
+    union {
+        coords_t p[4];
+    } def;
+} objet_2d_t;
+
 /* Paquet d'envoi des objets graphiques */
+
 typedef struct UDP_graph {
     uint32_t nb_objets;
-    objet2D* objets;
+    objet_2d_t* objets;
 } pr_udp_graph_t;
 
 #endif
