@@ -21,8 +21,8 @@
 
 /** Constantes **/
 
-#define BROADCAST "255.255.255.255"
 #define ID_SERVEUR 34567
+#define ATTENTE_GRAPHIQUE 50000
 
 /** Variables **/
 

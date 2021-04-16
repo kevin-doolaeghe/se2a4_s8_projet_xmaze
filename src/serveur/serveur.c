@@ -34,7 +34,7 @@ void detruire_serveur()
     destroy_client_list(&client_list);
 
     printf("\nBye !\n");
-    usleep(100);
+    usleep(ATTENTE);
     exit(EXIT_SUCCESS);
 }
 
@@ -206,7 +206,7 @@ void tache_gestion_graphique()
             ptr = ptr->next;
         }
         //}
-        usleep(100000);
+        usleep(ATTENTE_GRAPHIQUE);
     }
 }
 

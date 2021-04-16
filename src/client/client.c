@@ -41,7 +41,7 @@ void detruire_client()
     destroy_server(&serveur);
 
     printf("\nBye !\n");
-    usleep(100);
+    usleep(ATTENTE);
     exit(EXIT_SUCCESS);
 }
 
@@ -143,13 +143,12 @@ void gestion_evenements()
         }
 
         if (quitter == 1)
-            break;
+            detruire_client();
 
         if (touche != 0 && touche != TOUCHE_AUTRE) {
 #ifdef DEBUG
             printf("touche: %08x\n", touche);
 #endif
-
             tache_touches_udp(touche);
         }
     }

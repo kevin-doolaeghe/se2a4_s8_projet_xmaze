@@ -19,6 +19,7 @@
 /** Constantes **/
 
 #define MAX_TAMPON_UDP 4096
+#define BROADCAST "255.255.255.255"
 
 /** Variables **/
 
