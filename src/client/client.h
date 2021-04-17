@@ -1,26 +1,24 @@
-/**** Header client ****/
+/**** Entete du client ****/
 
 #ifndef _CLIENT_H_
 #define _CLIENT_H_
 
-/** Fichiers d'inclusion des bibliothèques **/
+/** Fichiers d'inclusion des bibliotheques **/
 
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "chat.h"
-#include "diffusion.h"
-#include "libaffiche.h"
 #include "libserveur.h"
 #include "libserveurlist.h"
 #include "libsig.h"
 #include "libthread.h"
-#include "shell.h"
-#include "touches.h"
 
-/** Variables **/
+#include "connectivite.h"
+#include "interaction.h"
+
+/** Variables globales **/
 
 server_list_t serveur_list;
 server_t serveur;

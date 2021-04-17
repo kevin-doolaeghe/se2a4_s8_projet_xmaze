@@ -3,7 +3,7 @@
 #ifndef _LIBGRAPH_H_
 #define _LIBGRAPH_H_
 
-/** Fichiers d'inclusion des bibliothèques **/
+/** Fichiers d'inclusion des bibliotheques **/
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL2_gfxPrimitives.h"

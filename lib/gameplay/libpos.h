@@ -3,11 +3,11 @@
 #ifndef _LIBPOS_H_
 #define _LIBPOS_H_
 
-/** Fichiers d'inclusion des bibliothèques **/
+/** Fichiers d'inclusion des bibliotheques **/
 
 #include <stdio.h>
 
-/** Variables **/
+/** Types **/
 
 typedef struct pos_s pos_t;
 struct pos_s {

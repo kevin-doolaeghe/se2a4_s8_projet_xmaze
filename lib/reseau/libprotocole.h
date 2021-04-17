@@ -10,9 +10,12 @@
     ****************************************
 */
 
-#include "stdint.h"
+/** Fichiers d'inclusion des bibliotheques **/
 
-/*** Définition des constantes ***/
+#include <stdio.h>
+#include <stdlib.h>
+
+/** Constantes **/
 
 /* Définition des ports de communication */
 
@@ -29,22 +32,24 @@
 #define CMD_CRASH "c_cho"
 #define CMD_IDCLIENT "iencli"
 
-/*** Définition des structures de communication UDP ***/
+/** Types **/
 
 /* Paquet d'identité du serveur */
 
-typedef struct UDP_Diffusion {
+typedef struct pr_udp_identite_s pr_udp_identite_t;
+struct pr_udp_identite_s {
     unsigned short id_serveur;
     unsigned short port_tcp;
     unsigned short port_udp_touches;
-} pr_udp_identite_t;
+};
 
 /* Paquet d'envoi des touches */
 
-typedef struct UDP_Touches {
+typedef struct pr_udp_touches_s pr_udp_touches_t;
+struct pr_udp_touches_s {
     unsigned char id_client;
     unsigned char touches;
-} pr_udp_touches_t;
+};
 
 /* Structures graphiques */
 
@@ -61,9 +66,16 @@ typedef struct {
 
 /* Paquet d'envoi des objets graphiques */
 
-typedef struct UDP_graph {
-    uint32_t nb_objets;
+typedef struct pr_udp_graph_s pr_udp_graph_t;
+struct pr_udp_graph_s {
+    int nb_objets;
     objet_2d_t* objets;
-} pr_udp_graph_t;
+};
+
+/** Prototypes **/
+
+void traduire_trame_identite(pr_udp_identite_t* trame, char* message, int taille);
+void traduire_trame_touches(pr_udp_touches_t* trame, char* message, int taille);
+void traduire_trame_graphique(pr_udp_graph_t* trame, char* message, int taille);
 
 #endif

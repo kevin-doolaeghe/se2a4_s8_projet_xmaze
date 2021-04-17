@@ -3,11 +3,11 @@
 #ifndef _LIBSERVEUR_H_
 #define _LIBSERVEUR_H_
 
-/** Fichiers d'inclusion des bibliothèques **/
+/** Fichiers d'inclusion des bibliotheques **/
 
 #include "libstr.h"
 
-/** Variables **/
+/** Types **/
 
 typedef struct server_s server_t;
 struct server_s {

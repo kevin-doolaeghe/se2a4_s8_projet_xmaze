@@ -2,6 +2,11 @@
 
 #include "libsig.h"
 
+/** Variables **/
+
+struct sigaction action_sig;
+void* (*handle_sig_func)(void*);
+
 /** Fonctions **/
 
 void init_sig(void* (*task)(void*))

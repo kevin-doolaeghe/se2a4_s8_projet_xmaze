@@ -3,16 +3,11 @@
 #ifndef _LIBSIG_H_
 #define _LIBSIG_H_
 
-/** Fichiers d'inclusion des bibliothèques **/
+/** Fichiers d'inclusion des bibliotheques **/
 
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-/** Variables **/
-
-struct sigaction action_sig;
-void* (*handle_sig_func)(void*);
 
 /** Prototypes **/
 

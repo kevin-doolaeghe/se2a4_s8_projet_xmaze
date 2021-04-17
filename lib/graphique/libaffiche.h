@@ -3,7 +3,7 @@
 #ifndef _LIBAFFICHE_H_
 #define _LIBAFFICHE_H_
 
-/** Fichiers d'inclusion **/
+/** Fichiers d'inclusion des bibliotheques **/
 
 #include <math.h>
 #include <stdio.h>
@@ -38,7 +38,7 @@
 #define min(a, b) (((a) > (b)) ? (b) : (a))
 #define sign(a) (((a) == 0) ? 0 : (((a) > 0) ? 1 : -1))
 
-/** Structures **/
+/** Types **/
 
 typedef struct {
     int x, y, z;
@@ -58,8 +58,6 @@ typedef struct {
         point2D p[4];
     } def;
 } objet2D;
-
-/** Variables globales **/
 
 /** Fonctions **/
 

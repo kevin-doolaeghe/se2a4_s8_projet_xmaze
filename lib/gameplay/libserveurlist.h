@@ -9,7 +9,7 @@
 
 #include "libserveur.h"
 
-/** Variables **/
+/** Types **/
 
 typedef struct server_cell_s server_cell_t;
 struct server_cell_s {

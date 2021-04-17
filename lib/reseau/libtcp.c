@@ -2,6 +2,10 @@
 
 #include "libtcp.h"
 
+/** Variables **/
+
+int nbclients;
+
 /** Fonctions **/
 
 int init_serveur_tcp(char* service)

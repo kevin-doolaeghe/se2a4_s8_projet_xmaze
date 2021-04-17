@@ -18,10 +18,6 @@
 #define MAX_TAMPON_TCP 2048
 #define MAX_CONNEXION 16
 
-/** Variables **/
-
-int nbclients;
-
 /** Prototypes **/
 
 int init_serveur_tcp(char* service);
