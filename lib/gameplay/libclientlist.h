@@ -9,8 +9,6 @@
 
 #include "libclient.h"
 
-/** Constantes **/
-
 /** Variables **/
 
 typedef struct client_cell_s client_cell_t;

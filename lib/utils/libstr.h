@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/** Constantes **/
-
 /** Variables **/
 
 typedef struct str_s str_t;

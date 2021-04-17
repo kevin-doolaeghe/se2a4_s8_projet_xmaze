@@ -4,13 +4,13 @@
 
 /** Fonctions **/
 
-void creer_tache(void* (*traitement)(void*), void* arg, int taille)
+void create_task(void* (*task)(void*), void* arg, int size)
 {
     func_arg_t* fa;
     fa = malloc(sizeof(func_arg_t));
-    fa->arg = malloc(taille);
-    memcpy(fa->arg, arg, taille);
-    fa->f = traitement;
+    fa->arg = malloc(size);
+    memcpy(fa->arg, arg, size);
+    fa->f = task;
 
     pthread_t tid;
     pthread_create(&tid, NULL, func_gen, (void*)fa);

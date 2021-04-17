@@ -7,8 +7,6 @@
 
 #include "libstr.h"
 
-/** Constantes **/
-
 /** Variables **/
 
 typedef struct server_s server_t;

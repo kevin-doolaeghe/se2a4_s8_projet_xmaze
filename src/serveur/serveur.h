@@ -10,20 +10,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "chat.h"
+#include "diffusion.h"
+#include "graphiques.h"
 #include "libaffiche.h"
-#include "libclient.h"
 #include "libclientlist.h"
-#include "libprotocole.h"
 #include "libsig.h"
-#include "libstr.h"
-#include "libtcp.h"
 #include "libthread.h"
-#include "libudp.h"
-
-/** Constantes **/
-
-#define ID_SERVEUR 34567
-#define ATTENTE_GRAPHIQUE 50000
+#include "touches.h"
 
 /** Variables **/
 
@@ -49,17 +43,5 @@ int main(int argc, char* argv[]);
 void usage();
 void init_serveur();
 void detruire_serveur();
-
-void tache_gestion_chat(int* dialogue);
-void gestion_client(int dialogue, char* ip);
-void tache_discussion_client(int* dialogue);
-void reception_message(char* message, int taille);
-
-void tache_diffusion_udp();
-
-void tache_gestion_touches(int* ecoute);
-void reception_touches_udp(char* message, int taille, char* ip);
-
-void tache_gestion_graphique();
 
 #endif

@@ -64,8 +64,6 @@ void split_cstr_to_str_list(str_list_t* list, const char* delim, char* str)
         if (token == NULL) {
             break;
         }
-
-        // printf("%d: %s\n", i, token);
         append_cstr_to_list(list, token);
     }
 }

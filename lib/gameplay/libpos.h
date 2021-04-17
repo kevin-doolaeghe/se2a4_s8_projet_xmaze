@@ -7,8 +7,6 @@
 
 #include <stdio.h>
 
-/** Constantes **/
-
 /** Variables **/
 
 typedef struct pos_s pos_t;

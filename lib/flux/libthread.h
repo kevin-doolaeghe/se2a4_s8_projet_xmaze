@@ -6,7 +6,6 @@
 /** Fichiers d'inclusion des bibliothèques **/
 
 #include <pthread.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,7 +25,7 @@ pthread_mutex_t lock[MAX_MUTEX];
 
 /** Prototypes **/
 
-void creer_tache(void* (*traitement)(void*), void* arg, int taille);
+void create_task(void* (*task)(void*), void* arg, int size);
 void* func_gen(void* generic);
 void init_mutex_list();
 void p(int id);

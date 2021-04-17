@@ -17,6 +17,7 @@
 
 typedef struct client_s client_t;
 struct client_s {
+    int id;
     int fd;
     str_t ip;
     str_t pseudo;
@@ -28,7 +29,8 @@ struct client_s {
 
 void init_client(client_t* client);
 void destroy_client(client_t* client);
-void set_client(client_t* client, int fd, char* ip, char* pseudo, pos_t* position);
+void set_client(client_t* client, int id, int fd, char* ip, char* pseudo, pos_t* position);
+void set_client_id(client_t* client, int id);
 void set_client_fd(client_t* client, int fd);
 void set_client_ip(client_t* client, char* ip);
 void set_client_pseudo(client_t* client, char* pseudo);

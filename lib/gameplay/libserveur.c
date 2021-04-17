@@ -66,6 +66,7 @@ void copy_server(server_t* dst, server_t* src)
 void print_server(server_t* server)
 {
     printf("id: %d\n", server->id);
+
     printf("fd: %d\n", server->fd);
 
     printf("ip: ");
@@ -73,5 +74,6 @@ void print_server(server_t* server)
     printf("\n");
 
     printf("port_tcp: %u\n", server->port_tcp);
+
     printf("port_udp_touches: %u\n", server->port_udp_touches);
 }

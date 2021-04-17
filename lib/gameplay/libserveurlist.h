@@ -9,8 +9,6 @@
 
 #include "libserveur.h"
 
-/** Constantes **/
-
 /** Variables **/
 
 typedef struct server_cell_s server_cell_t;
@@ -28,8 +26,8 @@ pt_server_cell_t allocate_server(server_t* server);
 void append_server_to_list(server_list_t* list, server_t* server);
 void add_server_to_list(server_list_t* list, server_t* server);
 void delete_last_server_from_list(server_list_t* list);
-void destroy_server_list(server_list_t* list);
 void delete_server_from_list(server_list_t* list, int id);
+void destroy_server_list(server_list_t* list);
 int size_of_server_list(server_list_t* list);
 bool search_server_in_list(server_list_t* list, server_t* server);
 void copy_server_list(server_list_t* src, server_list_t* dst);

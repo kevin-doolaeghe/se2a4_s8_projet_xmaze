@@ -46,13 +46,6 @@ void delete_last_server_from_list(server_list_t* list)
     free(ptr);
 }
 
-void destroy_server_list(server_list_t* list)
-{
-    while (*list != NULL) {
-        delete_last_server_from_list(list);
-    }
-}
-
 void delete_server_from_list(server_list_t* list, int id)
 {
     pt_server_cell_t ptr = *list;
@@ -71,6 +64,13 @@ void delete_server_from_list(server_list_t* list, int id)
         }
         previous = ptr;
         ptr = ptr->next;
+    }
+}
+
+void destroy_server_list(server_list_t* list)
+{
+    while (*list != NULL) {
+        delete_last_server_from_list(list);
     }
 }
 

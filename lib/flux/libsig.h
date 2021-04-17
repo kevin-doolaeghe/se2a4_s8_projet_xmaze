@@ -9,8 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/** Constantes **/
-
 /** Variables **/
 
 struct sigaction action_sig;
@@ -18,7 +16,7 @@ void* (*handle_sig_func)(void*);
 
 /** Prototypes **/
 
-void init_sig(void* (*traitement)(void*));
+void init_sig(void* (*task)(void*));
 void handle_sig(int sig);
 
 #endif

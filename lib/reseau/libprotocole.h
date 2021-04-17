@@ -10,6 +10,8 @@
     ****************************************
 */
 
+#include "stdint.h"
+
 /*** Définition des constantes ***/
 
 /* Définition des ports de communication */

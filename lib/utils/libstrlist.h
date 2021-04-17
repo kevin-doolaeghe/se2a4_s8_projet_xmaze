@@ -7,8 +7,6 @@
 
 #include "libstr.h"
 
-/** Constantes **/
-
 /** Variables **/
 
 typedef struct str_list_s str_list_t;
