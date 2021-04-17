@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "client.h": "c",
-        "libstrlist.h": "c",
-        "libprotocole.h": "c",
-        "connectivite.h": "c"
-    }
-}

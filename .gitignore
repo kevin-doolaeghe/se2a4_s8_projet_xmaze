@@ -7,7 +7,6 @@
 
 # VS Code files
 .vscode/
-.vscode/settings.json
 
 # Executable files
 src/client/client
