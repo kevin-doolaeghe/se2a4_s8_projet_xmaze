@@ -40,52 +40,93 @@ void connexion_chat(int id)
         int chat_sock = init_client_tcp(to_cstr(&(serveur.ip)), PORT_CHAT_TCP);
         set_server_fd(&serveur, chat_sock);
         create_task((void* (*)(void*))thread_chat, (void*)&chat_sock, sizeof(chat_sock));
-
-        unsigned char resultat = creerFenetre(LARGEUR, HAUTEUR, TITRE);
-        if (!resultat) {
-            fprintf(stderr, "Problème graphique !\n");
-            exit(EXIT_FAILURE);
-        }
-
-        create_task((void* (*)(void*))thread_touches, NULL, 0);
-
-        int graphique_sock = init_serveur_udp(PORT_GRAPHIQUE_UDP);
-        create_task((void* (*)(void*))thread_graphique, (void*)&graphique_sock, sizeof(graphique_sock));
     }
 }
 
 void reception_message_chat(char* message, int taille)
 {
+    pr_tcp_chat_t trame;
+    traduire_trame_chat(&trame, message, taille);
+
 #ifdef DEBUG
-    printf("tcp_chat: message of %d bytes: %s\n", taille, message);
+    printf("Recieved message of %d bytes.\n", taille);
+    printf("\tType: %d\n\tCommand: %d\n\tContent: %s\n", trame.id_client, trame.commande, trame.message);
 #endif
-    printf("%s\n", message);
+
+    switch (trame.commande) {
+    case CMD_MESG_ID:
+        printf("%s\n", trame.message);
+        break;
+    case CMD_IDTF_ID:
+        id = atoi(trame.message);
+        break;
+    case CMD_STRT_ID:
+        printf("Démarrage de la partie!\n");
+        demarrer_partie();
+        break;
+    case CMD_STOP_ID:
+        printf("Arrêt de la partie!\n");
+        arreter_partie();
+        break;
+    default:
+        break;
+    }
+}
+
+void demarrer_partie()
+{
+    partie_en_cours = true;
+
+    unsigned char resultat = creerFenetre(LARGEUR, HAUTEUR, TITRE);
+    if (!resultat) {
+        fprintf(stderr, "Problème graphique !\n");
+        exit(EXIT_FAILURE);
+    }
+
+    create_task((void* (*)(void*))thread_touches, NULL, 0);
+
+    int graphique_sock = init_serveur_udp(PORT_GRAPHIQUE_UDP);
+    create_task((void* (*)(void*))thread_graphique, (void*)&graphique_sock, sizeof(graphique_sock));
+}
+
+void arreter_partie()
+{
+    partie_en_cours = false;
+
+    fermerFenetre();
 }
 
 /**** Diffusion UDP ****/
 
 void reception_identite(char* message, int taille, char* ip)
 {
-#ifdef DEBUG
-    printf("udp_diffusion: message of %d bytes from %s: %s\n", taille, ip, message);
-#endif
+    pr_udp_identite_t trame;
+    traduire_trame_identite(&trame, message, taille);
 
-    if (sizeof(message) > sizeof(pr_udp_identite_t)) {
-        pr_udp_identite_t trame;
-        traduire_trame_identite(&trame, message, taille);
+    //#ifdef DEBUG
+    printf("Recieved identity message: ");
+    int i;
+    for (i = 0; i < taille; i++)
+        printf("%02x", message[i]);
+    printf("\n");
+    printf("Diffusion message of %d bytes recieved:\n", taille);
+    printf("\tServer IP: %s\n", ip);
+    printf("\tServer id: %d\n", trame.id_serveur);
+    printf("\tChat port: %d\n", trame.port_tcp);
+    printf("\tKey port: %d\n", trame.port_udp_touches);
+    //#endif
 
-        server_t tmp;
-        init_server(&tmp);
+    server_t tmp;
+    init_server(&tmp);
 
-        set_server_id(&tmp, trame.id_serveur);
-        set_server_ip(&tmp, ip);
-        set_server_port_tcp(&tmp, trame.port_tcp);
-        set_server_port_udp_touches(&tmp, trame.port_udp_touches);
+    set_server_id(&tmp, trame.id_serveur);
+    set_server_ip(&tmp, ip);
+    set_server_port_tcp(&tmp, trame.port_tcp);
+    set_server_port_udp_touches(&tmp, trame.port_udp_touches);
 
-        add_server_to_list(&serveur_list, &tmp);
+    add_server_to_list(&serveur_list, &tmp);
 
-        destroy_server(&tmp);
-    }
+    destroy_server(&tmp);
 
     if (quitter_client == true)
         exit(EXIT_SUCCESS);

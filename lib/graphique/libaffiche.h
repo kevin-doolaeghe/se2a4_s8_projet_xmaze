@@ -19,12 +19,10 @@
 #define LARGEUR 1280
 #define HAUTEUR 720
 
-#define LABY_X 8
-#define LABY_Y 8
 #define MUR_TAILLE 200
 #define MUR_HAUTEUR 200
 
-#define FOCALE (3 * MUR_TAILLE)
+#define FOCALE (2 * MUR_TAILLE)
 
 #define ATTENTE 10000
 

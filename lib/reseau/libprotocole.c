@@ -4,6 +4,20 @@
 
 /** Fonctions **/
 
+void traduire_trame_chat(pr_tcp_chat_t* trame, char* message, int taille)
+{
+    trame->id_client = -1;
+    trame->commande = -1;
+    trame->message = NULL;
+
+    if (taille >= sizeof(trame->id_client) + sizeof(trame->commande)) {
+        trame->id_client = ((pr_tcp_chat_t*)message)->id_client;
+        trame->commande = ((pr_tcp_chat_t*)message)->commande;
+        if (taille > sizeof(trame->id_client) + sizeof(trame->commande))
+            trame->message = &message[sizeof(trame->id_client) + sizeof(trame->commande)];
+    }
+}
+
 void traduire_trame_identite(pr_udp_identite_t* trame, char* message, int taille)
 {
     if (taille >= sizeof(pr_udp_identite_t)) {

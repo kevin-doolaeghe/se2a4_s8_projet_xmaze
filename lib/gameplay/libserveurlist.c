@@ -87,6 +87,21 @@ int size_of_server_list(server_list_t* list)
     return size;
 }
 
+server_t* get_client_by_id(server_list_t* list, int id)
+{
+    pt_server_cell_t ptr = *list;
+    int cnt = 0;
+
+    while (ptr != NULL) {
+        if (cnt == id)
+            return &(ptr->server);
+        cnt++;
+        ptr = ptr->next;
+    }
+
+    return NULL;
+}
+
 bool search_server_in_list(server_list_t* list, server_t* server)
 {
     pt_server_cell_t ptr = *list;

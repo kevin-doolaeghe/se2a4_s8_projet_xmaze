@@ -9,6 +9,7 @@ void usage() { fprintf(stderr, "Syntaxe : ./serveur\n"); }
 void init_serveur()
 {
     init_sig((void* (*)(void*))detruire_serveur);
+    init_mutex_list();
 
     quitter_serveur = false;
     partie_en_cours = false;

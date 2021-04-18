@@ -26,13 +26,22 @@
 
 /* Définition des commandes TCP */
 
-#define CMD_IDENTIFIANT "\\"
-#define CMD_CONNECTION "pseudo"
-#define CMD_ENDGAME "endgame"
-#define CMD_CRASH "c_cho"
-#define CMD_IDCLIENT "iencli"
+#define CMD_MESG_ID 1
+#define CMD_IDTF_ID 2
+#define CMD_NICK_ID 3
+#define CMD_STRT_ID 4
+#define CMD_STOP_ID 5
 
 /** Types **/
+
+/* Paquet d'envoi d'un message au chat */
+
+typedef struct pr_tcp_chat_s pr_tcp_chat_t;
+struct pr_tcp_chat_s {
+    unsigned char id_client;
+    unsigned char commande;
+    char* message;
+};
 
 /* Paquet d'identité du serveur */
 
@@ -74,6 +83,7 @@ struct pr_udp_graph_s {
 
 /** Prototypes **/
 
+void traduire_trame_chat(pr_tcp_chat_t* trame, char* message, int taille);
 void traduire_trame_identite(pr_udp_identite_t* trame, char* message, int taille);
 void traduire_trame_touches(pr_udp_touches_t* trame, char* message, int taille);
 void traduire_trame_graphique(pr_udp_graph_t* trame, char* message, int taille);

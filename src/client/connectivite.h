@@ -14,6 +14,7 @@
 #include "libprotocole.h"
 #include "libserveur.h"
 #include "libserveurlist.h"
+#include "libstrlist.h"
 #include "libtcp.h"
 #include "libthread.h"
 #include "libudp.h"
@@ -41,6 +42,8 @@ void thread_graphique(int* ecoute);
 
 void connexion_chat(int id);
 void reception_message_chat(char* message, int taille);
+void demarrer_partie();
+void arreter_partie();
 
 /**** Diffusion UDP ****/
 

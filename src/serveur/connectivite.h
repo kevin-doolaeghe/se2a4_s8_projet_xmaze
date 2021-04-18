@@ -19,8 +19,10 @@
 
 /** Constantes **/
 
+#define LABY_X 8
+#define LABY_Y 8
+
 #define ID_SERVEUR 34567
-#define ATTENTE_GRAPHIQUE 50000
 
 /** Variables globales **/
 
@@ -58,6 +60,6 @@ void calcul_graphique();
 
 /** Fonctions **/
 
-extern void detruire_client();
+extern void detruire_serveur();
 
 #endif
