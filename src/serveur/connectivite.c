@@ -63,38 +63,59 @@ void thread_graphique()
 void gestion_client(int dialogue, char* ip)
 {
 #ifdef DEBUG
-    printf("Recieved TCP connection demmand from %s\n", ip);
+    printf("Etablished TCP connection with %s\n", ip);
 #endif
 
-    create_task((void* (*)(void*))thread_chat_dialogue, (void*)&dialogue, sizeof(dialogue));
-
+    // Ajout du client a la liste
     client_t client;
     init_client(&client);
 
+    set_client_id(&client, size_of_client_list(&client_list));
     set_client_fd(&client, dialogue);
     set_client_ip(&client, ip);
     pos_t pos = { LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0 };
     set_client_position(&client, &pos);
 
     append_client_to_list(&client_list, &client);
-    print_client_list(&client_list);
 
+    // Demarrage de la tache de dialogue
+    create_task((void* (*)(void*))thread_chat_dialogue, (void*)&dialogue, sizeof(dialogue));
+
+    /* Envoi de l'indentifiant du client */
+    // Preparation de la trame
+    pr_tcp_chat_t trame;
+    trame.id_client = size_of_client_list(&client_list);
+    trame.commande = CMD_IDTF_ID;
+    trame.message = NULL;
+
+    int taille = sizeof(pr_tcp_chat_t);
+    char message[taille];
+
+    // Ecriture de la trame
+    ecrire_trame_chat(&trame, message, taille);
+
+    // Envoi de la trame
+    envoi_message_tcp(dialogue, message, taille);
+
+    print_client_list(&client_list);
     destroy_client(&client);
 }
 
 void reception_message(char* message, int taille)
 {
+    pt_client_cell_t ptr = client_list;
+    client_t* client = get_client_by_id(&client_list, trame.id_client);
+
+    // Traduction de la trame
     pr_tcp_chat_t trame;
     traduire_trame_chat(&trame, message, taille);
 
 #ifdef DEBUG
     printf("Recieved message of %d bytes.\n", taille);
-    printf("\tType: %d\n\tCommand: %d\n\tContent: %s\n", trame.id_client, trame.commande, trame.message);
+    printf("\t- Type: %d\n\t- Command: %d\n\t- Content: %s\n", trame.id_client, trame.commande, trame.message);
 #endif
 
-    pt_client_cell_t ptr = client_list;
-    client_t* client;
-
+    // Traitement du message recu
     switch (trame.commande) {
     case CMD_MESG_ID:
         while (ptr != NULL) {
@@ -103,7 +124,6 @@ void reception_message(char* message, int taille)
         }
         break;
     case CMD_NICK_ID:
-        client = get_client_by_id(&client_list, trame.id_client);
         set_client_pseudo(client, trame.message);
         print_client_list(&client_list);
         break;
@@ -126,25 +146,47 @@ void reception_message(char* message, int taille)
     default:
         break;
     }
+
+    /*
+    // Preparation de la trame
+    pr_tcp_chat_t trame;
+    trame.id_client = trame.id_client;
+    trame.commande = trame.commande;
+    trame.message = NULL;
+
+    int taille = sizeof(pr_tcp_chat_t);
+    char message[taille];
+
+    // Ecriture de la trame
+    ecrire_trame_chat(&trame, message, taille);
+
+    // Envoi de la trame
+    envoi_message_tcp(dialogue, message, taille);
+    */
 }
 
 /**** Diffusion UDP ****/
 
 void diffuser_identite()
 {
+    pr_udp_identite_t trame;
+    int taille = sizeof(pr_udp_identite_t);
+    char message[taille];
+
     while (quitter_serveur == false) {
         if (partie_en_cours == false) {
-            pr_udp_identite_t trame;
+            // Preparation de la trame
             trame.id_serveur = ID_SERVEUR;
             trame.port_tcp = atoi(PORT_CHAT_TCP);
             trame.port_udp_touches = atoi(PORT_TOUCHES_UDP);
 
-            char message[sizeof(pr_udp_identite_t)];
-            memcpy(&trame, message, sizeof(pr_udp_identite_t));
+            // Ecriture de la trame
+            ecrire_trame_identite(&trame, message, taille);
 
-            envoi_message_udp(BROADCAST, PORT_DIFFUSION_UDP, message, sizeof(pr_udp_identite_t));
+            // Envoi de la trame
+            envoi_message_udp(BROADCAST, PORT_DIFFUSION_UDP, message, taille);
         }
-        sleep(3);
+        sleep(ATTENTE_DIFFUSION);
     }
 }
 
@@ -153,10 +195,11 @@ void diffuser_identite()
 void reception_touche(char* message, int taille, char* ip)
 {
     if (partie_en_cours == true) {
+        client_t* client = get_client_by_id(&client_list, trame.id_client);
+
+        // Traduction de la trame
         pr_udp_touches_t trame;
         traduire_trame_touches(&trame, message, taille);
-
-        int touche = trame.touches;
 
 #ifdef DEBUG
         printf("udp_touches: message of %d bytes from %s: ", taille, ip);
@@ -164,25 +207,32 @@ void reception_touche(char* message, int taille, char* ip)
         for (i = 0; i < sizeof(message); i++)
             printf("%08x", message[i]);
         printf("\n");
-        printf("touche: %d\n", touche);
+        printf("touche: %d\n", trame.touches);
 #endif
 
-        client_t* client = get_client_by_id(&client_list, trame.id_client);
-
-        if (touche == TOUCHE_DROITE)
+        // Mise a jour de la position
+        switch (trame.touches)
+        {
+        case TOUCHE_DROITE:
             client->position.angle += 10;
-        if (touche == TOUCHE_GAUCHE)
+            break;
+        case TOUCHE_GAUCHE:
             client->position.angle -= 10;
-        if (client->position.angle < 0 || client->position.angle > 360)
-            client->position.angle = client->position.angle % 360;
-        if (touche == TOUCHE_HAUT) {
+            break;
+        case TOUCHE_HAUT:
             client->position.x += MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
             client->position.z += MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
-        }
-        if (touche == TOUCHE_BAS) {
+            break;
+        case TOUCHE_BAS:
             client->position.x -= MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
             client->position.z -= MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
+            break;
+        default:
+            break;
         }
+        
+        if (client->position.angle < 0 || client->position.angle > 360)
+            client->position.angle = client->position.angle % 360;
 
         if (quitter_serveur == true)
             exit(EXIT_SUCCESS);
@@ -193,15 +243,26 @@ void reception_touche(char* message, int taille, char* ip)
 
 void calcul_graphique()
 {
+    pr_udp_graph_t trame;
+    int taille;
+
     int nb = dessin_vers_murs(laby, murs);
+
+    pt_client_cell_t ptr;
+
     while (quitter_serveur == false) {
         if (partie_en_cours == true) {
-            pt_client_cell_t ptr = client_list;
-
+            ptr = client_list;
             while (ptr != NULL) {
-                point p = { ptr->client.position.x, ptr->client.position.y, ptr->client.position.z };
+                // Recuperation de la position du client actuel
+                point p = {
+                    ptr->client.position.x,
+                    ptr->client.position.y,
+                    ptr->client.position.z
+                };
                 int angle = ptr->client.position.angle;
 
+                // Projection graphique
                 mur* m2 = duplique_murs(murs, nb);
                 decale_murs(m2, nb, p);
                 rotation_murs(m2, nb, angle);
@@ -210,14 +271,18 @@ void calcul_graphique()
                 int no;
                 projete_murs(m2, nb, objets, &no);
 
-                int taille = sizeof(int) + no * sizeof(objet2D);
+                // Preparation de la trame
+                trame.nb_objets = no;
+                trame.objets = objets;
 
-                char* message = malloc(taille);
-                int i;
-                for (i = 0; i < sizeof(int); i++)
-                    message[i] = (no >> (3 - i) * 8) & 0xFF;
-                for (i = 0; i < no; i++)
-                    memcpy(message + sizeof(int) + i * sizeof(objet2D), &(objets[i]), sizeof(objet2D));
+                taille = sizeof(trame.nb_objets) + no * sizeof(objet2D);
+                char message[taille];
+
+                // Ecriture de la trame
+                ecrire_trame_graphique(&trame, message, taille);
+
+                // Envoi de la trame
+                envoi_message_udp(to_cstr(&(ptr->client.ip)), PORT_GRAPHIQUE_UDP, message, taille);
 
 #ifdef DEBUG
                 printf("Sending graphic of %d bytes: ", taille);
@@ -226,15 +291,12 @@ void calcul_graphique()
                 printf("\n");
 #endif
 
-                envoi_message_udp(to_cstr(&(ptr->client.ip)), PORT_GRAPHIQUE_UDP, message, taille);
-
-                free(message);
                 free(m2);
                 free(objets);
 
                 ptr = ptr->next;
             }
         }
-        usleep(5 * ATTENTE);
+        usleep(ATTENTE_GRAPHIQUE);
     }
 }

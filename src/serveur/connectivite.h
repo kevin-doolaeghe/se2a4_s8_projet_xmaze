@@ -22,7 +22,11 @@
 #define LABY_X 8
 #define LABY_Y 8
 
+#define ATTENTE_DIFFUSION 3
+#define ATTENTE_GRAPHIQUE 50000
+
 #define ID_SERVEUR 34567
+
 
 /** Variables globales **/
 
@@ -57,9 +61,5 @@ void reception_touche(char* message, int taille, char* ip);
 /**** Graphique UDP ****/
 
 void calcul_graphique();
-
-/** Fonctions **/
-
-extern void detruire_serveur();
 
 #endif

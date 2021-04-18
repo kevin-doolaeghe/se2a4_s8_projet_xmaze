@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /** Constantes **/
 
@@ -83,9 +84,14 @@ struct pr_udp_graph_s {
 
 /** Prototypes **/
 
-void traduire_trame_chat(pr_tcp_chat_t* trame, char* message, int taille);
-void traduire_trame_identite(pr_udp_identite_t* trame, char* message, int taille);
-void traduire_trame_touches(pr_udp_touches_t* trame, char* message, int taille);
-void traduire_trame_graphique(pr_udp_graph_t* trame, char* message, int taille);
+void traduire_trame_chat(pr_tcp_chat_t* dst, char* src, int taille);
+void traduire_trame_identite(pr_udp_identite_t* dst, char* src, int taille);
+void traduire_trame_touches(pr_udp_touches_t* dst, char* src, int taille);
+void traduire_trame_graphique(pr_udp_graph_t* dst, char* src, int taille);
+
+void ecrire_trame_chat(pr_tcp_chat_t* src, char* dst, int taille);
+void ecrire_trame_identite(pr_udp_identite_t* src, char* dst, int taille);
+void ecrire_trame_touches(pr_udp_touches_t* src, char* dst, int taille);
+void ecrire_trame_graphique(pr_udp_graph_t* src, char* dst, int taille);
 
 #endif

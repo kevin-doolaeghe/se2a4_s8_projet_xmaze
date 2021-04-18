@@ -4,54 +4,85 @@
 
 /** Fonctions **/
 
-void traduire_trame_chat(pr_tcp_chat_t* trame, char* message, int taille)
+void traduire_trame_chat(pr_tcp_chat_t* dst, char* src, int taille)
 {
-    trame->id_client = -1;
-    trame->commande = -1;
-    trame->message = NULL;
+    dst->id_client = -1;
+    dst->commande = -1;
+    dst->message = NULL;
 
-    if (taille >= sizeof(trame->id_client) + sizeof(trame->commande)) {
-        trame->id_client = ((pr_tcp_chat_t*)message)->id_client;
-        trame->commande = ((pr_tcp_chat_t*)message)->commande;
-        if (taille > sizeof(trame->id_client) + sizeof(trame->commande))
-            trame->message = &message[sizeof(trame->id_client) + sizeof(trame->commande)];
+    if (taille >= sizeof(dst->id_client) + sizeof(dst->commande)) {
+        dst->id_client = ((pr_tcp_chat_t*)src)->id_client;
+        dst->commande = ((pr_tcp_chat_t*)src)->commande;
+        if (taille > sizeof(dst->id_client) + sizeof(dst->commande))
+            dst->message = &src[sizeof(dst->id_client) + sizeof(dst->commande)];
     }
 }
 
-void traduire_trame_identite(pr_udp_identite_t* trame, char* message, int taille)
+void traduire_trame_identite(pr_udp_identite_t* dst, char* src, int taille)
 {
     if (taille >= sizeof(pr_udp_identite_t)) {
-        trame->id_serveur = ((pr_udp_identite_t*)message)->id_serveur;
-        trame->port_tcp = ((pr_udp_identite_t*)message)->port_tcp;
-        trame->port_udp_touches = ((pr_udp_identite_t*)message)->port_udp_touches;
+        dst->id_serveur = ((pr_udp_identite_t*)src)->id_serveur;
+        dst->port_tcp = ((pr_udp_identite_t*)src)->port_tcp;
+        dst->port_udp_touches = ((pr_udp_identite_t*)src)->port_udp_touches;
     } else {
-        trame->id_serveur = -1;
-        trame->port_tcp = -1;
-        trame->port_udp_touches = -1;
+        dst->id_serveur = -1;
+        dst->port_tcp = -1;
+        dst->port_udp_touches = -1;
     }
 }
 
-void traduire_trame_touches(pr_udp_touches_t* trame, char* message, int taille)
+void traduire_trame_touches(pr_udp_touches_t* dst, char* src, int taille)
 {
     if (taille >= sizeof(pr_udp_touches_t)) {
-        trame->id_client = ((pr_udp_touches_t*)message)->id_client;
-        trame->touches = ((pr_udp_touches_t*)message)->touches;
+        dst->id_client = ((pr_udp_touches_t*)src)->id_client;
+        dst->touches = ((pr_udp_touches_t*)src)->touches;
     } else {
-        trame->id_client = -1;
-        trame->touches = -1;
+        dst->id_client = -1;
+        dst->touches = -1;
     }
 }
 
-void traduire_trame_graphique(pr_udp_graph_t* trame, char* message, int taille)
+void traduire_trame_graphique(pr_udp_graph_t* dst, char* src, int taille)
 {
-    trame->nb_objets = 0;
-    trame->objets = NULL;
+    dst->nb_objets = 0;
+    dst->objets = NULL;
     if (taille >= sizeof(pr_udp_graph_t)) {
-        trame->nb_objets = 0;
-        int i, nb = sizeof(trame->nb_objets) - 1;
+        dst->nb_objets = 0;
+        int i, nb = sizeof(dst->nb_objets) - 1;
         for (i = 0; i <= nb; i++)
-            trame->nb_objets += message[nb - i] << (i * 8);
-        if (taille >= (sizeof(trame->nb_objets) + trame->nb_objets * sizeof(objet_2d_t)))
-            trame->objets = (objet_2d_t*)&(message[sizeof(trame->nb_objets)]);
+            dst->nb_objets += src[nb - i] << (i * 8);
+        if (taille >= (sizeof(dst->nb_objets) + dst->nb_objets * sizeof(objet_2d_t)))
+            dst->objets = (objet_2d_t*)&(src[sizeof(dst->nb_objets)]);
+    }
+}
+
+void ecrire_trame_chat(pr_tcp_chat_t* src, char* dst, int taille) {
+    int index = sizeof(src->id_client) + sizeof(src->id_client);
+    if (taille >= index + strlen(src->message)) {
+        memcpy(dst, &src, sizeof(pr_tcp_chat_t));
+        memcpy(dst + index, src->message, strlen(src->message));
+    }
+}
+
+void ecrire_trame_identite(pr_udp_identite_t* src, char* dst, int taille) {
+    if (taille >= sizeof(pr_udp_identite_t))
+        memcpy(dst, &src, sizeof(pr_udp_identite_t));
+}
+
+void ecrire_trame_touches(pr_udp_touches_t* src, char* dst, int taille) {
+    if (taille >= sizeof(pr_udp_touches_t))
+        memcpy(dst, &src, sizeof(pr_udp_touches_t));
+}
+
+void ecrire_trame_graphique(pr_udp_graph_t* src, char* dst, int taille) {
+    if (taille >= sizeof(src->nb_objets) + src->nb_objets * sizeof(objet_2d_t)) {
+        int i;
+        memcpy(dst, &(src->nb_objets), sizeof(src->nb_objets));
+        /*
+        for (i = 0; i < sizeof(src->nb_objets); i++)
+            dst[i] = (src->nb_objets >> (3 - i) * 8) & 0xFF;
+        */
+        for (i = 0; i < src->nb_objets; i++)
+            memcpy(dst + sizeof(src->nb_objets) + i * sizeof(objet_2d_t), &(objets[i]), sizeof(objet_2d_t));
     }
 }

@@ -105,14 +105,14 @@ void lire_ligne(str_list_t* tokens)
 void afficher_aide()
 {
     printf("Liste des commandes :\n");
-    printf("\t\t- help: Affiche l'aide\n");
-    printf("\t\t- list: Affiche les serveurs trouvés\n");
-    printf("\t\t- connect <id>: Se connecte au premier serveur de la liste\n");
-    printf("\t\t- send <msg>: Envoi un message\n");
-    printf("\t\t- id: Affiche l'identifiant du client\n");
-    printf("\t\t- nick <nickname>: Change le pseudo\n");
-    printf("\t\t- start: Démarre la partie\n");
-    printf("\t\t- stop: Arrête la partie\n");
+    printf("\t- help: Affiche l'aide\n");
+    printf("\t- list: Affiche les serveurs trouvés\n");
+    printf("\t- connect <id>: Se connecte au premier serveur de la liste\n");
+    printf("\t- send <msg>: Envoi un message\n");
+    printf("\t- id: Affiche l'identifiant du client\n");
+    printf("\t- nick <nickname>: Change le pseudo\n");
+    printf("\t- start: Démarre la partie\n");
+    printf("\t- stop: Arrête la partie\n");
 }
 
 void afficher_erreur_saisie()
@@ -124,52 +124,50 @@ void afficher_erreur_admin()
 {
     printf("Vous n'êtes pas administrateur\n");
 }
+
 void envoi_message(int commande, str_list_t* tokens)
 {
     if (serveur.fd != -1) {
-        pr_tcp_chat_t trame;
-        trame.id_client = id;
-        trame.commande = commande;
-        trame.message = NULL;
-
-        char message[MAX_TAMPON_TCP];
-        memcpy(message, &trame, sizeof(pr_tcp_chat_t));
-
-        char tmp[MAX_TAMPON_TCP - sizeof(pr_tcp_chat_t)];
-        strcpy(tmp, "");
-        int taille = sizeof(trame.id_client) + sizeof(trame.commande);
+        // Fabrication du message a envoyer
+        char str[MAX_MESG_LEN];
         int i;
-
         switch (commande) {
         case CMD_MESG_ID:
             for (i = 1; i < tokens->alloc; i++) {
-                strcat(tmp, to_cstr(&(tokens->str_list[i])));
+                strcat(str, to_cstr(&(tokens->str_list[i])));
                 if (i != tokens->alloc - 1)
-                    strcat(tmp, " ");
+                    strcat(str, " ");
             }
-            strcat(tmp, "\0");
+            strcat(str, "\0");
             break;
         case CMD_NICK_ID:
-            strcat(tmp, to_cstr(&(tokens->str_list[1])));
-            strcat(tmp, "\0");
-            break;
-        case CMD_STRT_ID:
-            break;
-        case CMD_STOP_ID:
+            strcat(str, to_cstr(&(tokens->str_list[1])));
+            strcat(str, "\0");
             break;
         default:
             break;
         }
-        memcpy(message + taille, tmp, strlen(tmp));
-        taille += strlen(tmp);
+
+        // Preparation de la trame
+        pr_tcp_chat_t trame;
+        trame.id_client = id;
+        trame.commande = commande;
+        trame.message = str;
+
+        int taille = sizeof(trame.id_client) + sizeof(trame.commande) + strlen(str);
+        char message[taille];
+
+        // Ecriture de la trame
+        ecrire_trame_chat(&trame, message, taille);
+
+        // Envoi de la trame
+        envoi_message_tcp(serveur.fd, message, taille);
 
 #ifdef DEBUG
         printf("Sending message of %d bytes: ", taille);
         for (i = 0; i < taille; i++)
-            printf("%2.2x", message[i]);
+            printf("%02x", message[i]);
         printf("\n");
 #endif
-
-        envoi_message_tcp(serveur.fd, message, taille);
     }
 }

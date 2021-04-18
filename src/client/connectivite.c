@@ -30,14 +30,13 @@ void thread_graphique(int* ecoute)
 
 void connexion_chat(int id)
 {
-    if (size_of_server_list(&serveur_list) >= id && serveur.fd == -1) {
-        pt_server_cell_t tmp = serveur_list;
-        int current = 1;
-        while (current != id)
-            tmp = tmp->next;
-        copy_server(&serveur, &(tmp->server));
+    if (search_server_in_list(&serveur_list, id) && serveur.fd == -1) {
+        // Recuperation du serveur
+        server_t *res = get_server_by_id(&serveur_list, id);
+        copy_server(&serveur, res);
 
-        int chat_sock = init_client_tcp(to_cstr(&(serveur.ip)), PORT_CHAT_TCP);
+        // Demarrage de la tache de dialogue
+        int chat_sock = init_client_tcp(to_cstr(&(serveur.ip)), serveur.port_tcp);
         set_server_fd(&serveur, chat_sock);
         create_task((void* (*)(void*))thread_chat, (void*)&chat_sock, sizeof(chat_sock));
     }
@@ -45,6 +44,7 @@ void connexion_chat(int id)
 
 void reception_message_chat(char* message, int taille)
 {
+    // Traduction de la trame
     pr_tcp_chat_t trame;
     traduire_trame_chat(&trame, message, taille);
 
@@ -53,6 +53,7 @@ void reception_message_chat(char* message, int taille)
     printf("\tType: %d\n\tCommand: %d\n\tContent: %s\n", trame.id_client, trame.commande, trame.message);
 #endif
 
+    // Traitement du message recu
     switch (trame.commande) {
     case CMD_MESG_ID:
         printf("%s\n", trame.message);
@@ -75,24 +76,32 @@ void reception_message_chat(char* message, int taille)
 
 void demarrer_partie()
 {
+    // Demarrage de la partie
     partie_en_cours = true;
 
+    // Ouverture de la fenetre
     unsigned char resultat = creerFenetre(LARGEUR, HAUTEUR, TITRE);
     if (!resultat) {
         fprintf(stderr, "Problème graphique !\n");
         exit(EXIT_FAILURE);
     }
 
+    // Demarrage de la tache d'envoi des touches
     create_task((void* (*)(void*))thread_touches, NULL, 0);
 
+    // Demarrage de la tache de reception des objets graphiques
     int graphique_sock = init_serveur_udp(PORT_GRAPHIQUE_UDP);
     create_task((void* (*)(void*))thread_graphique, (void*)&graphique_sock, sizeof(graphique_sock));
 }
 
 void arreter_partie()
 {
+    // Arret de la partie
     partie_en_cours = false;
 
+    usleep(ATTENTE);
+
+    // Fermeture de la fenetre
     fermerFenetre();
 }
 
@@ -100,10 +109,11 @@ void arreter_partie()
 
 void reception_identite(char* message, int taille, char* ip)
 {
+    // Traduction de la trame
     pr_udp_identite_t trame;
     traduire_trame_identite(&trame, message, taille);
 
-    //#ifdef DEBUG
+    #ifdef DEBUG
     printf("Recieved identity message: ");
     int i;
     for (i = 0; i < taille; i++)
@@ -114,16 +124,18 @@ void reception_identite(char* message, int taille, char* ip)
     printf("\tServer id: %d\n", trame.id_serveur);
     printf("\tChat port: %d\n", trame.port_tcp);
     printf("\tKey port: %d\n", trame.port_udp_touches);
-    //#endif
+    #endif
 
     server_t tmp;
     init_server(&tmp);
 
+    // Recuperation des informations du serveur
     set_server_id(&tmp, trame.id_serveur);
     set_server_ip(&tmp, ip);
     set_server_port_tcp(&tmp, trame.port_tcp);
     set_server_port_udp_touches(&tmp, trame.port_udp_touches);
 
+    // Ajout du serveur a la liste
     add_server_to_list(&serveur_list, &tmp);
 
     destroy_server(&tmp);
@@ -136,46 +148,49 @@ void reception_identite(char* message, int taille, char* ip)
 
 void envoi_touche(int touche)
 {
+#ifdef DEBUG
+    printf("touche: %08x\n", touche);
+#endif
+
+    // Preparation de la trame
     pr_udp_touches_t trame;
     trame.id_client = id;
     trame.touches = touche;
 
-    char message[sizeof(pr_udp_touches_t)];
-    memcpy(message, &trame, sizeof(pr_udp_touches_t));
+    int taille = sizeof(pr_udp_touches_t);
+    char message[taille];
 
-    envoi_message_udp(to_cstr(&(serveur.ip)), PORT_TOUCHES_UDP, message, sizeof(pr_udp_touches_t));
+    // Ecriture de la trame
+    ecrire_trame_touches(&trame, message, taille);
+
+    // Envoi de la trame
+    envoi_message_udp(to_cstr(&(serveur.ip)), serveur.port_udp_touches, message, taille);
 }
 
 void gestion_evenements()
 {
     int touche;
     unsigned char fenetre, quitter;
-    while (1) {
+    while (partie_en_cours == true) {
         int evenement = attendreEvenement(&touche, &fenetre, &quitter);
         if (!evenement) {
             usleep(ATTENTE);
             continue;
         }
 
-        if (quitter == 1) {
-            break;
-        }
+        if (quitter == 1)
+            arreter_partie();
 
-        if (touche != 0 && touche != TOUCHE_AUTRE && serveur.fd != -1) {
-#ifdef DEBUG
-            printf("touche: %08x\n", touche);
-#endif
+        if (touche != 0 && touche != TOUCHE_AUTRE && serveur.fd != -1)
             envoi_touche(touche);
-        }
     }
-    fermerFenetre();
-    detruire_client();
 }
 
 /**** Graphique UDP ****/
 
 void reception_graphique(char* message, int taille, char* ip)
 {
+    // Traduction de la trame
     pr_udp_graph_t trame;
     traduire_trame_graphique(&trame, message, taille);
 
@@ -188,6 +203,7 @@ void reception_graphique(char* message, int taille, char* ip)
     printf("\n");
 #endif
 
+    // Affichage des objets graphiques
     effacerFenetre();
     dessine_2D((objet2D*)trame.objets, trame.nb_objets);
     synchroniserFenetre();

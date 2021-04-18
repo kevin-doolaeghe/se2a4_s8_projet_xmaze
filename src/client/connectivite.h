@@ -58,8 +58,4 @@ void gestion_evenements();
 
 void reception_graphique(char* message, int taille, char* ip);
 
-/** Fonctions **/
-
-extern void detruire_client();
-
 #endif

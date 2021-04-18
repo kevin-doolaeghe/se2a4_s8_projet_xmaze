@@ -54,6 +54,8 @@ void afficher_erreur_saisie();
 void afficher_erreur_admin();
 void envoi_message(int commande, str_list_t* tokens);
 
+/** Fonctions externes **/
+
 extern void connexion_chat(int id);
 
 #endif
