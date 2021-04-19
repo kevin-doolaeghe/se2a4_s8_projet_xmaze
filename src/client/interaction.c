@@ -147,6 +147,7 @@ void envoi_message(int commande, str_list_t* tokens)
         default:
             break;
         }
+        printf("Message: %s\n", str);
 
         // Preparation de la trame
         pr_tcp_chat_t trame;

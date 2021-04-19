@@ -83,12 +83,10 @@ int size_of_client_list(client_list_t* list)
 client_t* get_client_by_id(client_list_t* list, int id)
 {
     pt_client_cell_t ptr = *list;
-    int cnt = 0;
 
     while (ptr != NULL) {
-        if (cnt == id)
+        if (ptr->client.id == id)
             return &(ptr->client);
-        cnt++;
         ptr = ptr->next;
     }
 

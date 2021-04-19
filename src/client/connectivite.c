@@ -32,11 +32,15 @@ void connexion_chat(int id)
 {
     if (search_server_in_list(&serveur_list, id) && serveur.fd == -1) {
         // Recuperation du serveur
-        server_t *res = get_server_by_id(&serveur_list, id);
+        server_t* res = get_server_by_id(&serveur_list, id);
         copy_server(&serveur, res);
 
+        // Recuperation du port
+        char port[MAX_PORT_LEN];
+        sprintf(port, "%d", serveur.port_tcp);
+
         // Demarrage de la tache de dialogue
-        int chat_sock = init_client_tcp(to_cstr(&(serveur.ip)), serveur.port_tcp);
+        int chat_sock = init_client_tcp(to_cstr(&(serveur.ip)), port);
         set_server_fd(&serveur, chat_sock);
         create_task((void* (*)(void*))thread_chat, (void*)&chat_sock, sizeof(chat_sock));
     }
@@ -74,37 +78,6 @@ void reception_message_chat(char* message, int taille)
     }
 }
 
-void demarrer_partie()
-{
-    // Demarrage de la partie
-    partie_en_cours = true;
-
-    // Ouverture de la fenetre
-    unsigned char resultat = creerFenetre(LARGEUR, HAUTEUR, TITRE);
-    if (!resultat) {
-        fprintf(stderr, "Problème graphique !\n");
-        exit(EXIT_FAILURE);
-    }
-
-    // Demarrage de la tache d'envoi des touches
-    create_task((void* (*)(void*))thread_touches, NULL, 0);
-
-    // Demarrage de la tache de reception des objets graphiques
-    int graphique_sock = init_serveur_udp(PORT_GRAPHIQUE_UDP);
-    create_task((void* (*)(void*))thread_graphique, (void*)&graphique_sock, sizeof(graphique_sock));
-}
-
-void arreter_partie()
-{
-    // Arret de la partie
-    partie_en_cours = false;
-
-    usleep(ATTENTE);
-
-    // Fermeture de la fenetre
-    fermerFenetre();
-}
-
 /**** Diffusion UDP ****/
 
 void reception_identite(char* message, int taille, char* ip)
@@ -113,7 +86,7 @@ void reception_identite(char* message, int taille, char* ip)
     pr_udp_identite_t trame;
     traduire_trame_identite(&trame, message, taille);
 
-    #ifdef DEBUG
+#ifdef DEBUG
     printf("Recieved identity message: ");
     int i;
     for (i = 0; i < taille; i++)
@@ -124,7 +97,7 @@ void reception_identite(char* message, int taille, char* ip)
     printf("\tServer id: %d\n", trame.id_serveur);
     printf("\tChat port: %d\n", trame.port_tcp);
     printf("\tKey port: %d\n", trame.port_udp_touches);
-    #endif
+#endif
 
     server_t tmp;
     init_server(&tmp);
@@ -149,7 +122,7 @@ void reception_identite(char* message, int taille, char* ip)
 void envoi_touche(int touche)
 {
 #ifdef DEBUG
-    printf("touche: %08x\n", touche);
+    printf("key: %08x\n", touche);
 #endif
 
     // Preparation de la trame
@@ -163,8 +136,12 @@ void envoi_touche(int touche)
     // Ecriture de la trame
     ecrire_trame_touches(&trame, message, taille);
 
+    // Recuperation du port
+    char port[MAX_PORT_LEN];
+    sprintf(port, "%d", serveur.port_udp_touches);
+
     // Envoi de la trame
-    envoi_message_udp(to_cstr(&(serveur.ip)), serveur.port_udp_touches, message, taille);
+    envoi_message_udp(to_cstr(&(serveur.ip)), port, message, taille);
 }
 
 void gestion_evenements()
@@ -196,8 +173,8 @@ void reception_graphique(char* message, int taille, char* ip)
 
 #ifdef DEBUG
     int i;
-    printf("udp_graphique: message of %d bytes from %s.\n", taille, ip);
-    printf("%d objets graphiques reçus:\n", trame.nb_objets);
+    printf("Recieved graphic packet of %d bytes from %s.\n", taille, ip);
+    printf("%d graphic objects recieved:\n", trame.nb_objets);
     for (i = 0; i < taille; i++)
         printf("%02x", message[i]);
     printf("\n");

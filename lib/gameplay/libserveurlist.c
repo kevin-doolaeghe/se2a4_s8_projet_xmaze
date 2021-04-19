@@ -32,7 +32,7 @@ void append_server_to_list(server_list_t* list, server_t* server)
 
 void add_server_to_list(server_list_t* list, server_t* server)
 {
-    if (!search_server_in_list(list, server)) {
+    if (!search_server_in_list(list, server->id)) {
         append_server_to_list(list, server);
     }
 }
@@ -90,25 +90,23 @@ int size_of_server_list(server_list_t* list)
 server_t* get_server_by_id(server_list_t* list, int id)
 {
     pt_server_cell_t ptr = *list;
-    int cnt = 0;
 
     while (ptr != NULL) {
-        if (cnt == id)
+        if (ptr->server.id == id)
             return &(ptr->server);
-        cnt++;
         ptr = ptr->next;
     }
 
     return NULL;
 }
 
-bool search_server_in_list(server_list_t* list, server_t* server)
+bool search_server_in_list(server_list_t* list, int id)
 {
     pt_server_cell_t ptr = *list;
     bool found = false;
 
     while (ptr != NULL) {
-        if (ptr->server.id == server->id) {
+        if (ptr->server.id == id) {
             found = true;
             break;
         }

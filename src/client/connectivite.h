@@ -19,6 +19,10 @@
 #include "libthread.h"
 #include "libudp.h"
 
+/** Constantes **/
+
+#define MAX_PORT_LEN 10
+
 /** Variables globales **/
 
 extern server_list_t serveur_list;
@@ -42,8 +46,6 @@ void thread_graphique(int* ecoute);
 
 void connexion_chat(int id);
 void reception_message_chat(char* message, int taille);
-void demarrer_partie();
-void arreter_partie();
 
 /**** Diffusion UDP ****/
 
@@ -57,5 +59,10 @@ void gestion_evenements();
 /**** Graphique UDP ****/
 
 void reception_graphique(char* message, int taille, char* ip);
+
+/** Fonctions externes **/
+
+extern void demarrer_partie();
+extern void arreter_partie();
 
 #endif

@@ -56,33 +56,39 @@ void traduire_trame_graphique(pr_udp_graph_t* dst, char* src, int taille)
     }
 }
 
-void ecrire_trame_chat(pr_tcp_chat_t* src, char* dst, int taille) {
+void ecrire_trame_chat(pr_tcp_chat_t* src, char* dst, int taille)
+{
     int index = sizeof(src->id_client) + sizeof(src->id_client);
-    if (taille >= index + strlen(src->message)) {
-        memcpy(dst, &src, sizeof(pr_tcp_chat_t));
-        memcpy(dst + index, src->message, strlen(src->message));
+    if (src->message == NULL) {
+        if (taille >= index)
+            memcpy(dst, src, sizeof(pr_tcp_chat_t));
+    } else {
+        if (taille >= index + strlen(src->message)) {
+            memcpy(dst, src, sizeof(pr_tcp_chat_t));
+            memcpy(dst + index, src->message, strlen(src->message));
+        }
     }
 }
 
-void ecrire_trame_identite(pr_udp_identite_t* src, char* dst, int taille) {
+void ecrire_trame_identite(pr_udp_identite_t* src, char* dst, int taille)
+{
     if (taille >= sizeof(pr_udp_identite_t))
-        memcpy(dst, &src, sizeof(pr_udp_identite_t));
+        memcpy(dst, src, sizeof(pr_udp_identite_t));
 }
 
-void ecrire_trame_touches(pr_udp_touches_t* src, char* dst, int taille) {
+void ecrire_trame_touches(pr_udp_touches_t* src, char* dst, int taille)
+{
     if (taille >= sizeof(pr_udp_touches_t))
-        memcpy(dst, &src, sizeof(pr_udp_touches_t));
+        memcpy(dst, src, sizeof(pr_udp_touches_t));
 }
 
-void ecrire_trame_graphique(pr_udp_graph_t* src, char* dst, int taille) {
+void ecrire_trame_graphique(pr_udp_graph_t* src, char* dst, int taille)
+{
     if (taille >= sizeof(src->nb_objets) + src->nb_objets * sizeof(objet_2d_t)) {
         int i;
-        memcpy(dst, &(src->nb_objets), sizeof(src->nb_objets));
-        /*
         for (i = 0; i < sizeof(src->nb_objets); i++)
             dst[i] = (src->nb_objets >> (3 - i) * 8) & 0xFF;
-        */
         for (i = 0; i < src->nb_objets; i++)
-            memcpy(dst + sizeof(src->nb_objets) + i * sizeof(objet_2d_t), &(objets[i]), sizeof(objet_2d_t));
+            memcpy(dst + sizeof(src->nb_objets) + i * sizeof(objet_2d_t), &(src->objets[i]), sizeof(objet_2d_t));
     }
 }

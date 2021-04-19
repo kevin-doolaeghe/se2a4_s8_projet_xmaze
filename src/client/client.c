@@ -32,6 +32,37 @@ void detruire_client()
     exit(EXIT_SUCCESS);
 }
 
+void demarrer_partie()
+{
+    // Demarrage de la partie
+    partie_en_cours = true;
+
+    // Ouverture de la fenetre
+    unsigned char resultat = creerFenetre(LARGEUR, HAUTEUR, TITRE);
+    if (!resultat) {
+        fprintf(stderr, "Problème graphique !\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Demarrage de la tache d'envoi des touches
+    create_task((void* (*)(void*))thread_touches, NULL, 0);
+
+    // Demarrage de la tache de reception des objets graphiques
+    int graphique_sock = init_serveur_udp(PORT_GRAPHIQUE_UDP);
+    create_task((void* (*)(void*))thread_graphique, (void*)&graphique_sock, sizeof(graphique_sock));
+}
+
+void arreter_partie()
+{
+    // Arret de la partie
+    partie_en_cours = false;
+
+    usleep(ATTENTE);
+
+    // Fermeture de la fenetre
+    fermerFenetre();
+}
+
 /* Fonction principale */
 
 int main(int argc, char* argv[])

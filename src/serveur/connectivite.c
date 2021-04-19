@@ -103,9 +103,6 @@ void gestion_client(int dialogue, char* ip)
 
 void reception_message(char* message, int taille)
 {
-    pt_client_cell_t ptr = client_list;
-    client_t* client = get_client_by_id(&client_list, trame.id_client);
-
     // Traduction de la trame
     pr_tcp_chat_t trame;
     traduire_trame_chat(&trame, message, taille);
@@ -114,6 +111,9 @@ void reception_message(char* message, int taille)
     printf("Recieved message of %d bytes.\n", taille);
     printf("\t- Type: %d\n\t- Command: %d\n\t- Content: %s\n", trame.id_client, trame.commande, trame.message);
 #endif
+
+    pt_client_cell_t ptr = client_list;
+    client_t* client = get_client_by_id(&client_list, trame.id_client);
 
     // Traitement du message recu
     switch (trame.commande) {
@@ -185,6 +185,14 @@ void diffuser_identite()
 
             // Envoi de la trame
             envoi_message_udp(BROADCAST, PORT_DIFFUSION_UDP, message, taille);
+
+#ifdef DEBUG
+            printf("Sending broadcast packet of %d bytes: ", taille);
+            int i;
+            for (i = 0; i < sizeof(message); i++)
+                printf("%02x", message[i]);
+            printf("\n");
+#endif
         }
         sleep(ATTENTE_DIFFUSION);
     }
@@ -195,14 +203,12 @@ void diffuser_identite()
 void reception_touche(char* message, int taille, char* ip)
 {
     if (partie_en_cours == true) {
-        client_t* client = get_client_by_id(&client_list, trame.id_client);
-
         // Traduction de la trame
         pr_udp_touches_t trame;
         traduire_trame_touches(&trame, message, taille);
 
 #ifdef DEBUG
-        printf("udp_touches: message of %d bytes from %s: ", taille, ip);
+        printf("Recieved key packet of %d bytes from %s: ", taille, ip);
         int i;
         for (i = 0; i < sizeof(message); i++)
             printf("%08x", message[i]);
@@ -210,9 +216,10 @@ void reception_touche(char* message, int taille, char* ip)
         printf("touche: %d\n", trame.touches);
 #endif
 
+        client_t* client = get_client_by_id(&client_list, trame.id_client);
+
         // Mise a jour de la position
-        switch (trame.touches)
-        {
+        switch (trame.touches) {
         case TOUCHE_DROITE:
             client->position.angle += 10;
             break;
@@ -230,7 +237,7 @@ void reception_touche(char* message, int taille, char* ip)
         default:
             break;
         }
-        
+
         if (client->position.angle < 0 || client->position.angle > 360)
             client->position.angle = client->position.angle % 360;
 
@@ -273,7 +280,7 @@ void calcul_graphique()
 
                 // Preparation de la trame
                 trame.nb_objets = no;
-                trame.objets = objets;
+                trame.objets = (objet_2d_t*)objets;
 
                 taille = sizeof(trame.nb_objets) + no * sizeof(objet2D);
                 char message[taille];
@@ -286,6 +293,7 @@ void calcul_graphique()
 
 #ifdef DEBUG
                 printf("Sending graphic of %d bytes: ", taille);
+                int i;
                 for (i = 0; i < taille; i++)
                     printf("%02x", message[i]);
                 printf("\n");

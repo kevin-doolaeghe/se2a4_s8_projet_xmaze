@@ -27,7 +27,6 @@
 
 #define ID_SERVEUR 34567
 
-
 /** Variables globales **/
 
 extern client_list_t client_list;
