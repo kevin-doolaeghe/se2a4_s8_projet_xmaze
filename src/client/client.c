@@ -15,6 +15,8 @@ void init_client()
     quitter_client = false;
     partie_en_cours = false;
 
+    id = -1;
+
     int diffusion_sock = init_serveur_udp(PORT_DIFFUSION_UDP);
     create_task((void* (*)(void*))thread_diffusion, (void*)&diffusion_sock, sizeof(diffusion_sock));
 }

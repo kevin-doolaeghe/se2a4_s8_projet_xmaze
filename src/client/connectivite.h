@@ -64,5 +64,6 @@ void reception_graphique(char* message, int taille, char* ip);
 
 extern void demarrer_partie();
 extern void arreter_partie();
+extern void detruire_client();
 
 #endif

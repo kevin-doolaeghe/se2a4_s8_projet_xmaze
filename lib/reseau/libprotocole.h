@@ -33,6 +33,8 @@
 #define CMD_STRT_ID 4
 #define CMD_STOP_ID 5
 
+#define ID_ADMIN 0
+
 /** Types **/
 
 /* Paquet d'envoi d'un message au chat */

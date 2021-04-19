@@ -67,7 +67,7 @@ void traitement_commande(int commande, str_list_t* tokens)
         break;
     case CMD_STRT_ID:
         if (serveur.fd != -1) {
-            if (id == 0)
+            if (id == ID_ADMIN)
                 envoi_message(commande, tokens);
             else
                 afficher_erreur_admin();
@@ -75,7 +75,7 @@ void traitement_commande(int commande, str_list_t* tokens)
         break;
     case CMD_STOP_ID:
         if (serveur.fd != -1) {
-            if (id == 0)
+            if (id == ID_ADMIN)
                 envoi_message(commande, tokens);
             else
                 afficher_erreur_admin();
@@ -91,7 +91,7 @@ void traitement_commande(int commande, str_list_t* tokens)
 
 void lire_ligne(str_list_t* tokens)
 {
-    char* commande;
+    char* commande = "";
     size_t taille = 0;
 
     getline(&commande, &taille, stdin);
@@ -117,19 +117,20 @@ void afficher_aide()
 
 void afficher_erreur_saisie()
 {
-    printf("Commande non reconnue\n");
+    printf("Commande non reconnue.\n");
 }
 
 void afficher_erreur_admin()
 {
-    printf("Vous n'êtes pas administrateur\n");
+    printf("Vous n'êtes pas administrateur.\n");
 }
 
 void envoi_message(int commande, str_list_t* tokens)
 {
     if (serveur.fd != -1) {
         // Fabrication du message a envoyer
-        char str[MAX_MESG_LEN];
+        char str[MAX_TAMPON_TCP];
+        strcpy(str, "");
         int i;
         switch (commande) {
         case CMD_MESG_ID:
@@ -147,7 +148,6 @@ void envoi_message(int commande, str_list_t* tokens)
         default:
             break;
         }
-        printf("Message: %s\n", str);
 
         // Preparation de la trame
         pr_tcp_chat_t trame;

@@ -63,7 +63,7 @@ void reception_message_chat(char* message, int taille)
         printf("%s\n", trame.message);
         break;
     case CMD_IDTF_ID:
-        id = atoi(trame.message);
+        id = trame.id_client;
         break;
     case CMD_STRT_ID:
         printf("Démarrage de la partie!\n");
@@ -146,7 +146,7 @@ void envoi_touche(int touche)
 
 void gestion_evenements()
 {
-    int touche;
+    int touche = TOUCHE_AUTRE;
     unsigned char fenetre, quitter;
     while (partie_en_cours == true) {
         int evenement = attendreEvenement(&touche, &fenetre, &quitter);
@@ -155,10 +155,13 @@ void gestion_evenements()
             continue;
         }
 
-        if (quitter == 1)
+        if (quitter == 1) {
             arreter_partie();
+            detruire_client();
+            break;
+        }
 
-        if (touche != 0 && touche != TOUCHE_AUTRE && serveur.fd != -1)
+        if (touche != 0 && touche != TOUCHE_AUTRE)
             envoi_touche(touche);
     }
 }
@@ -185,6 +188,6 @@ void reception_graphique(char* message, int taille, char* ip)
     dessine_2D((objet2D*)trame.objets, trame.nb_objets);
     synchroniserFenetre();
 
-    if (quitter_client == true)
+    if (partie_en_cours == false)
         exit(EXIT_SUCCESS);
 }

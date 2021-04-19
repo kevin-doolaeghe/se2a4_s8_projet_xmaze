@@ -81,14 +81,17 @@ void gestion_client(int dialogue, char* ip)
     // Demarrage de la tache de dialogue
     create_task((void* (*)(void*))thread_chat_dialogue, (void*)&dialogue, sizeof(dialogue));
 
-    /* Envoi de l'indentifiant du client */
+    // Fabrication du message a envoyer
+    char str[MAX_TAMPON_TCP];
+    strcpy(str, "");
+
     // Preparation de la trame
     pr_tcp_chat_t trame;
-    trame.id_client = size_of_client_list(&client_list);
+    trame.id_client = size_of_client_list(&client_list) - 1;
     trame.commande = CMD_IDTF_ID;
-    trame.message = NULL;
+    trame.message = str;
 
-    int taille = sizeof(pr_tcp_chat_t);
+    int taille = sizeof(trame.id_client) + sizeof(trame.commande) + strlen(str);
     char message[taille];
 
     // Ecriture de la trame
@@ -114,55 +117,56 @@ void reception_message(char* message, int taille)
 
     pt_client_cell_t ptr = client_list;
     client_t* client = get_client_by_id(&client_list, trame.id_client);
+    if (client != NULL) {
+        // Traitement du message recu
+        switch (trame.commande) {
+        case CMD_MESG_ID:
+            while (ptr != NULL) {
+                envoi_message_tcp(ptr->client.fd, message, taille);
+                ptr = ptr->next;
+            }
+            break;
+        case CMD_NICK_ID:
+            set_client_pseudo(client, trame.message);
+            print_client_list(&client_list);
+            break;
+        case CMD_STRT_ID:
+            partie_en_cours = true;
 
-    // Traitement du message recu
-    switch (trame.commande) {
-    case CMD_MESG_ID:
-        while (ptr != NULL) {
-            envoi_message_tcp(ptr->client.fd, message, taille);
-            ptr = ptr->next;
-        }
-        break;
-    case CMD_NICK_ID:
-        set_client_pseudo(client, trame.message);
-        print_client_list(&client_list);
-        break;
-    case CMD_STRT_ID:
-        partie_en_cours = true;
+            while (ptr != NULL) {
+                envoi_message_tcp(ptr->client.fd, message, taille);
+                ptr = ptr->next;
+            }
+            break;
+        case CMD_STOP_ID:
+            partie_en_cours = false;
 
-        while (ptr != NULL) {
-            envoi_message_tcp(ptr->client.fd, message, taille);
-            ptr = ptr->next;
+            while (ptr != NULL) {
+                envoi_message_tcp(ptr->client.fd, message, taille);
+                ptr = ptr->next;
+            }
+            break;
+        default:
+            break;
         }
-        break;
-    case CMD_STOP_ID:
-        partie_en_cours = false;
 
-        while (ptr != NULL) {
-            envoi_message_tcp(ptr->client.fd, message, taille);
-            ptr = ptr->next;
-        }
-        break;
-    default:
-        break;
+        /*
+        // Preparation de la trame
+        pr_tcp_chat_t trame;
+        trame.id_client = trame.id_client;
+        trame.commande = trame.commande;
+        trame.message = NULL;
+
+        int taille = sizeof(pr_tcp_chat_t);
+        char message[taille];
+
+        // Ecriture de la trame
+        ecrire_trame_chat(&trame, message, taille);
+
+        // Envoi de la trame
+        envoi_message_tcp(dialogue, message, taille);
+        */
     }
-
-    /*
-    // Preparation de la trame
-    pr_tcp_chat_t trame;
-    trame.id_client = trame.id_client;
-    trame.commande = trame.commande;
-    trame.message = NULL;
-
-    int taille = sizeof(pr_tcp_chat_t);
-    char message[taille];
-
-    // Ecriture de la trame
-    ecrire_trame_chat(&trame, message, taille);
-
-    // Envoi de la trame
-    envoi_message_tcp(dialogue, message, taille);
-    */
 }
 
 /**** Diffusion UDP ****/
@@ -217,32 +221,33 @@ void reception_touche(char* message, int taille, char* ip)
 #endif
 
         client_t* client = get_client_by_id(&client_list, trame.id_client);
+        if (client != NULL) {
+            // Mise a jour de la position
+            switch (trame.touches) {
+            case TOUCHE_DROITE:
+                client->position.angle += 10;
+                break;
+            case TOUCHE_GAUCHE:
+                client->position.angle -= 10;
+                break;
+            case TOUCHE_HAUT:
+                client->position.x += MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
+                client->position.z += MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
+                break;
+            case TOUCHE_BAS:
+                client->position.x -= MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
+                client->position.z -= MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
+                break;
+            default:
+                break;
+            }
 
-        // Mise a jour de la position
-        switch (trame.touches) {
-        case TOUCHE_DROITE:
-            client->position.angle += 10;
-            break;
-        case TOUCHE_GAUCHE:
-            client->position.angle -= 10;
-            break;
-        case TOUCHE_HAUT:
-            client->position.x += MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
-            client->position.z += MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
-            break;
-        case TOUCHE_BAS:
-            client->position.x -= MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
-            client->position.z -= MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
-            break;
-        default:
-            break;
+            if (client->position.angle < 0 || client->position.angle > 360)
+                client->position.angle = client->position.angle % 360;
+
+            if (quitter_serveur == true)
+                exit(EXIT_SUCCESS);
         }
-
-        if (client->position.angle < 0 || client->position.angle > 360)
-            client->position.angle = client->position.angle % 360;
-
-        if (quitter_serveur == true)
-            exit(EXIT_SUCCESS);
     }
 }
 

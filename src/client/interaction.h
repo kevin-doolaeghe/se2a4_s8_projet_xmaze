@@ -34,8 +34,6 @@
 #define CMD_CONN_ID 8
 #define CMD_OTHR_ID -1
 
-#define MAX_MESG_LEN 100
-
 /** Variables globales **/
 
 extern server_list_t serveur_list;
