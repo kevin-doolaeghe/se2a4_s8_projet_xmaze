@@ -56,6 +56,6 @@ void envoi_message(int commande, str_list_t* tokens);
 
 /** Fonctions externes **/
 
-extern void connexion_chat(int id);
+extern void connexion_serveur(int id);
 
 #endif

@@ -44,7 +44,6 @@ void thread_graphique(int* ecoute);
 
 /**** Chat TCP ****/
 
-void connexion_chat(int id);
 void reception_message_chat(char* message, int taille);
 
 /**** Diffusion UDP ****/
@@ -62,8 +61,10 @@ void reception_graphique(char* message, int taille, char* ip);
 
 /** Fonctions externes **/
 
+extern void detruire_client();
 extern void demarrer_partie();
 extern void arreter_partie();
-extern void detruire_client();
+extern void connexion_serveur(int id);
+extern void deconnexion_serveur();
 
 #endif

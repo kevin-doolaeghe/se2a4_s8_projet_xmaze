@@ -65,6 +65,28 @@ void arreter_partie()
     fermerFenetre();
 }
 
+void connexion_serveur(int id)
+{
+    if (search_server_in_list(&serveur_list, id) && serveur.fd == -1) {
+        // Recuperation du serveur
+        server_t* res = get_server_by_id(&serveur_list, id);
+        copy_server(&serveur, res);
+
+        // Recuperation du port
+        char port[MAX_PORT_LEN];
+        sprintf(port, "%d", serveur.port_tcp);
+
+        // Demarrage de la tache de dialogue
+        int chat_sock = init_client_tcp(to_cstr(&(serveur.ip)), port);
+        set_server_fd(&serveur, chat_sock);
+        create_task((void* (*)(void*))thread_chat, (void*)&chat_sock, sizeof(chat_sock));
+    }
+}
+
+void deconnexion_serveur()
+{
+}
+
 /* Fonction principale */
 
 int main(int argc, char* argv[])

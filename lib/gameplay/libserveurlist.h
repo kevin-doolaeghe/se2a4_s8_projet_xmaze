@@ -28,9 +28,9 @@ void add_server_to_list(server_list_t* list, server_t* server);
 void delete_last_server_from_list(server_list_t* list);
 void delete_server_from_list(server_list_t* list, int id);
 void destroy_server_list(server_list_t* list);
-int size_of_server_list(server_list_t* list);
 server_t* get_server_by_id(server_list_t* list, int id);
 bool search_server_in_list(server_list_t* list, int id);
+int size_of_server_list(server_list_t* list);
 void copy_server_list(server_list_t* src, server_list_t* dst);
 void print_server_list(server_list_t* list);
 

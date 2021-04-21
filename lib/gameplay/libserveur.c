@@ -8,7 +8,6 @@ void init_server(server_t* server)
 {
     server->id = -1;
     server->fd = -1;
-
     init_str(&(server->ip));
     server->port_tcp = -1;
     server->port_udp_touches = -1;

@@ -9,10 +9,6 @@
 #include "libstr.h"
 #include "libstrlist.h"
 
-/** Constantes **/
-
-#define MAX_SIZE_PSEUDO 16
-
 /** Types **/
 
 typedef struct client_s client_t;

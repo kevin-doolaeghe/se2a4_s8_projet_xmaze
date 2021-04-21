@@ -52,7 +52,7 @@ void traitement_commande(int commande, str_list_t* tokens)
         print_server_list(&serveur_list);
         break;
     case CMD_CONN_ID:
-        connexion_chat(atoi(to_cstr(&(tokens->str_list[1]))));
+        connexion_serveur(atoi(to_cstr(&(tokens->str_list[1]))));
         break;
     case CMD_MESG_ID:
         envoi_message(commande, tokens);
@@ -67,17 +67,23 @@ void traitement_commande(int commande, str_list_t* tokens)
         break;
     case CMD_STRT_ID:
         if (serveur.fd != -1) {
-            if (id == ID_ADMIN)
-                envoi_message(commande, tokens);
-            else
+            if (id == ID_ADMIN) {
+                if (partie_en_cours == false)
+                    envoi_message(commande, tokens);
+                else
+                    printf("La partie est déjà démarrée.\n");
+            } else
                 afficher_erreur_admin();
         }
         break;
     case CMD_STOP_ID:
         if (serveur.fd != -1) {
-            if (id == ID_ADMIN)
-                envoi_message(commande, tokens);
-            else
+            if (id == ID_ADMIN) {
+                if (partie_en_cours == true)
+                    envoi_message(commande, tokens);
+                else
+                    printf("La partie n'est pas lancée.\n");
+            } else
                 afficher_erreur_admin();
         }
         break;

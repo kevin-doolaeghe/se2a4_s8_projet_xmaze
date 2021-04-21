@@ -26,6 +26,7 @@ server_t serveur;
 int id;
 
 bool quitter_client;
+bool connecte_au_serveur;
 bool partie_en_cours;
 
 /** Prototypes **/
@@ -36,5 +37,7 @@ void init_client();
 void detruire_client();
 void demarrer_partie();
 void arreter_partie();
+void connexion_serveur(int id);
+void deconnexion_serveur();
 
 #endif

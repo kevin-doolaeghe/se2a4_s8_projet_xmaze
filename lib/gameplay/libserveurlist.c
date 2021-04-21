@@ -74,19 +74,6 @@ void destroy_server_list(server_list_t* list)
     }
 }
 
-int size_of_server_list(server_list_t* list)
-{
-    pt_server_cell_t ptr = *list;
-    int size = 0;
-
-    while (ptr != NULL) {
-        size++;
-        ptr = ptr->next;
-    }
-
-    return size;
-}
-
 server_t* get_server_by_id(server_list_t* list, int id)
 {
     pt_server_cell_t ptr = *list;
@@ -114,6 +101,19 @@ bool search_server_in_list(server_list_t* list, int id)
         ptr = ptr->next;
     }
     return found;
+}
+
+int size_of_server_list(server_list_t* list)
+{
+    pt_server_cell_t ptr = *list;
+    int size = 0;
+
+    while (ptr != NULL) {
+        size++;
+        ptr = ptr->next;
+    }
+
+    return size;
 }
 
 void copy_server_list(server_list_t* src, server_list_t* dst)
