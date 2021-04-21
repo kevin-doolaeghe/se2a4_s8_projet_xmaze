@@ -32,7 +32,7 @@ void append_client_to_list(client_list_t* list, client_t* client)
 
 void add_client_to_list(client_list_t* list, client_t* client)
 {
-    if (!search_client_in_list(list, client->id)) {
+    if (!search_client_in_list(list, client->fd)) {
         append_client_to_list(list, client);
     }
 }
@@ -46,13 +46,13 @@ void delete_last_client_from_list(client_list_t* list)
     free(ptr);
 }
 
-void delete_client_from_list(client_list_t* list, int id)
+void delete_client_from_list(client_list_t* list, int fd)
 {
     pt_client_cell_t ptr = *list;
     pt_client_cell_t previous = NULL;
 
     while (ptr != NULL) {
-        if (ptr->client.id == id) {
+        if (ptr->client.fd == fd) {
             if (previous == NULL) {
                 delete_last_client_from_list(list);
             } else {
@@ -87,13 +87,13 @@ client_t* get_client_by_id(client_list_t* list, int id)
     return NULL;
 }
 
-bool search_client_in_list(client_list_t* list, int id)
+bool search_client_in_list(client_list_t* list, int fd)
 {
     pt_client_cell_t ptr = *list;
     bool found = false;
 
     while (ptr != NULL) {
-        if (ptr->client.id == id) {
+        if (ptr->client.fd == fd) {
             found = true;
             break;
         }
@@ -101,6 +101,19 @@ bool search_client_in_list(client_list_t* list, int id)
         ptr = ptr->next;
     }
     return found;
+}
+
+void order_list(client_list_t* list)
+{
+    pt_client_cell_t ptr = *list;
+    int current = 0;
+
+    while (ptr != NULL) {
+        current++;
+        ptr->client.id = size_of_client_list(list) - current;
+
+        ptr = ptr->next;
+    }
 }
 
 int size_of_client_list(client_list_t* list)

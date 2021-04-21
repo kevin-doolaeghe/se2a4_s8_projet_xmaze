@@ -48,6 +48,7 @@ void thread_graphique();
 
 void gestion_client(int dialogue, char* ip);
 void reception_message(char* message, int taille);
+void envoi_id_client(int dialogue, int id);
 
 /**** Diffusion UDP ****/
 

@@ -40,7 +40,14 @@ void thread_chat_dialogue(int* dialogue)
     boucle_reception_tcp(*dialogue, (void* (*)(char*, int))reception_message);
 
     delete_client_from_list(&client_list, *dialogue);
+    order_list(&client_list);
     print_client_list(&client_list);
+
+    pt_client_cell_t ptr = client_list;
+    while (ptr != NULL) {
+        envoi_id_client(ptr->client.fd, ptr->client.id);
+        ptr = ptr->next;
+    }
 }
 
 void thread_diffusion()
@@ -70,24 +77,32 @@ void gestion_client(int dialogue, char* ip)
     client_t client;
     init_client(&client);
 
-    set_client_id(&client, size_of_client_list(&client_list));
     set_client_fd(&client, dialogue);
     set_client_ip(&client, ip);
     pos_t pos = { LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0 };
     set_client_position(&client, &pos);
 
     append_client_to_list(&client_list, &client);
+    order_list(&client_list);
 
     // Demarrage de la tache de dialogue
     create_task((void* (*)(void*))thread_chat_dialogue, (void*)&dialogue, sizeof(dialogue));
 
+    envoi_id_client(dialogue, size_of_client_list(&client_list) - 1);
+
+    print_client_list(&client_list);
+    destroy_client(&client);
+}
+
+void envoi_id_client(int dialogue, int id)
+{
     // Fabrication du message a envoyer
     char str[MAX_TAMPON_TCP];
     strcpy(str, "");
 
     // Preparation de la trame
     pr_tcp_chat_t trame;
-    trame.id_client = size_of_client_list(&client_list) - 1;
+    trame.id_client = id;
     trame.commande = CMD_IDTF_ID;
     trame.message = str;
 
@@ -99,9 +114,6 @@ void gestion_client(int dialogue, char* ip)
 
     // Envoi de la trame
     envoi_message_tcp(dialogue, message, taille);
-
-    print_client_list(&client_list);
-    destroy_client(&client);
 }
 
 void reception_message(char* message, int taille)
@@ -245,8 +257,8 @@ void reception_touche(char* message, int taille, char* ip)
             if (client->position.angle < 0 || client->position.angle > 360)
                 client->position.angle = client->position.angle % 360;
 
-            if (quitter_serveur == true)
-                exit(EXIT_SUCCESS);
+            //if (quitter_serveur == true)
+            //exit(EXIT_SUCCESS);
         }
     }
 }
