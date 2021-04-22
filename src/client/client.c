@@ -85,6 +85,9 @@ void connexion_serveur(int id)
 
 void deconnexion_serveur()
 {
+    detruire_lien_tcp(serveur.fd);
+    destroy_server(&serveur);
+    init_server(&serveur);
 }
 
 /* Fonction principale */

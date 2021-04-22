@@ -31,6 +31,7 @@ extern server_t serveur;
 extern int id;
 
 extern bool quitter_client;
+extern bool connecte_au_serveur;
 extern bool partie_en_cours;
 
 /** Prototypes **/

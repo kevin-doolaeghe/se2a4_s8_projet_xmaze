@@ -21,6 +21,8 @@ void boucle_saisie_commande()
             commande = CMD_LIST_ID;
         } else if (!strcmp(to_cstr(&(tokens.str_list[0])), CMD_CONN_STR) && tokens.alloc == 2) {
             commande = CMD_CONN_ID;
+        } else if (!strcmp(to_cstr(&(tokens.str_list[0])), CMD_DISC_STR) && tokens.alloc == 1) {
+            commande = CMD_DISC_ID;
         } else if (!strcmp(to_cstr(&(tokens.str_list[0])), CMD_MESG_STR) && tokens.alloc > 1) {
             commande = CMD_MESG_ID;
         } else if (!strcmp(to_cstr(&(tokens.str_list[0])), CMD_IDTF_STR) && tokens.alloc == 1) {
@@ -52,18 +54,31 @@ void traitement_commande(int commande, str_list_t* tokens)
         print_server_list(&serveur_list);
         break;
     case CMD_CONN_ID:
-        connexion_serveur(atoi(to_cstr(&(tokens->str_list[1]))));
+        if (connecte_au_serveur == false)
+            connexion_serveur(atoi(to_cstr(&(tokens->str_list[1]))));
+        else
+            afficher_erreur_deja_connecte();
+        break;
+    case CMD_DISC_ID:
+        if (connecte_au_serveur == true)
+            deconnexion_serveur();
+        else
+            afficher_erreur_non_connecte();
         break;
     case CMD_MESG_ID:
-        envoi_message(commande, tokens);
+        if (serveur.fd != -1)
+            envoi_message(commande, tokens);
+        else
+            afficher_erreur_non_connecte();
         break;
     case CMD_IDTF_ID:
         printf("id: %d\n", id);
         break;
     case CMD_NICK_ID:
-        if (serveur.fd != -1) {
+        if (serveur.fd != -1)
             envoi_message(commande, tokens);
-        }
+        else
+            afficher_erreur_non_connecte();
         break;
     case CMD_STRT_ID:
         if (serveur.fd != -1) {
@@ -71,10 +86,11 @@ void traitement_commande(int commande, str_list_t* tokens)
                 if (partie_en_cours == false)
                     envoi_message(commande, tokens);
                 else
-                    printf("La partie est déjà démarrée.\n");
+                    afficher_erreur_partie_demarree();
             } else
                 afficher_erreur_admin();
-        }
+        } else
+            afficher_erreur_non_connecte();
         break;
     case CMD_STOP_ID:
         if (serveur.fd != -1) {
@@ -82,10 +98,11 @@ void traitement_commande(int commande, str_list_t* tokens)
                 if (partie_en_cours == true)
                     envoi_message(commande, tokens);
                 else
-                    printf("La partie n'est pas lancée.\n");
+                    afficher_erreur_partie_arretee();
             } else
                 afficher_erreur_admin();
-        }
+        } else
+            afficher_erreur_non_connecte();
         break;
     case CMD_OTHR_ID:
         afficher_erreur_saisie();
@@ -113,7 +130,8 @@ void afficher_aide()
     printf("Liste des commandes :\n");
     printf("\t- help: Affiche l'aide\n");
     printf("\t- list: Affiche les serveurs trouvés\n");
-    printf("\t- connect <id>: Se connecte au premier serveur de la liste\n");
+    printf("\t- connect <id>: Connexion au serveur dont l'identifiant est <id>\n");
+    printf("\t- disconnect: Déconnexion du serveur\n");
     printf("\t- send <msg>: Envoi un message\n");
     printf("\t- id: Affiche l'identifiant du client\n");
     printf("\t- nick <nickname>: Change le pseudo\n");
@@ -129,6 +147,26 @@ void afficher_erreur_saisie()
 void afficher_erreur_admin()
 {
     printf("Vous n'êtes pas administrateur.\n");
+}
+
+void afficher_erreur_deja_connecte()
+{
+    printf("Vous êtes déjà connectés à un serveur.\n");
+}
+
+void afficher_erreur_non_connecte()
+{
+    printf("Vous n'êtes connectés à aucun serveur.\n");
+}
+
+void afficher_erreur_partie_demarree()
+{
+    printf("La partie est déjà démarrée.\n");
+}
+
+void afficher_erreur_partie_arretee()
+{
+    printf("La partie n'est pas lancée.\n");
 }
 
 void envoi_message(int commande, str_list_t* tokens)
