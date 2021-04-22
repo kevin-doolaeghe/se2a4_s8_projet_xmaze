@@ -55,6 +55,7 @@ void lire_ligne();
 void afficher_aide();
 void afficher_erreur_saisie();
 void afficher_erreur_admin();
+void afficher_erreur_serveur_inexistant();
 void afficher_erreur_deja_connecte();
 void afficher_erreur_non_connecte();
 void afficher_erreur_partie_demarree();

@@ -35,9 +35,9 @@ int main(int argc, char* argv[]);
 void usage();
 void init_client();
 void detruire_client();
-void demarrer_partie();
-void arreter_partie();
 void connexion_serveur(int id);
 void deconnexion_serveur();
+void demarrer_partie();
+void arreter_partie();
 
 #endif

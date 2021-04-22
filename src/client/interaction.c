@@ -54,9 +54,12 @@ void traitement_commande(int commande, str_list_t* tokens)
         print_server_list(&serveur_list);
         break;
     case CMD_CONN_ID:
-        if (connecte_au_serveur == false)
-            connexion_serveur(atoi(to_cstr(&(tokens->str_list[1]))));
-        else
+        if (connecte_au_serveur == false) {
+            if (search_server_in_list(&serveur_list, id))
+                connexion_serveur(atoi(to_cstr(&(tokens->str_list[1]))));
+            else
+                afficher_erreur_serveur_inexistant();
+        } else
             afficher_erreur_deja_connecte();
         break;
     case CMD_DISC_ID:
@@ -66,7 +69,7 @@ void traitement_commande(int commande, str_list_t* tokens)
             afficher_erreur_non_connecte();
         break;
     case CMD_MESG_ID:
-        if (serveur.fd != -1)
+        if (connecte_au_serveur == true)
             envoi_message(commande, tokens);
         else
             afficher_erreur_non_connecte();
@@ -75,13 +78,13 @@ void traitement_commande(int commande, str_list_t* tokens)
         printf("id: %d\n", id);
         break;
     case CMD_NICK_ID:
-        if (serveur.fd != -1)
+        if (connecte_au_serveur == true)
             envoi_message(commande, tokens);
         else
             afficher_erreur_non_connecte();
         break;
     case CMD_STRT_ID:
-        if (serveur.fd != -1) {
+        if (connecte_au_serveur == true) {
             if (id == ID_ADMIN) {
                 if (partie_en_cours == false)
                     envoi_message(commande, tokens);
@@ -93,7 +96,7 @@ void traitement_commande(int commande, str_list_t* tokens)
             afficher_erreur_non_connecte();
         break;
     case CMD_STOP_ID:
-        if (serveur.fd != -1) {
+        if (connecte_au_serveur == true) {
             if (id == ID_ADMIN) {
                 if (partie_en_cours == true)
                     envoi_message(commande, tokens);
@@ -149,6 +152,11 @@ void afficher_erreur_admin()
     printf("Vous n'êtes pas administrateur.\n");
 }
 
+void afficher_erreur_serveur_inexistant()
+{
+    printf("Le serveur demandé n'est pas disponible.\n");
+}
+
 void afficher_erreur_deja_connecte()
 {
     printf("Vous êtes déjà connectés à un serveur.\n");
@@ -171,48 +179,46 @@ void afficher_erreur_partie_arretee()
 
 void envoi_message(int commande, str_list_t* tokens)
 {
-    if (serveur.fd != -1) {
-        // Fabrication du message a envoyer
-        char str[MAX_TAMPON_TCP];
-        strcpy(str, "");
-        int i;
-        switch (commande) {
-        case CMD_MESG_ID:
-            for (i = 1; i < tokens->alloc; i++) {
-                strcat(str, to_cstr(&(tokens->str_list[i])));
-                if (i != tokens->alloc - 1)
-                    strcat(str, " ");
-            }
-            strcat(str, "\0");
-            break;
-        case CMD_NICK_ID:
-            strcat(str, to_cstr(&(tokens->str_list[1])));
-            strcat(str, "\0");
-            break;
-        default:
-            break;
+    // Fabrication du message a envoyer
+    char str[MAX_TAMPON_TCP];
+    strcpy(str, "");
+    int i;
+    switch (commande) {
+    case CMD_MESG_ID:
+        for (i = 1; i < tokens->alloc; i++) {
+            strcat(str, to_cstr(&(tokens->str_list[i])));
+            if (i != tokens->alloc - 1)
+                strcat(str, " ");
         }
+        strcat(str, "\0");
+        break;
+    case CMD_NICK_ID:
+        strcat(str, to_cstr(&(tokens->str_list[1])));
+        strcat(str, "\0");
+        break;
+    default:
+        break;
+    }
 
-        // Preparation de la trame
-        pr_tcp_chat_t trame;
-        trame.id_client = id;
-        trame.commande = commande;
-        trame.message = str;
+    // Preparation de la trame
+    pr_tcp_chat_t trame;
+    trame.id_client = id;
+    trame.commande = commande;
+    trame.message = str;
 
-        int taille = sizeof(trame.id_client) + sizeof(trame.commande) + strlen(str);
-        char message[taille];
+    int taille = sizeof(trame.id_client) + sizeof(trame.commande) + strlen(str);
+    char message[taille];
 
-        // Ecriture de la trame
-        ecrire_trame_chat(&trame, message, taille);
+    // Ecriture de la trame
+    ecrire_trame_chat(&trame, message, taille);
 
-        // Envoi de la trame
-        envoi_message_tcp(serveur.fd, message, taille);
+    // Envoi de la trame
+    envoi_message_tcp(serveur.fd, message, taille);
 
 #ifdef DEBUG
-        printf("Sending message of %d bytes: ", taille);
-        for (i = 0; i < taille; i++)
-            printf("%02x", message[i]);
-        printf("\n");
+    printf("Sending message of %d bytes: ", taille);
+    for (i = 0; i < taille; i++)
+        printf("%02x", message[i]);
+    printf("\n");
 #endif
-    }
 }
