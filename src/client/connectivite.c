@@ -65,11 +65,11 @@ void reception_message_chat(char* message, int taille)
 void reception_identite(char* message, int taille, char* ip)
 {
     if (quitter_client == false) {
-    // Traduction de la trame
+        // Traduction de la trame
         pr_udp_identite_t trame;
         traduire_trame_identite(&trame, message, taille);
 
-    #ifdef DEBUG
+#ifdef DEBUG
         printf("Recieved identity message: ");
         int i;
         for (i = 0; i < taille; i++)
@@ -80,7 +80,7 @@ void reception_identite(char* message, int taille, char* ip)
         printf("\tServer id: %d\n", trame.id_serveur);
         printf("\tChat port: %d\n", trame.port_tcp);
         printf("\tKey port: %d\n", trame.port_udp_touches);
-    #endif
+#endif
 
         server_t tmp;
         init_server(&tmp);
@@ -155,14 +155,14 @@ void reception_graphique(char* message, int taille, char* ip)
         pr_udp_graph_t trame;
         traduire_trame_graphique(&trame, message, taille);
 
-    #ifdef DEBUG
+#ifdef DEBUG
         int i;
         printf("Recieved graphic packet of %d bytes from %s.\n", taille, ip);
         printf("%d graphic objects recieved:\n", trame.nb_objets);
         for (i = 0; i < taille; i++)
             printf("%02x", message[i]);
         printf("\n");
-    #endif
+#endif
 
         // Affichage des objets graphiques
         effacerFenetre();

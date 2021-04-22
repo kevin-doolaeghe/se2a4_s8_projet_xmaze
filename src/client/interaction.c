@@ -55,8 +55,9 @@ void traitement_commande(int commande, str_list_t* tokens)
         break;
     case CMD_CONN_ID:
         if (connecte_au_serveur == false) {
+            int id = atoi(to_cstr(&(tokens->str_list[1])));
             if (search_server_in_list(&serveur_list, id))
-                connexion_serveur(atoi(to_cstr(&(tokens->str_list[1]))));
+                connexion_serveur(id);
             else
                 afficher_erreur_serveur_inexistant();
         } else

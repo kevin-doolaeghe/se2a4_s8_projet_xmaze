@@ -28,7 +28,8 @@ void init_client()
 void detruire_client()
 {
     // Deconnexion du serveur (arret implicite de la partie)
-    deconnexion_serveur();
+    if (connecte_au_serveur == true)
+        deconnexion_serveur();
 
     // Arret du client
     quitter_client = true;
@@ -65,17 +66,20 @@ void connexion_serveur(int id)
 void deconnexion_serveur()
 {
     // Arret de la partie
-    arreter_partie();
+    if (partie_en_cours == true)
+        arreter_partie();
 
     // Non connecte au serveur
     connecte_au_serveur = false;
-    
+
     // Deconnexion du serveur
     detruire_lien_tcp(serveur.fd);
 
     // Reinitialisation du serveur
     destroy_server(&serveur);
     init_server(&serveur);
+
+    id = -1;
 }
 
 void demarrer_partie()

@@ -29,5 +29,7 @@ int main(int argc, char* argv[]);
 void usage();
 void init_serveur();
 void detruire_serveur();
+void demarrer_partie();
+void arreter_partie();
 
 #endif
