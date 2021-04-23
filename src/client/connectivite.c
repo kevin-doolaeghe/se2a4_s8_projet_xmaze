@@ -137,6 +137,7 @@ void gestion_evenements()
         }
 
         if (quitter == 1) {
+            printf("Déconnexion du serveur..\n");
             deconnexion_serveur();
             break;
         }

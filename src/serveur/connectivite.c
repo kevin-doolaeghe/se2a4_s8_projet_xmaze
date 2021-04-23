@@ -38,16 +38,7 @@ void thread_chat_connexion(int* dialogue)
 void thread_chat_dialogue(int* dialogue)
 {
     boucle_reception_tcp(*dialogue, (void* (*)(char*, int))reception_message);
-
-    delete_client_from_list(&client_list, *dialogue);
-    order_list(&client_list);
-    print_client_list(&client_list);
-
-    pt_client_cell_t ptr = client_list;
-    while (ptr != NULL) {
-        envoi_id_client(ptr->client.fd, ptr->client.id);
-        ptr = ptr->next;
-    }
+    deconnexion_client(*dialogue);
 }
 
 void thread_diffusion()
@@ -72,26 +63,74 @@ void gestion_client(int dialogue, char* ip)
 #ifdef DEBUG
     printf("Etablished TCP connection with %s\n", ip);
 #endif
+    connexion_client(dialogue, ip);
+}
 
-    // Ajout du client a la liste
-    client_t client;
-    init_client(&client);
+void reception_message(char* message, int taille)
+{
+    // Traduction de la trame
+    pr_tcp_chat_t trame;
+    traduire_trame_chat(&trame, message, taille);
 
-    set_client_fd(&client, dialogue);
-    set_client_ip(&client, ip);
-    pos_t pos = { LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0 };
-    set_client_position(&client, &pos);
+#ifdef DEBUG
+    printf("Recieved message of %d bytes.\n", taille);
+    printf("\t- Type: %d\n\t- Command: %d\n\t- Content: %s\n", trame.id_client, trame.commande, trame.message);
+#endif
 
-    append_client_to_list(&client_list, &client);
-    order_list(&client_list);
+    pt_client_cell_t ptr = client_list;
+    client_t* client = get_client_by_id(&client_list, trame.id_client);
+    if (client != NULL) {
+        // Traitement du message recu
+        switch (trame.commande) {
+        case CMD_MESG_ID: {
+            // Fabrication du message a envoyer
+            char str[MAX_TAMPON_TCP];
+            strcpy(str, "");
+            if (strlen(to_cstr(&(ptr->client.pseudo))) != 0)
+                strcat(str, to_cstr(&(ptr->client.pseudo)));
+            else
+                strcat(str, "Anonymous");
+            strcat(str, " wrote: ");
+            strcat(str, trame.message);
+            trame.message = str;
 
-    // Demarrage de la tache de dialogue
-    create_task((void* (*)(void*))thread_chat_dialogue, (void*)&dialogue, sizeof(dialogue));
+            // Preparation de la trame
+            taille = sizeof(trame.id_client) + sizeof(trame.commande) + strlen(str);
+            char reponse[taille];
 
-    envoi_id_client(dialogue, size_of_client_list(&client_list) - 1);
+            // Ecriture de la trame
+            ecrire_trame_chat(&trame, reponse, taille);
 
-    print_client_list(&client_list);
-    destroy_client(&client);
+            // Envoi de la trame
+            while (ptr != NULL) {
+                envoi_message_tcp(ptr->client.fd, reponse, taille);
+                ptr = ptr->next;
+            }
+        } break;
+        case CMD_NICK_ID:
+            set_client_pseudo(client, trame.message);
+            print_client_list(&client_list);
+            break;
+        case CMD_STRT_ID:
+            demarrer_partie();
+
+            while (ptr != NULL) {
+                envoi_message_tcp(ptr->client.fd, message, taille);
+                ptr = ptr->next;
+            }
+            break;
+        case CMD_STOP_ID:
+            arreter_partie();
+
+            while (ptr != NULL) {
+                envoi_message_tcp(ptr->client.fd, message, taille);
+                ptr = ptr->next;
+            }
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 void envoi_id_client(int dialogue, int id)
@@ -114,71 +153,6 @@ void envoi_id_client(int dialogue, int id)
 
     // Envoi de la trame
     envoi_message_tcp(dialogue, message, taille);
-}
-
-void reception_message(char* message, int taille)
-{
-    // Traduction de la trame
-    pr_tcp_chat_t trame;
-    traduire_trame_chat(&trame, message, taille);
-
-#ifdef DEBUG
-    printf("Recieved message of %d bytes.\n", taille);
-    printf("\t- Type: %d\n\t- Command: %d\n\t- Content: %s\n", trame.id_client, trame.commande, trame.message);
-#endif
-
-    pt_client_cell_t ptr = client_list;
-    client_t* client = get_client_by_id(&client_list, trame.id_client);
-    if (client != NULL) {
-        // Traitement du message recu
-        switch (trame.commande) {
-        case CMD_MESG_ID:
-            while (ptr != NULL) {
-                envoi_message_tcp(ptr->client.fd, message, taille);
-                ptr = ptr->next;
-            }
-            break;
-        case CMD_NICK_ID:
-            set_client_pseudo(client, trame.message);
-            print_client_list(&client_list);
-            break;
-        case CMD_STRT_ID:
-            partie_en_cours = true;
-
-            while (ptr != NULL) {
-                envoi_message_tcp(ptr->client.fd, message, taille);
-                ptr = ptr->next;
-            }
-            break;
-        case CMD_STOP_ID:
-            partie_en_cours = false;
-
-            while (ptr != NULL) {
-                envoi_message_tcp(ptr->client.fd, message, taille);
-                ptr = ptr->next;
-            }
-            break;
-        default:
-            break;
-        }
-
-        /*
-        // Preparation de la trame
-        pr_tcp_chat_t trame;
-        trame.id_client = trame.id_client;
-        trame.commande = trame.commande;
-        trame.message = NULL;
-
-        int taille = sizeof(pr_tcp_chat_t);
-        char message[taille];
-
-        // Ecriture de la trame
-        ecrire_trame_chat(&trame, message, taille);
-
-        // Envoi de la trame
-        envoi_message_tcp(dialogue, message, taille);
-        */
-    }
 }
 
 /**** Diffusion UDP ****/
@@ -256,9 +230,6 @@ void reception_touche(char* message, int taille, char* ip)
 
             if (client->position.angle < 0 || client->position.angle > 360)
                 client->position.angle = client->position.angle % 360;
-
-            //if (quitter_serveur == true)
-            //exit(EXIT_SUCCESS);
         }
     }
 }

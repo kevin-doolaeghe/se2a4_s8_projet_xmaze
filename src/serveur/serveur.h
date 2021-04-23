@@ -29,6 +29,8 @@ int main(int argc, char* argv[]);
 void usage();
 void init_serveur();
 void detruire_serveur();
+void connexion_client(int dialogue, char* ip);
+void deconnexion_client(int dialogue);
 void demarrer_partie();
 void arreter_partie();
 

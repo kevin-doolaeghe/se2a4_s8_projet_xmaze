@@ -62,4 +62,11 @@ void reception_touche(char* message, int taille, char* ip);
 
 void calcul_graphique();
 
+/** Fonctions externes **/
+
+extern void connexion_client(int dialogue, char* ip);
+extern void deconnexion_client(int dialogue);
+extern void demarrer_partie();
+extern void arreter_partie();
+
 #endif

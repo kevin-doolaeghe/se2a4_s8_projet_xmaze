@@ -46,15 +46,55 @@ void detruire_serveur()
     exit(EXIT_SUCCESS);
 }
 
-void demarrer_partie()
+void connexion_client(int dialogue, char* ip)
 {
-    partie_en_cours = false;
+    // Ajout du client a la liste
+    client_t client;
+    init_client(&client);
+
+    set_client_fd(&client, dialogue);
+    set_client_ip(&client, ip);
+    pos_t pos = { LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0 };
+    set_client_position(&client, &pos);
+
+    append_client_to_list(&client_list, &client);
+    order_list(&client_list);
+
+    // Demarrage de la tache de dialogue
+    create_task((void* (*)(void*))thread_chat_dialogue, (void*)&dialogue, sizeof(dialogue));
+
+    envoi_id_client(dialogue, size_of_client_list(&client_list) - 1);
+
+    print_client_list(&client_list);
+    destroy_client(&client);
+}
+
+void deconnexion_client(int dialogue)
+{
+    delete_client_from_list(&client_list, dialogue);
+    order_list(&client_list);
+    print_client_list(&client_list);
 
     pt_client_cell_t ptr = client_list;
     while (ptr != NULL) {
         envoi_id_client(ptr->client.fd, ptr->client.id);
         ptr = ptr->next;
     }
+}
+
+void demarrer_partie()
+{
+    pos_t pos = { LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0 };
+
+    pt_client_cell_t ptr = client_list;
+    while (ptr != NULL) {
+        set_client_position(&(ptr->client), &pos);
+        envoi_id_client(ptr->client.fd, ptr->client.id);
+
+        ptr = ptr->next;
+    }
+
+    partie_en_cours = true;
 }
 
 void arreter_partie()
