@@ -20,7 +20,7 @@
 
 /** Variables globales **/
 
-server_list_t serveur_list;
+server_list_t liste_serveur;
 server_t serveur;
 
 int id;
@@ -37,7 +37,7 @@ void init_client();
 void detruire_client();
 void connexion_serveur(int id);
 void deconnexion_serveur();
-void demarrer_partie();
-void arreter_partie();
+void demarrer_jeu();
+void arreter_jeu();
 
 #endif

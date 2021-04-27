@@ -8,6 +8,9 @@ void usage() { fprintf(stderr, "Syntaxe : ./client\n"); }
 
 void init_client()
 {
+    printf("Démarrage du client..\n");
+    afficher_aide();
+
     // Initialisation des signaux
     init_sig((void* (*)(void*))detruire_client);
 
@@ -27,6 +30,8 @@ void init_client()
 
 void detruire_client()
 {
+    printf("\n\nBye !\n");
+
     // Deconnexion du serveur (arret implicite de la partie)
     if (connecte_au_serveur == true)
         deconnexion_serveur();
@@ -35,19 +40,20 @@ void detruire_client()
     quitter_client = true;
 
     // Nettoyage
-    destroy_server_list(&serveur_list);
+    destroy_server_list(&liste_serveur);
     destroy_server(&serveur);
 
     // Delai d'attente
-    printf("\nBye !\n");
     usleep(ATTENTE);
     exit(EXIT_SUCCESS);
 }
 
 void connexion_serveur(int id)
 {
+    printf("\nConnexion au serveur %d.\n", id);
+
     // Recuperation du serveur
-    server_t* res = get_server_by_id(&serveur_list, id);
+    server_t* res = get_server_by_id(&liste_serveur, id);
     copy_server(&serveur, res);
 
     // Recuperation du port
@@ -65,9 +71,7 @@ void connexion_serveur(int id)
 
 void deconnexion_serveur()
 {
-    // Arret de la partie
-    if (partie_en_cours == true)
-        arreter_partie();
+    printf("\nDéconnexion du serveur..\n");
 
     // Non connecte au serveur
     connecte_au_serveur = false;
@@ -80,10 +84,16 @@ void deconnexion_serveur()
     init_server(&serveur);
 
     id = -1;
+
+    // Arret du jeu
+    if (partie_en_cours == true)
+        arreter_jeu();
 }
 
-void demarrer_partie()
+void demarrer_jeu()
 {
+    printf("\nDémarrage du jeu!\n");
+
     // Demarrage de la partie
     partie_en_cours = true;
 
@@ -102,8 +112,10 @@ void demarrer_partie()
     create_task((void* (*)(void*))thread_graphique, (void*)&graphique_sock, sizeof(graphique_sock));
 }
 
-void arreter_partie()
+void arreter_jeu()
 {
+    printf("\nArrêt du jeu.\n");
+
     // Arret de la partie
     partie_en_cours = false;
 

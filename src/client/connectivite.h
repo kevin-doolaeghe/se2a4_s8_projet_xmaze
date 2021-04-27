@@ -25,7 +25,7 @@
 
 /** Variables globales **/
 
-extern server_list_t serveur_list;
+extern server_list_t liste_serveur;
 extern server_t serveur;
 
 extern int id;
@@ -46,6 +46,7 @@ void thread_graphique(int* ecoute);
 /**** Chat TCP ****/
 
 void reception_message_chat(char* message, int taille);
+void envoi_trame_chat(int dialogue, int id, int commande);
 
 /**** Diffusion UDP ****/
 
@@ -63,8 +64,8 @@ void reception_graphique(char* message, int taille, char* ip);
 /** Fonctions externes **/
 
 extern void detruire_client();
-extern void demarrer_partie();
-extern void arreter_partie();
+extern void demarrer_jeu();
+extern void arreter_jeu();
 extern void connexion_serveur(int id);
 extern void deconnexion_serveur();
 

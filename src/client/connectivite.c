@@ -9,6 +9,8 @@
 void thread_chat(int* ecoute)
 {
     boucle_reception_tcp(*ecoute, (void* (*)(char*, int))reception_message_chat);
+    if (connecte_au_serveur == true)
+        deconnexion_serveur();
 }
 
 void thread_diffusion(int* ecoute)
@@ -36,7 +38,7 @@ void reception_message_chat(char* message, int taille)
 
 #ifdef DEBUG
     printf("Recieved message of %d bytes.\n", taille);
-    printf("\tType: %d\n\tCommand: %d\n\tContent: %s\n", trame.id_client, trame.commande, trame.message);
+    printf("\tID: %d\n\tCommand: %d\n\tContent: %s\n", trame.id_client, trame.commande, trame.message);
 #endif
 
     // Traitement du message recu
@@ -48,16 +50,36 @@ void reception_message_chat(char* message, int taille)
         id = trame.id_client;
         break;
     case CMD_STRT_ID:
-        printf("Démarrage de la partie!\n");
-        demarrer_partie();
+        demarrer_jeu();
         break;
     case CMD_STOP_ID:
-        printf("Arrêt de la partie!\n");
-        arreter_partie();
+        arreter_jeu();
+        break;
+    case CMD_DISC_ID:
+        if (trame.id_client == id)
+            deconnexion_serveur();
         break;
     default:
         break;
     }
+}
+
+void envoi_trame_chat(int dialogue, int id, int commande)
+{
+    // Preparation de la trame
+    pr_tcp_chat_t trame;
+    trame.id_client = id;
+    trame.commande = commande;
+    trame.message = NULL;
+
+    int taille = sizeof(trame.id_client) + sizeof(trame.commande);
+    char message[taille];
+
+    // Ecriture de la trame
+    ecrire_trame_chat(&trame, message, taille);
+
+    // Envoi de la trame
+    envoi_message_tcp(dialogue, message, taille);
 }
 
 /**** Diffusion UDP ****/
@@ -65,36 +87,40 @@ void reception_message_chat(char* message, int taille)
 void reception_identite(char* message, int taille, char* ip)
 {
     if (quitter_client == false) {
-        // Traduction de la trame
-        pr_udp_identite_t trame;
-        traduire_trame_identite(&trame, message, taille);
+        if (connecte_au_serveur == false) {
+            // Traduction de la trame
+            pr_udp_identite_t trame;
+            traduire_trame_identite(&trame, message, taille);
 
 #ifdef DEBUG
-        printf("Recieved identity message: ");
-        int i;
-        for (i = 0; i < taille; i++)
-            printf("%02x", message[i]);
-        printf("\n");
-        printf("Diffusion message of %d bytes recieved:\n", taille);
-        printf("\tServer IP: %s\n", ip);
-        printf("\tServer id: %d\n", trame.id_serveur);
-        printf("\tChat port: %d\n", trame.port_tcp);
-        printf("\tKey port: %d\n", trame.port_udp_touches);
+            printf("Recieved identity message: ");
+            int i;
+            for (i = 0; i < taille; i++)
+                printf("%02x", message[i]);
+            printf("\n");
+            printf("Diffusion message of %d bytes recieved:\n", taille);
+            printf("\tServer IP: %s\n", ip);
+            printf("\tServer id: %d\n", trame.id_serveur);
+            printf("\tChat port: %d\n", trame.port_tcp);
+            printf("\tKey port: %d\n", trame.port_udp_touches);
 #endif
 
-        server_t tmp;
-        init_server(&tmp);
+            server_t tmp;
+            init_server(&tmp);
 
-        // Recuperation des informations du serveur
-        set_server_id(&tmp, trame.id_serveur);
-        set_server_ip(&tmp, ip);
-        set_server_port_tcp(&tmp, trame.port_tcp);
-        set_server_port_udp_touches(&tmp, trame.port_udp_touches);
+            // Recuperation des informations du serveur
+            set_server_id(&tmp, trame.id_serveur);
+            set_server_ip(&tmp, ip);
+            set_server_port_tcp(&tmp, trame.port_tcp);
+            set_server_port_udp_touches(&tmp, trame.port_udp_touches);
 
-        // Ajout du serveur a la liste
-        add_server_to_list(&serveur_list, &tmp);
+            // Ajout du serveur a la liste
+            add_server_to_list(&liste_serveur, &tmp);
 
-        destroy_server(&tmp);
+            destroy_server(&tmp);
+        } else {
+            destroy_server_list(&liste_serveur);
+        }
     }
 }
 
@@ -137,8 +163,7 @@ void gestion_evenements()
         }
 
         if (quitter == 1) {
-            printf("Déconnexion du serveur..\n");
-            deconnexion_serveur();
+            envoi_trame_chat(serveur.fd, id, CMD_DISC_ID);
             break;
         }
 
@@ -157,12 +182,7 @@ void reception_graphique(char* message, int taille, char* ip)
         traduire_trame_graphique(&trame, message, taille);
 
 #ifdef DEBUG
-        int i;
         printf("Recieved graphic packet of %d bytes from %s.\n", taille, ip);
-        printf("%d graphic objects recieved:\n", trame.nb_objets);
-        for (i = 0; i < taille; i++)
-            printf("%02x", message[i]);
-        printf("\n");
 #endif
 
         // Affichage des objets graphiques

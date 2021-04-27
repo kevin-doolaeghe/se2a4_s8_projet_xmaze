@@ -46,9 +46,11 @@ void thread_graphique();
 
 /**** Chat TCP ****/
 
-void gestion_client(int dialogue, char* ip);
+void connexion_client(int dialogue, char* ip);
+void deconnexion_client(int dialogue);
 void reception_message(char* message, int taille);
-void envoi_id_client(int dialogue, int id);
+void envoi_trame_chat(int dialogue, int id, int commande);
+void diffuser_message_chat(pr_tcp_chat_t* trame);
 
 /**** Diffusion UDP ****/
 
@@ -64,8 +66,6 @@ void calcul_graphique();
 
 /** Fonctions externes **/
 
-extern void connexion_client(int dialogue, char* ip);
-extern void deconnexion_client(int dialogue);
 extern void demarrer_partie();
 extern void arreter_partie();
 

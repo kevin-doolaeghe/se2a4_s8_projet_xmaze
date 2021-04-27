@@ -51,12 +51,12 @@ void traitement_commande(int commande, str_list_t* tokens)
         afficher_aide();
         break;
     case CMD_LIST_ID:
-        print_server_list(&serveur_list);
+        print_server_list(&liste_serveur);
         break;
     case CMD_CONN_ID:
         if (connecte_au_serveur == false) {
             int id = atoi(to_cstr(&(tokens->str_list[1])));
-            if (search_server_in_list(&serveur_list, id))
+            if (search_server_in_list(&liste_serveur, id))
                 connexion_serveur(id);
             else
                 afficher_erreur_serveur_inexistant();
@@ -64,9 +64,9 @@ void traitement_commande(int commande, str_list_t* tokens)
             afficher_erreur_deja_connecte();
         break;
     case CMD_DISC_ID:
-        if (connecte_au_serveur == true)
-            deconnexion_serveur();
-        else
+        if (connecte_au_serveur == true) {
+            envoi_trame_chat(serveur.fd, id, CMD_DISC_ID);
+        } else
             afficher_erreur_non_connecte();
         break;
     case CMD_MESG_ID:

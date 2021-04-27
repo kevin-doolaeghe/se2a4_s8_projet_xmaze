@@ -32,6 +32,7 @@
 #define CMD_NICK_ID 3
 #define CMD_STRT_ID 4
 #define CMD_STOP_ID 5
+#define CMD_DISC_ID 6
 
 #define ID_ADMIN 0
 
