@@ -1,4 +1,8 @@
-# Projet XMaze - Tutorat Système & Réseau SE2A4
+# Polytech Lille SE2A4 Semestre n°8 | Projet XMaze - Tutorat Système & Réseau SE2A4
+
+## Auteur
+
+### Kevin Doolaeghe
 
 ## Sujet du projet
 
@@ -60,14 +64,3 @@ Le serveur et les clients communiquent leurs informations via des liaisons TCP e
     - nb : 2 octets binaires non signés. Nombre total d'objets à envoyer.
     - id : 2 octets binaires non signés. Identifiant de l'objet courant.
     - objet : Structure de l'objet envoyé (type, position...).
-
-### Fonctionnement du serveur
-
-- Vérification des arguments
-- Récupération des arguments
-- Initialisation des signaux
-- Initialisation des variables du jeu
-- Boucle du serveur tant que l'on ne quitte pas
-    - Lancement du serveur UDP de diffusion dans un thread
-    - Lancement du serveur TCP de connexion/chat dans un thread
-    - Test de la variable pour quitter
