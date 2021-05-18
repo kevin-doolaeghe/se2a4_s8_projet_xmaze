@@ -1,6 +1,6 @@
 # Polytech Lille | SE2A4 Semestre n°8 - Projet XMaze 
 
-### Tutorat Système & Réseau SE2A4
+### Tutorat Système & Réseau
 
 - - - - -
 
@@ -25,6 +25,10 @@ Le projet permet de compiler deux exécutables représentant un serveur de jeu e
 ## Compilation du projet
 
 Un fichier Makefile est situé à la racine et permet de compiler tous les répertoires du projet.
+
+Il suffit de lancer la commande `make` à la racine du projet.
+
+- - - - -
 
 ## Fonctionnement
 
