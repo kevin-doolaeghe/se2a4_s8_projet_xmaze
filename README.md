@@ -1,4 +1,8 @@
-# Polytech Lille SE2A4 Semestre n°8 | Projet XMaze - Tutorat Système & Réseau SE2A4
+# Polytech Lille | SE2A4 Semestre n°8 - Projet XMaze 
+
+### Tutorat Système & Réseau SE2A4
+
+- - - - -
 
 ## Auteur
 
