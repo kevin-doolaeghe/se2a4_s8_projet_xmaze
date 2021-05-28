@@ -259,6 +259,10 @@ void reception_touche(char* message, int taille, char* ip)
 #endif
 
         client_t* client = get_client_by_id(&client_list, trame.id_client);
+        int nb = dessin_vers_murs(laby, murs);
+        mur* m2 = duplique_murs(murs, nb);
+        int dx = MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
+        int dz = MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
         if (client != NULL) {
             // Mise a jour de la position
             switch (trame.touches) {
@@ -269,12 +273,16 @@ void reception_touche(char* message, int taille, char* ip)
                 client->position.angle -= 10;
                 break;
             case TOUCHE_HAUT:
-                client->position.x += MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
-                client->position.z += MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
+                if (!collision_murs(m2, nb, client->position.x, client->position.z, dx, dz)) {
+                    client->position.x += dx;
+                    client->position.z += dz;
+                }
                 break;
             case TOUCHE_BAS:
-                client->position.x -= MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
-                client->position.z -= MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
+                if (!collision_murs(m2, nb, client->position.x, client->position.z, -dx, -dz)) {
+                    client->position.x -= dx;
+                    client->position.z -= dz;
+                }
                 break;
             default:
                 break;
@@ -283,7 +291,30 @@ void reception_touche(char* message, int taille, char* ip)
             if (client->position.angle < 0 || client->position.angle > 360)
                 client->position.angle = client->position.angle % 360;
         }
+        free(m2);
     }
+}
+
+/* Test des collisions */
+
+bool collision_murs(mur* murs, int nb, int x, int z, int dx, int dz)
+{
+    int i;
+    for (i = 0; i < nb; i++) {
+        // Mur suivant l'axe x
+        if (murs[i].p[0].z == murs[i].p[2].z) {
+            if ((murs[i].p[0].z < z && murs[i].p[0].z > (z + dz))
+                || (murs[i].p[0].z > z && murs[i].p[0].z < (z + dz)))
+                return true;
+        }
+        // Mur suivant l'axe x
+        if (murs[i].p[0].x == murs[i].p[2].x) {
+            if ((murs[i].p[0].x < x && murs[i].p[0].x > (x + dx))
+                || (murs[i].p[0].x > x && murs[i].p[0].x < (x + dx)))
+                return true;
+        }
+    }
+    return false;
 }
 
 /**** Graphiques UDP ****/

@@ -63,6 +63,7 @@ void diffuser_identite();
 /**** Touches UDP ****/
 
 void reception_touche(char* message, int taille, char* ip);
+bool collision_murs(mur* murs, int nb, int x, int z, int dx, int dz);
 
 /**** Graphique UDP ****/
 

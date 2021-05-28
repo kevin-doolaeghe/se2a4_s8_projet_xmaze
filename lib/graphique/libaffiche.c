@@ -49,9 +49,11 @@ int dessin_vers_murs(char* laby[], mur* murs)
 {
     int nb = 0;
     int i;
+    // Labyrinthe de taille 10x10
     for (i = 0; i < 9; i++) {
         int j;
         for (j = 0; j < 9; j++) {
+            // Mur suivant l'axe x
             if (laby[2 * i][2 * j + 1] == '-') {
                 murs[nb].p[0].x = j * MUR_TAILLE;
                 murs[nb].p[0].z = i * MUR_TAILLE;
@@ -66,6 +68,7 @@ int dessin_vers_murs(char* laby[], mur* murs)
                 murs[nb].p[3].z = i * MUR_TAILLE;
                 murs[nb++].p[3].y = 0;
             }
+            // Mur suivant l'axe z
             if (i < 8 && laby[2 * i + 1][2 * j] == '|') {
                 murs[nb].p[0].x = j * MUR_TAILLE;
                 murs[nb].p[0].z = i * MUR_TAILLE;
