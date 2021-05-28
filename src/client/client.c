@@ -13,15 +13,26 @@ void init_client()
 
     // Initialisation des signaux
     init_sig((void* (*)(void*))detruire_client);
+    init_mutex_list();
 
     // Initialisation des variables
+    p(MUTEX_SERV);
     init_server(&serveur);
+    v(MUTEX_SERV);
 
+    p(MUTEX_QUIT);
     quitter_client = false;
+    v(MUTEX_QUIT);
+    p(MUTEX_CONN);
     connecte_au_serveur = false;
+    v(MUTEX_CONN);
+    p(MUTEX_PLAY);
     partie_en_cours = false;
+    v(MUTEX_PLAY);
 
+    p(MUTEX_IDTF);
     id = -1;
+    v(MUTEX_IDTF);
 
     // Demarrage de la tache de detection des serveurs
     int diffusion_sock = init_serveur_udp(PORT_DIFFUSION_UDP);
@@ -37,11 +48,17 @@ void detruire_client()
         deconnexion_serveur();
 
     // Arret du client
+    p(MUTEX_QUIT);
     quitter_client = true;
+    v(MUTEX_QUIT);
 
     // Nettoyage
+    p(MUTEX_LIST);
     destroy_server_list(&liste_serveur);
+    v(MUTEX_LIST);
+    p(MUTEX_SERV);
     destroy_server(&serveur);
+    v(MUTEX_SERV);
 
     // Delai d'attente
     usleep(ATTENTE);
@@ -53,15 +70,19 @@ void connexion_serveur(int id)
     printf("\nConnexion au serveur %d.\n", id);
 
     // Recuperation du serveur
+    p(MUTEX_LIST);
     server_t* res = get_server_by_id(&liste_serveur, id);
     copy_server(&serveur, res);
+    v(MUTEX_LIST);
 
     // Recuperation du port
     char port[MAX_PORT_LEN];
     sprintf(port, "%d", serveur.port_tcp);
 
     // Connecte au serveur
+    p(MUTEX_CONN);
     connecte_au_serveur = true;
+    v(MUTEX_CONN);
 
     // Demarrage de la tache de dialogue
     int chat_sock = init_client_tcp(to_cstr(&(serveur.ip)), port);
@@ -74,16 +95,22 @@ void deconnexion_serveur()
     printf("\nDéconnexion du serveur..\n");
 
     // Non connecte au serveur
+    p(MUTEX_CONN);
     connecte_au_serveur = false;
+    v(MUTEX_CONN);
 
     // Deconnexion du serveur
     detruire_lien_tcp(serveur.fd);
 
     // Reinitialisation du serveur
+    p(MUTEX_SERV);
     destroy_server(&serveur);
     init_server(&serveur);
+    v(MUTEX_SERV);
 
+    p(MUTEX_IDTF);
     id = -1;
+    v(MUTEX_IDTF);
 
     // Arret du jeu
     if (partie_en_cours == true)
@@ -117,7 +144,9 @@ void arreter_jeu()
     printf("\nArrêt du jeu.\n");
 
     // Arret de la partie
+    p(MUTEX_PLAY);
     partie_en_cours = false;
+    v(MUTEX_PLAY);
 
     usleep(ATTENTE);
 

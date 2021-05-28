@@ -13,8 +13,12 @@ void init_serveur()
     init_mutex_list();
 
     // Initialisation des variables
+    p(MUTEX_QUIT);
     quitter_serveur = false;
+    v(MUTEX_QUIT);
+    p(MUTEX_PLAY);
     partie_en_cours = false;
+    v(MUTEX_PLAY);
 
     // Demarrage des taches
     int chat_sock = init_serveur_tcp(PORT_CHAT_TCP);
@@ -35,10 +39,14 @@ void detruire_serveur()
         arreter_partie();
 
     // Arret du serveur
+    p(MUTEX_QUIT);
     quitter_serveur = true;
+    v(MUTEX_QUIT);
 
     // Nettoyage
+    p(MUTEX_LIST);
     destroy_client_list(&client_list);
+    v(MUTEX_LIST);
 
     // Delai d'attente
     printf("\nBye !\n");
@@ -52,6 +60,7 @@ void demarrer_partie()
 
     pos_t pos = { LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0 };
 
+    p(MUTEX_LIST);
     pt_client_cell_t ptr = client_list;
     while (ptr != NULL) {
         set_client_position(&(ptr->client), &pos);
@@ -59,6 +68,7 @@ void demarrer_partie()
 
         ptr = ptr->next;
     }
+    v(MUTEX_LIST);
 
     partie_en_cours = true;
 }
@@ -67,12 +77,14 @@ void arreter_partie()
 {
     printf("Fin de la partie.\n");
 
+    p(MUTEX_LIST);
     pt_client_cell_t ptr = client_list;
     while (ptr != NULL) {
         envoi_trame_chat(ptr->client.fd, ptr->client.id, CMD_STOP_ID);
 
         ptr = ptr->next;
     }
+    v(MUTEX_LIST);
 
     partie_en_cours = false;
 }

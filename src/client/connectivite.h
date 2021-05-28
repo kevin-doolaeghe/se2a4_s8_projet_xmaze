@@ -21,6 +21,13 @@
 
 /** Constantes **/
 
+#define MUTEX_LIST 0
+#define MUTEX_QUIT 1
+#define MUTEX_PLAY 2
+#define MUTEX_CONN 3
+#define MUTEX_IDTF 4
+#define MUTEX_SERV 5
+
 #define MAX_PORT_LEN 10
 
 /** Variables globales **/

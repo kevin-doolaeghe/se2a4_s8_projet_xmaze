@@ -11,7 +11,7 @@
 
 /** Constantes **/
 
-#define MAX_MUTEX 100
+#define MAX_MUTEX 10
 
 /** Types **/
 

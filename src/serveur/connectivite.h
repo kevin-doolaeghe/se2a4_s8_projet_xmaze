@@ -19,6 +19,10 @@
 
 /** Constantes **/
 
+#define MUTEX_LIST 0
+#define MUTEX_QUIT 1
+#define MUTEX_PLAY 2
+
 #define LABY_X 8
 #define LABY_Y 8
 

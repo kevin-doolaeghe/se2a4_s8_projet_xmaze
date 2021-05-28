@@ -73,16 +73,18 @@ void connexion_client(int dialogue, char* ip)
     pos_t pos = { 0, 0, 0, 0 };
     set_client_position(&client, &pos);
 
+    p(MUTEX_LIST);
     append_client_to_list(&client_list, &client);
     order_list(&client_list);
 
-    // Demarrage de la tache de dialogue
-    create_task((void* (*)(void*))thread_chat_dialogue, (void*)&dialogue, sizeof(dialogue));
-
-    envoi_trame_chat(dialogue, size_of_client_list(&client_list) - 1, CMD_IDTF_ID);
-
     printf("Liste des clients:\n");
     print_client_list(&client_list);
+    v(MUTEX_LIST);
+
+    // Demarrage de la tache de dialogue
+    create_task((void* (*)(void*))thread_chat_dialogue, (void*)&dialogue, sizeof(dialogue));
+    envoi_trame_chat(dialogue, size_of_client_list(&client_list) - 1, CMD_IDTF_ID);
+
     destroy_client(&client);
 }
 
@@ -92,6 +94,7 @@ void deconnexion_client(int dialogue)
     printf("Client disconnection detected.\n");
 #endif
 
+    p(MUTEX_LIST);
     delete_client_from_list(&client_list, dialogue);
     order_list(&client_list);
 
@@ -103,6 +106,7 @@ void deconnexion_client(int dialogue)
         envoi_trame_chat(ptr->client.fd, ptr->client.id, CMD_IDTF_ID);
         ptr = ptr->next;
     }
+    v(MUTEX_LIST);
 }
 
 void reception_message(char* message, int taille)
@@ -194,11 +198,13 @@ void diffuser_message_chat(pr_tcp_chat_t* trame)
     ecrire_trame_chat(trame, reponse, taille);
 
     // Envoi de la trame
+    p(MUTEX_LIST);
     pt_client_cell_t ptr = client_list;
     while (ptr != NULL) {
         envoi_message_tcp(ptr->client.fd, reponse, taille);
         ptr = ptr->next;
     }
+    v(MUTEX_LIST);
 }
 
 /**** Diffusion UDP ****/
@@ -290,7 +296,6 @@ void calcul_graphique()
     int nb = dessin_vers_murs(laby, murs);
 
     pt_client_cell_t ptr;
-
     while (quitter_serveur == false) {
         if (partie_en_cours == true) {
             ptr = client_list;

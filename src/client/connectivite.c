@@ -47,7 +47,9 @@ void reception_message_chat(char* message, int taille)
         printf("%s\n", trame.message);
         break;
     case CMD_IDTF_ID:
+        p(MUTEX_IDTF);
         id = trame.id_client;
+        v(MUTEX_IDTF);
         break;
     case CMD_STRT_ID:
         demarrer_jeu();
@@ -115,7 +117,9 @@ void reception_identite(char* message, int taille, char* ip)
             set_server_port_udp_touches(&tmp, trame.port_udp_touches);
 
             // Ajout du serveur a la liste
+            p(MUTEX_LIST);
             add_server_to_list(&liste_serveur, &tmp);
+            v(MUTEX_LIST);
 
             destroy_server(&tmp);
         } else {
