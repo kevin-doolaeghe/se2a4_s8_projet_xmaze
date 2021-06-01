@@ -23,8 +23,6 @@ void boucle_saisie_commande()
             commande = CMD_CONN_ID;
         } else if (!strcmp(to_cstr(&(tokens.str_list[0])), CMD_DISC_STR) && tokens.alloc == 1) {
             commande = CMD_DISC_ID;
-        } else if (!strcmp(to_cstr(&(tokens.str_list[0])), CMD_MESG_STR) && tokens.alloc > 1) {
-            commande = CMD_MESG_ID;
         } else if (!strcmp(to_cstr(&(tokens.str_list[0])), CMD_IDTF_STR) && tokens.alloc == 1) {
             commande = CMD_IDTF_ID;
         } else if (!strcmp(to_cstr(&(tokens.str_list[0])), CMD_NICK_STR) && tokens.alloc == 2) {
@@ -35,6 +33,8 @@ void boucle_saisie_commande()
             commande = CMD_STOP_ID;
         } else if (!strcmp(to_cstr(&(tokens.str_list[0])), CMD_EMPT_STR)) {
             commande = CMD_EMPT_ID;
+        } else if (to_cstr(&(tokens.str_list[0]))[0] != CMD_TAG) {
+            commande = CMD_MESG_ID;
         } else {
             commande = CMD_OTHR_ID;
         }
@@ -132,15 +132,15 @@ void lire_ligne(str_list_t* tokens)
 void afficher_aide()
 {
     printf("Liste des commandes :\n");
-    printf("\t- help: Affiche l'aide\n");
-    printf("\t- list: Affiche les serveurs trouvés\n");
-    printf("\t- connect <id>: Connexion au serveur dont l'identifiant est <id>\n");
-    printf("\t- disconnect: Déconnexion du serveur\n");
-    printf("\t- send <msg>: Envoi un message\n");
-    printf("\t- id: Affiche l'identifiant du client\n");
-    printf("\t- nick <nickname>: Change le pseudo\n");
-    printf("\t- start: Démarre la partie\n");
-    printf("\t- stop: Arrête la partie\n");
+    printf("\t- /help: Affiche l'aide\n");
+    printf("\t- /list: Affiche les serveurs trouvés\n");
+    printf("\t- /connect <id>: Connexion au serveur dont l'identifiant est <id>\n");
+    printf("\t- /disconnect: Déconnexion du serveur\n");
+    printf("\t- /id: Affiche l'identifiant du client\n");
+    printf("\t- /nick <nickname>: Change le pseudo\n");
+    printf("\t- /start: Démarre la partie\n");
+    printf("\t- /stop: Arrête la partie\n");
+    printf("\t- <msg>: Envoi un message\n");
 }
 
 void afficher_erreur_saisie()
@@ -186,7 +186,7 @@ void envoi_message(int commande, str_list_t* tokens)
     int i;
     switch (commande) {
     case CMD_MESG_ID:
-        for (i = 1; i < tokens->alloc; i++) {
+        for (i = 0; i < tokens->alloc; i++) {
             strcat(str, to_cstr(&(tokens->str_list[i])));
             if (i != tokens->alloc - 1)
                 strcat(str, " ");

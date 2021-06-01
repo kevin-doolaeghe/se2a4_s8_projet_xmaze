@@ -18,16 +18,16 @@
 
 /** Constantes **/
 
+#define CMD_TAG '/'
 #define CMD_EMPT_STR ""
-#define CMD_MESG_STR "send"
-#define CMD_IDTF_STR "id"
-#define CMD_NICK_STR "nick"
-#define CMD_STRT_STR "start"
-#define CMD_STOP_STR "stop"
-#define CMD_DISC_STR "disconnect"
-#define CMD_CONN_STR "connect"
-#define CMD_HELP_STR "help"
-#define CMD_LIST_STR "list"
+#define CMD_IDTF_STR "/id"
+#define CMD_NICK_STR "/nick"
+#define CMD_STRT_STR "/start"
+#define CMD_STOP_STR "/stop"
+#define CMD_DISC_STR "/disconnect"
+#define CMD_CONN_STR "/connect"
+#define CMD_HELP_STR "/help"
+#define CMD_LIST_STR "/list"
 
 #define CMD_EMPT_ID 0
 #define CMD_CONN_ID 7
