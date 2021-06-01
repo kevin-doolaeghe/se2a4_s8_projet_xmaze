@@ -73,9 +73,6 @@ int boucle_serveur_tcp(int ecoute, void* (*traitement)(int, char*))
     int dialogue;
     int ret;
 
-    struct sockaddr_in addr;
-    socklen_t len = sizeof(addr);
-
     while (1) {
         /* Attente d'une connexion */
         if ((dialogue = accept(ecoute, NULL, NULL)) < 0) {
@@ -87,6 +84,11 @@ int boucle_serveur_tcp(int ecoute, void* (*traitement)(int, char*))
             nbclients++;
 
             /* Recuperation des informations du client */
+            socklen_t len;
+            struct sockaddr_storage addr;
+            char ipstr[INET6_ADDRSTRLEN];
+
+            len = sizeof addr;
             ret = getpeername(dialogue, (struct sockaddr*)&addr, &len);
             if (ret < 0) {
                 close(dialogue);
@@ -94,13 +96,25 @@ int boucle_serveur_tcp(int ecoute, void* (*traitement)(int, char*))
                 perror("boucle_serveur_tcp.getpeername");
                 exit(EXIT_FAILURE);
             }
-            char* ip = inet_ntoa(addr.sin_addr);
-            // int port = ntohs(addr.sin_port);
+
+            if (addr.ss_family == AF_INET) {
+                struct sockaddr_in* s = (struct sockaddr_in*)&addr;
+                inet_ntop(AF_INET, &s->sin_addr, ipstr, sizeof ipstr);
+            } else { // AF_INET6
+                struct sockaddr_in6* s = (struct sockaddr_in6*)&addr;
+                inet_ntop(AF_INET6, &s->sin6_addr, ipstr, sizeof ipstr);
+            }
+
+#ifdef DEBUG
+            printf("Peer IP address: %s\n", ipstr);
+#endif
 
             /* Traitement pour la socket de dialogue */
-            traitement(dialogue, ip);
+            traitement(dialogue, ipstr);
         } else {
-            close(ecoute);
+            char* msg = "Too much players are connected.";
+            envoi_message_tcp(dialogue, msg, strlen(msg));
+            close(dialogue);
         }
     }
 }
