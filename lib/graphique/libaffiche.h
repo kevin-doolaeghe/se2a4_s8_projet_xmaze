@@ -71,5 +71,6 @@ unsigned char inter_seg_v(point2D a, point2D b, int x, int* y);
 unsigned char inter_seg_h(point2D a, point2D b, int* x, int y);
 void inter_poly_rect(point2D* orig, int no, point2D* result, int* nr);
 void dessine_2D(objet2D* objet, int no);
+unsigned char collision_murs(mur* murs, int nb, point p);
 
 #endif

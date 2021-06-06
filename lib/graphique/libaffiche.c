@@ -304,3 +304,20 @@ void dessine_2D(objet2D* objet, int no)
         }
     }
 }
+
+/* Test des collisions */
+
+unsigned char collision_murs(mur* murs, int nb, point p)
+{
+    int i;
+    int r = 10;
+    point p0, p1;
+    for (i = 0; i < nb; i++) {
+        p0 = murs[i].p[0];
+        p1 = murs[i].p[2];
+        if (p.x >= p0.x - r && p.z >= p0.z - r && p.x <= p1.x + r && p.z <= p1.z + r) {
+            return 1;
+        }
+    }
+    return 0;
+}

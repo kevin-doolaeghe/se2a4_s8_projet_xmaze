@@ -261,6 +261,7 @@ void reception_touche(char* message, int taille, char* ip)
         client_t* client = get_client_by_id(&client_list, trame.id_client);
         int nb = dessin_vers_murs(laby, murs);
         mur* m2 = duplique_murs(murs, nb);
+        point p;
         int dx = MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
         int dz = MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
         if (client != NULL) {
@@ -273,13 +274,19 @@ void reception_touche(char* message, int taille, char* ip)
                 client->position.angle -= 10;
                 break;
             case TOUCHE_HAUT:
-                if (!collision_murs(m2, nb, client->position.x, client->position.z, dx, dz)) {
+                p.x = client->position.x + dx;
+                p.y = client->position.y;
+                p.z = client->position.z + dz;
+                if (!collision_murs(m2, nb, p)) {
                     client->position.x += dx;
                     client->position.z += dz;
                 }
                 break;
             case TOUCHE_BAS:
-                if (!collision_murs(m2, nb, client->position.x, client->position.z, -dx, -dz)) {
+                p.x = client->position.x - dx;
+                p.y = client->position.y;
+                p.z = client->position.z - dz;
+                if (!collision_murs(m2, nb, p)) {
                     client->position.x -= dx;
                     client->position.z -= dz;
                 }
@@ -293,28 +300,6 @@ void reception_touche(char* message, int taille, char* ip)
         }
         free(m2);
     }
-}
-
-/* Test des collisions */
-
-bool collision_murs(mur* murs, int nb, int x, int z, int dx, int dz)
-{
-    int i;
-    for (i = 0; i < nb; i++) {
-        // Mur suivant l'axe x
-        if (murs[i].p[0].z == murs[i].p[2].z) {
-            if ((murs[i].p[0].z < z && murs[i].p[0].z > (z + dz))
-                || (murs[i].p[0].z > z && murs[i].p[0].z < (z + dz)))
-                return true;
-        }
-        // Mur suivant l'axe x
-        if (murs[i].p[0].x == murs[i].p[2].x) {
-            if ((murs[i].p[0].x < x && murs[i].p[0].x > (x + dx))
-                || (murs[i].p[0].x > x && murs[i].p[0].x < (x + dx)))
-                return true;
-        }
-    }
-    return false;
 }
 
 /**** Graphiques UDP ****/
