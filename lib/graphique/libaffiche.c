@@ -307,10 +307,9 @@ void dessine_2D(objet2D* objet, int no)
 
 /* Test des collisions */
 
-unsigned char collision_murs(mur* murs, int nb, point p)
+unsigned char collision_murs(mur* murs, int nb, point p, int r)
 {
     int i;
-    int r = 10;
     point p0, p1;
     for (i = 0; i < nb; i++) {
         p0 = murs[i].p[0];
@@ -320,4 +319,12 @@ unsigned char collision_murs(mur* murs, int nb, point p)
         }
     }
     return 0;
+}
+
+unsigned char collision_sphere(point pa, int ra, point pb, int rb)
+{
+    if ((pb.x - pa.x) * (pb.x - pa.x) + (pb.z - pa.z) * (pb.z - pa.z) <= ra + rb)
+        return 1;
+    else
+        return 0;
 }

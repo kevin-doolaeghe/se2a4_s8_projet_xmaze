@@ -21,6 +21,8 @@
 
 #define MUR_TAILLE 200
 #define MUR_HAUTEUR 200
+#define RAYON_TIR 10
+#define RAYON_JOUEUR 20
 
 #define FOCALE (2 * MUR_TAILLE)
 
@@ -71,6 +73,7 @@ unsigned char inter_seg_v(point2D a, point2D b, int x, int* y);
 unsigned char inter_seg_h(point2D a, point2D b, int* x, int y);
 void inter_poly_rect(point2D* orig, int no, point2D* result, int* nr);
 void dessine_2D(objet2D* objet, int no);
-unsigned char collision_murs(mur* murs, int nb, point p);
+unsigned char collision_murs(mur* murs, int nb, point p, int r);
+unsigned char collision_sphere(point pa, int ra, point pb, int rb);
 
 #endif

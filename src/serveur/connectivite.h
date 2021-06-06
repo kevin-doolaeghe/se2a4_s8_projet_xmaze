@@ -45,6 +45,7 @@ extern bool partie_en_cours;
 void thread_chat_connexion(int* dialogue);
 void thread_chat_dialogue(int* dialogue);
 void thread_diffusion();
+void thread_actualisation_jeu();
 void thread_touches(int* ecoute);
 void thread_graphique();
 
@@ -59,6 +60,10 @@ void diffuser_message_chat(pr_tcp_chat_t* trame);
 /**** Diffusion UDP ****/
 
 void diffuser_identite();
+
+/**** Actualisation jeu ****/
+
+void boucle_actualisation_jeu();
 
 /**** Touches UDP ****/
 

@@ -26,6 +26,8 @@ void init_serveur()
 
     create_task((void* (*)(void*))thread_diffusion, NULL, 0);
 
+    create_task((void* (*)(void*))thread_actualisation_jeu, NULL, 0);
+
     int touches_sock = init_serveur_udp(PORT_TOUCHES_UDP);
     create_task((void* (*)(void*))thread_touches, (void*)&touches_sock, sizeof(touches_sock));
 

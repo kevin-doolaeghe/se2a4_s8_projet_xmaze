@@ -46,6 +46,11 @@ void thread_diffusion()
     diffuser_identite();
 }
 
+void thread_actualisation_jeu()
+{
+    boucle_actualisation_jeu();
+}
+
 void thread_touches(int* ecoute)
 {
     boucle_serveur_udp(*ecoute, (void* (*)(char*, int, char*))reception_touche);
@@ -240,6 +245,18 @@ void diffuser_identite()
     }
 }
 
+/**** Actualisation jeu ****/
+
+void boucle_actualisation_jeu()
+{
+    while (quitter_serveur == true) {
+        if (partie_en_cours) {
+            // Mise a jour des tirs
+        }
+        usleep(ATTENTE);
+    }
+}
+
 /**** Touches UDP ****/
 
 void reception_touche(char* message, int taille, char* ip)
@@ -277,7 +294,7 @@ void reception_touche(char* message, int taille, char* ip)
                 p.x = client->position.x + dx;
                 p.y = client->position.y;
                 p.z = client->position.z + dz;
-                if (!collision_murs(m2, nb, p)) {
+                if (!collision_murs(m2, nb, p, RAYON_JOUEUR)) {
                     client->position.x += dx;
                     client->position.z += dz;
                 }
@@ -286,7 +303,7 @@ void reception_touche(char* message, int taille, char* ip)
                 p.x = client->position.x - dx;
                 p.y = client->position.y;
                 p.z = client->position.z - dz;
-                if (!collision_murs(m2, nb, p)) {
+                if (!collision_murs(m2, nb, p, RAYON_JOUEUR)) {
                     client->position.x -= dx;
                     client->position.z -= dz;
                 }
