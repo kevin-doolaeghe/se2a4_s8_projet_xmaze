@@ -28,8 +28,6 @@ Un fichier Makefile est situé à la racine et permet de compiler tous les répe
 
 Il suffit de lancer la commande `make` à la racine du projet.
 
-- - - - -
-
 ## Utilisation
 
 Après compilation, les exécutables `serveur` et `client` sont situés respectivement sous l'arborescence `src/serveur` et `src/client`.

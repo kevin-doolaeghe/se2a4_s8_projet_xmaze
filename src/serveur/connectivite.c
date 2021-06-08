@@ -125,6 +125,7 @@ void reception_message(char* message, int taille)
     printf("\t- ID: %d\n\t- Command: %d\n\t- Content: %s\n", trame.id_client, trame.commande, trame.message);
 #endif
 
+    p(MUTEX_LIST);
     client_t* client = get_client_by_id(&client_list, trame.id_client);
     if (client != NULL) {
         // Traitement du message recu
@@ -173,6 +174,7 @@ void reception_message(char* message, int taille)
                 arreter_partie();
         }
     }
+    v(MUTEX_LIST);
 }
 
 void envoi_trame_chat(int dialogue, int id, int commande)
@@ -249,37 +251,36 @@ void diffuser_identite()
 
 void boucle_actualisation_jeu()
 {
+    int nb = dessin_vers_murs(laby, murs);
+    mur* m2 = duplique_murs(murs, nb);
+
     while (quitter_serveur == true) {
         if (partie_en_cours) {
-            // Mise a jour des tirs
+            // Gestion des tirs
             p(MUTEX_LIST);
             pt_client_cell_t ptr = client_list;
-            int nb = dessin_vers_murs(laby, murs);
-            mur* m2 = duplique_murs(murs, nb);
             while (ptr != NULL) {
-                // Recuperation de la position du client actuel
-                point tir = {
-                    ptr->client.missile.position.x,
-                    ptr->client.missile.position.y,
-                    ptr->client.missile.position.z
-                };
+                // Mise a jour de la position du missile
+                int dx = MUR_TAILLE / 10 * sin(2 * M_PI * ptr->client.missile.position.angle / 360);
+                int dz = MUR_TAILLE / 10 * cos(2 * M_PI * ptr->client.missile.position.angle / 360);
+                ptr->client.missile.position.x = ptr->client.missile.position.x + dx;
+                ptr->client.missile.position.y = ptr->client.missile.position.y;
+                ptr->client.missile.position.z = ptr->client.missile.position.z + dz;
 
+                // Recuperation de la position du missile du client actuel
+                point tir;
+                memcpy(tir, ptr->client.missile.position, sizeof(point));
+
+                // Verification des collisions
                 pt_client_cell_t tmp = client_list;
                 while (tmp != NULL) {
                     if (tmp->client.id != ptr->client.id) {
-                        point p1 = {
-                            ptr->client.position.x,
-                            ptr->client.position.y,
-                            ptr->client.position.z
-                        };
-                        point p2 = {
-                            ptr->client.missile.position.x,
-                            ptr->client.missile.position.y,
-                            ptr->client.missile.position.z
-                        };
+                        point pj, pt;
+                        memcpy(pj, tmp->client.position, sizeof(point));
+                        memcpy(pt, tmp->client.missile.position, sizeof(point));
 
-                        if (collision_sphere(tir, RAYON_TIR, p1, RAYON_JOUEUR)) {
-                            // Preparation du message de mort
+                        if (collision_sphere(tir, RAYON_TIR, pj, RAYON_JOUEUR)) {
+                            // Preparation du message
                             pr_tcp_chat_t trame;
                             char str[MAX_TAMPON_TCP];
                             strcpy(str, "");
@@ -292,9 +293,11 @@ void boucle_actualisation_jeu()
                             // Diffusion du message
                             diffuser_message_chat(&trame);
 
+                            // Remise au point de depart
+                            set_pos(&(ptr->client.position), 0, 0, 0, 0);
+
                             desactiver_tir(&(ptr->client));
-                        } else if (collision_sphere(tir, RAYON_TIR, p2, RAYON_TIR)
-                            || collision_murs(m2, nb, tir, RAYON_TIR)) {
+                        } else if (collision_sphere(tir, RAYON_TIR, pt, RAYON_TIR) || collision_murs(m2, nb, tir, RAYON_TIR)) {
                             desactiver_tir(&(ptr->client));
                         }
                     }
@@ -389,11 +392,8 @@ void calcul_graphique()
             ptr = client_list;
             while (ptr != NULL) {
                 // Recuperation de la position du client actuel
-                point p = {
-                    ptr->client.position.x,
-                    ptr->client.position.y,
-                    ptr->client.position.z
-                };
+                point p;
+                memcpy(p, ptr->client.position, sizeof(point));
                 int angle = ptr->client.position.angle;
 
                 // Projection graphique des murs
@@ -414,16 +414,9 @@ void calcul_graphique()
                 pt_client_cell_t tmp = client_list;
                 while (tmp != NULL) {
                     if (tmp->client.id != ptr->client.id) {
-                        point p1 = {
-                            ptr->client.position.x,
-                            ptr->client.position.y,
-                            ptr->client.position.z
-                        };
-                        point p2 = {
-                            ptr->client.missile.position.x,
-                            ptr->client.missile.position.y,
-                            ptr->client.missile.position.z
-                        };
+                        point pj, pt;
+                        memcpy(pj, ptr->client.position, sizeof(point));
+                        memcpy(pt, ptr->client.missile.position, sizeof(point));
 
                         memcpy(&(pj[cpt]), &p1, sizeof(point));
                         memcpy(&(pt[cpt]), &p2, sizeof(point));
