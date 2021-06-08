@@ -6,21 +6,19 @@
 
 void init_missile(missile_t* missile)
 {
-    missile->id = -1;
+    missile->tir = -1;
     init_pos(&(missile->position));
-    missile->tireur = -1;
 }
 
-void set_missile(missile_t* missile, int id, pos_t* position, int tireur)
+void set_missile(missile_t* missile, int tir, pos_t* position)
 {
-    set_missile_id(missile, id);
+    set_missile_tir(missile, tir);
     set_missile_position(missile, position);
-    set_missile_tireur(missile, tireur);
 }
 
-void set_missile_id(missile_t* missile, int id)
+void set_missile_tir(missile_t* missile, int tir)
 {
-    missile->id = id;
+    missile->tir = tir;
 }
 
 void set_missile_position(missile_t* missile, pos_t* position)
@@ -28,7 +26,8 @@ void set_missile_position(missile_t* missile, pos_t* position)
     copy_pos(&(missile->position), position);
 }
 
-void set_missile_tireur(missile_t* missile, int tireur)
+void copy_missile(missile_t* dst, missile_t* src)
 {
-    missile->tireur = tireur;
+    dst->tir = src->tir;
+    copy_pos(&(src->position), &(src->position));
 }

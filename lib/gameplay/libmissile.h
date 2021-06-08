@@ -7,21 +7,25 @@
 
 #include "libpos.h"
 
+/** Constantes **/
+
+#define TIR_ACTIF 1
+#define TIR_INACTIF 0
+
 /** Types **/
 
 typedef struct missile_s missile_t;
 struct missile_s {
-    int id;
+    int tir;
     pos_t position;
-    int tireur;
 };
 
 /** Prototypes **/
 
 void init_missile(missile_t* missile);
-void set_missile(missile_t* missile, int id, pos_t* position, int tireur);
-void set_missile_id(missile_t* missile, int id);
+void set_missile(missile_t* missile, int tir, pos_t* position);
+void set_missile_tir(missile_t* missile, int tir);
 void set_missile_position(missile_t* missile, pos_t* position);
-void set_missile_tireur(missile_t* missile, int tireur);
+void copy_missile(missile_t* dst, missile_t* src);
 
 #endif

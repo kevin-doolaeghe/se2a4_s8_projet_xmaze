@@ -252,6 +252,57 @@ void boucle_actualisation_jeu()
     while (quitter_serveur == true) {
         if (partie_en_cours) {
             // Mise a jour des tirs
+            p(MUTEX_LIST);
+            pt_client_cell_t ptr = client_list;
+            int nb = dessin_vers_murs(laby, murs);
+            mur* m2 = duplique_murs(murs, nb);
+            while (ptr != NULL) {
+                // Recuperation de la position du client actuel
+                point tir = {
+                    ptr->client.missile.position.x,
+                    ptr->client.missile.position.y,
+                    ptr->client.missile.position.z
+                };
+
+                pt_client_cell_t tmp = client_list;
+                while (tmp != NULL) {
+                    if (tmp->client.id != ptr->client.id) {
+                        point p1 = {
+                            ptr->client.position.x,
+                            ptr->client.position.y,
+                            ptr->client.position.z
+                        };
+                        point p2 = {
+                            ptr->client.missile.position.x,
+                            ptr->client.missile.position.y,
+                            ptr->client.missile.position.z
+                        };
+
+                        if (collision_sphere(tir, RAYON_TIR, p1, RAYON_JOUEUR)) {
+                            // Preparation du message de mort
+                            pr_tcp_chat_t trame;
+                            char str[MAX_TAMPON_TCP];
+                            strcpy(str, "");
+                            strcat(str, to_cstr(&(tmp->client.pseudo)));
+                            strcat(str, " was shot by ");
+                            strcat(str, to_cstr(&(ptr->client.pseudo)));
+                            strcat(str, "!");
+                            trame.message = str;
+
+                            // Diffusion du message
+                            diffuser_message_chat(&trame);
+
+                            desactiver_tir(&(ptr->client));
+                        } else if (collision_sphere(tir, RAYON_TIR, p2, RAYON_TIR)
+                            || collision_murs(m2, nb, tir, RAYON_TIR)) {
+                            desactiver_tir(&(ptr->client));
+                        }
+                    }
+                }
+
+                ptr = ptr->next;
+            }
+            v(MUTEX_LIST);
         }
         usleep(ATTENTE);
     }
@@ -308,6 +359,9 @@ void reception_touche(char* message, int taille, char* ip)
                     client->position.z -= dz;
                 }
                 break;
+            case TOUCHE_ESPACE:
+                activer_tir(client);
+                break;
             default:
                 break;
             }
@@ -331,6 +385,7 @@ void calcul_graphique()
     pt_client_cell_t ptr;
     while (quitter_serveur == false) {
         if (partie_en_cours == true) {
+            p(MUTEX_LIST);
             ptr = client_list;
             while (ptr != NULL) {
                 // Recuperation de la position du client actuel
@@ -341,17 +396,54 @@ void calcul_graphique()
                 };
                 int angle = ptr->client.position.angle;
 
-                // Projection graphique
+                // Projection graphique des murs
                 mur* m2 = duplique_murs(murs, nb);
                 decale_murs(m2, nb, p);
                 rotation_murs(m2, nb, angle);
                 tri_murs(m2, nb);
+
                 objet2D* objets = malloc(nb * sizeof(objet2D));
                 int no;
                 projete_murs(m2, nb, objets, &no);
 
+                /*
+                int nb_joueur = size_of_client_list(&client_list) - 1;
+                point* pj = malloc(nb_joueur * sizeof(point));
+                point* pt = malloc(nb_joueur * sizeof(point));
+                int cpt = 0;
+                pt_client_cell_t tmp = client_list;
+                while (tmp != NULL) {
+                    if (tmp->client.id != ptr->client.id) {
+                        point p1 = {
+                            ptr->client.position.x,
+                            ptr->client.position.y,
+                            ptr->client.position.z
+                        };
+                        point p2 = {
+                            ptr->client.missile.position.x,
+                            ptr->client.missile.position.y,
+                            ptr->client.missile.position.z
+                        };
+
+                        memcpy(&(pj[cpt]), &p1, sizeof(point));
+                        memcpy(&(pt[cpt]), &p2, sizeof(point));
+                        cpt++;
+                    }
+                }
+
+                // Projection graphique des joueurs et des tirs
+                decale_points(pj, nb_joueur, p);
+                rotation_points(pj, nb_joueur, angle);
+                decale_points(pt, nb_joueur, p);
+                rotation_points(pt, nb_joueur, angle);
+
+                int nbj, nbt;
+                projete_joueur(pj, nb_joueur, &(objets[nb]), &nbj);
+                projete_joueur(pt, nb_joueur, &(objets[nb + nbj]), &nbt);
+                */
+
                 // Preparation de la trame
-                trame.nb_objets = no;
+                trame.nb_objets = no; // + nbj + nbt;
                 trame.objets = (objet_2d_t*)objets;
 
                 taille = sizeof(trame.nb_objets) + no * sizeof(objet2D);
@@ -371,6 +463,7 @@ void calcul_graphique()
                 free(objets);
 
                 ptr = ptr->next;
+                v(MUTEX_LIST);
             }
         }
         usleep(ATTENTE_GRAPHIQUE);

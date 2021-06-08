@@ -12,6 +12,7 @@ void init_client(client_t* client)
     init_str(&(client->pseudo));
     init_pos(&(client->position));
     init_str_list(&(client->message_list));
+    init_missile(&(client->missile));
 }
 
 void destroy_client(client_t* client)
@@ -53,6 +54,27 @@ void set_client_pseudo(client_t* client, char* pseudo)
 void set_client_position(client_t* client, pos_t* position)
 {
     copy_pos(&(client->position), position);
+}
+
+void set_client_missile(client_t* client, missile_t* missile)
+{
+    copy_missile(&(client->missile), missile);
+}
+
+void set_client_missile_position(client_t* client, pos_t* position)
+{
+    set_missile_position(&(client->missile), position);
+}
+
+void activer_tir(client_t* client)
+{
+    if (client->missile.tir != TIR_ACTIF)
+        set_missile(&(client->missile), TIR_ACTIF, &(client->position));
+}
+
+void desactiver_tir(client_t* client)
+{
+    set_missile_tir(&(client->missile), TIR_INACTIF);
 }
 
 void copy_client(client_t* dst, client_t* src)
