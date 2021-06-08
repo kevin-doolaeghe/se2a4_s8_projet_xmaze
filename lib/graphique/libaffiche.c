@@ -195,28 +195,26 @@ void projete_tir(point* points, int nb, objet2D* objets, int* no)
 
 void projete_sphere(point* points, int nb, int rayon, objet2D* objets, int* no)
 {
-    int i, j;
+    int i;
     *no = 0;
     for (i = 0; i < nb; i++) {
-        // int x = points[i].x;
+        int x = points[i].x;
+        int y = points[i].y;
         int z = points[i].z;
+
         if (z <= 0)
             continue;
+
         objets[*no].type = TYPE_SPH;
-        for (j = 0; j < 4; j++) {
-            int x = points[i].x;
-            int y = points[i].y;
-            int z = points[i].z;
-            int px, py;
-            px = LARGEUR / 2 + x * FOCALE / z;
-            py = HAUTEUR / 4 + (y - HAUTEUR / 4) * FOCALE / z;
-            objets[*no].def.rayon = rayon * FOCALE / z;
-            objets[*no].def.p[j].x = px;
-            objets[*no].def.p[j].y = py;
+        int px, py;
+        px = LARGEUR / 2 + x * FOCALE / z;
+        py = HAUTEUR / 4 + (y - HAUTEUR / 4) * FOCALE / z;
+        objets[*no].def.rayon = rayon * FOCALE / z;
+        objets[*no].def.p->x = px;
+        objets[*no].def.p->y = py;
 #ifdef DEBUG
-            printf("[%d,%d,%d](%d,%d) ", x, y, z, px, py);
+        printf("[%d,%d,%d](%d,%d) ", x, y, z, px, py);
 #endif
-        }
         (*no)++;
 #ifdef DEBUG
         printf("\n");
@@ -365,8 +363,7 @@ void dessine_2D(objet2D* objet, int no)
             polygonePlein(x, y, np, COULEUR_ROUGE, COULEUR_ROSE);
         }
         if (objet[i].type == TYPE_SPH) {
-            int r = objet[i].def.rayon;
-            disque(objet[i].def.p->x, objet[i].def.p->y, r, COULEUR_VERT, COULEUR_BLANC);
+            disque(objet[i].def.p->x, objet[i].def.p->y, objet[i].def.rayon, COULEUR_ROUGE, COULEUR_BLANC);
         }
     }
 }
