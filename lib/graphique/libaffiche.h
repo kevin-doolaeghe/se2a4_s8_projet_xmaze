@@ -57,8 +57,8 @@ typedef struct {
     int type;
     union {
         point2D p[4];
-        int rayon;
     } def;
+    int rayon;
 } objet2D;
 
 /** Fonctions **/
