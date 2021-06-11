@@ -74,6 +74,7 @@ typedef struct {
     int type;
     union {
         coords_t p[4];
+        int rayon;
     } def;
 } objet_2d_t;
 

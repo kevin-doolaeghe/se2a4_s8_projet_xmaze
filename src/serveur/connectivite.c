@@ -456,8 +456,8 @@ void calcul_graphique()
                 objet2D* objets = malloc((nb + nbj + nbt) * sizeof(objet2D));
                 int no, nj, nt;
                 projete_murs(m2, nb, objets, &no);
-                projete_joueur(pj, nbj, &(objets[nb]), &nj);
-                projete_tir(pt, nbt, &(objets[nb + nbj]), &nt); //pb ici à resoudre
+                projete_joueur(pj, nbj, &(objets[no]), &nj);
+                projete_tir(pt, nbt, &(objets[no + nj]), &nt);
 
 #ifdef DEBUG
                 printf("%d walls | %d players | %d shoots\n", no, nj, nt);
@@ -466,6 +466,20 @@ void calcul_graphique()
                 // Preparation de la trame
                 trame.nb_objets = no + nj + nt;
                 trame.objets = (objet_2d_t*)objets;
+
+#ifdef DEBUG
+                int nbm = 0;
+                int nbs = 0;
+                int i;
+                for (i = 0; i < trame.nb_objets; i++) {
+                    if (trame.objets[i].type == TYPE_MUR)
+                        nbm++;
+                    if (trame.objets[i].type == TYPE_SPH)
+                        nbs++;
+                }
+                printf("%d walls | ", nbm);
+                printf("%d players & shoots\n", nbs);
+#endif
 
                 taille = sizeof(trame.nb_objets) + (no + nj + nt) * sizeof(objet2D);
                 char message[taille];

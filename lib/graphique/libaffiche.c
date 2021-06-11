@@ -201,17 +201,35 @@ void projete_sphere(point* points, int nb, int rayon, objet2D* objets, int* no)
         int x = points[i].x;
         int y = points[i].y;
         int z = points[i].z;
+        int x1 = x + rayon;
+        int x2 = x - rayon;
+        int z1 = z + rayon;
+        int z2 = z + rayon;
 
-        if (z <= 0)
+        if ((z1 <= 0 && z2 <= 0) || z <= 0)
             continue;
+        /*
+        if (z1 <= 0) {
+            points[i].x = x2 + (x1 - x2) * (1 - z2) / (z1 - z2);
+            points[i].z = 1;
+        }
+        if (z2 <= 0) {
+            points[i].x = x1 + (x2 - x1) * (1 - z1) / (z2 - z1);
+            points[i].z = 1;
+        }
+        */
 
         int px = LARGEUR / 2 + x * FOCALE / z;
-        int py = HAUTEUR / 4 + (y - HAUTEUR / 4) * FOCALE / z;
+        // int py = HAUTEUR / 4 + (y - HAUTEUR / 4) * FOCALE / z;
+        int py = HAUTEUR / 2 + (y - HAUTEUR / 2) * FOCALE / z;
 
         objets[*no].type = TYPE_SPH;
-        objets[*no].def.rayon = rayon * FOCALE / z;
+        objets[*no].def.rayon = rayon * FOCALE / z / MUR_TAILLE;
         objets[*no].def.p->x = px;
         objets[*no].def.p->y = py;
+
+        printf("z: %d | rayon: %d\n", z, objets[*no].def.rayon);
+
 #ifdef DEBUG
         printf("[%d,%d,%d](%d,%d) ", x, y, z, px, py);
 #endif
@@ -363,7 +381,6 @@ void dessine_2D(objet2D* objet, int no)
             polygonePlein(x, y, np, COULEUR_ROUGE, COULEUR_ROSE);
         }
         if (objet[i].type == TYPE_SPH) {
-            printf("sphere affichee\n");
             disque(objet[i].def.p->x, objet[i].def.p->y, objet[i].def.rayon, COULEUR_BLANC, COULEUR_ROSE);
         }
     }

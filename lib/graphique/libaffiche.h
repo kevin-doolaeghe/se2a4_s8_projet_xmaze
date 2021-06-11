@@ -22,13 +22,13 @@
 #define MUR_TAILLE 200
 #define MUR_HAUTEUR 200
 #define RAYON_TIR 10
-#define RAYON_JOUEUR 20
+#define RAYON_JOUEUR 15
 
 #define FOCALE (2 * MUR_TAILLE)
 
 #define ATTENTE 10000
 
-#define POINTS_MAX 32
+#define POINTS_MAX 64
 
 #define TYPE_MUR 0
 #define TYPE_SPH 1
