@@ -29,6 +29,7 @@ void delete_last_client_from_list(client_list_t* list);
 void delete_client_from_list(client_list_t* list, int fd);
 void destroy_client_list(client_list_t* list);
 client_t* get_client_by_id(client_list_t* list, int id);
+client_t* get_client_by_fd(client_list_t* list, int fd);
 bool search_client_in_list(client_list_t* list, int fd);
 void order_list(client_list_t* list);
 int size_of_client_list(client_list_t* list);

@@ -62,7 +62,7 @@ void demarrer_partie()
 
     pos_t pos = { LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0 };
 
-    p(MUTEX_LIST);
+    // p(MUTEX_LIST); deja effectue
     pt_client_cell_t ptr = client_list;
     while (ptr != NULL) {
         set_client_position(&(ptr->client), &pos);
@@ -70,25 +70,29 @@ void demarrer_partie()
 
         ptr = ptr->next;
     }
-    v(MUTEX_LIST);
+    // v(MUTEX_LIST);
 
+    p(MUTEX_PLAY);
     partie_en_cours = true;
+    v(MUTEX_PLAY);
 }
 
 void arreter_partie()
 {
     printf("Fin de la partie.\n");
 
-    p(MUTEX_LIST);
+    // p(MUTEX_LIST); deja effectue
     pt_client_cell_t ptr = client_list;
     while (ptr != NULL) {
         envoi_trame_chat(ptr->client.fd, ptr->client.id, CMD_STOP_ID);
 
         ptr = ptr->next;
     }
-    v(MUTEX_LIST);
+    // v(MUTEX_LIST);
 
+    p(MUTEX_PLAY);
     partie_en_cours = false;
+    v(MUTEX_PLAY);
 }
 
 /* Fonction principale */

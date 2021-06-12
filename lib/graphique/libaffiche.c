@@ -218,14 +218,16 @@ void projete_sphere(point* points, int nb, int rayon, objet2D* objets, int* no)
         }
 
         int px = LARGEUR / 2 + x * FOCALE / z;
+        /*
+            a - b / z avec a,b > 0
+            a = 4/5 * HAUTEUR
+            b/z -> de HAUTEUR/2 à 0
+            zmin = 1 => b = 2/5 * HAUTEUR
+        */
         int py = 4 * HAUTEUR / 5 + (y - 2 * HAUTEUR / 5) / z;
-        // a - b / z avec a,b > 0
-        // a = 4/5 * HAUTEUR
-        // b/z -> de HAUTEUR/2 à 0
-        // zmin = 1 => b = 2/5 * HAUTEUR
 
         objets[*no].type = TYPE_SPH;
-        objets[*no].rayon = rayon * FOCALE / z;
+        objets[*no].def.p[1].x = rayon * FOCALE / z; // Rayon
         objets[*no].def.p->x = px;
         objets[*no].def.p->y = py;
 
@@ -380,7 +382,8 @@ void dessine_2D(objet2D* objet, int no)
             polygonePlein(x, y, np, COULEUR_ROUGE, COULEUR_ROSE);
         }
         if (objet[i].type == TYPE_SPH) {
-            disque(objet[i].def.p->x, objet[i].def.p->y, objet[i].rayon, COULEUR_BLANC, COULEUR_ROSE);
+            int rayon = objet[i].def.p[1].x; // Rayon
+            disque(objet[i].def.p->x, objet[i].def.p->y, rayon, COULEUR_BLANC, COULEUR_ROSE);
         }
     }
 }

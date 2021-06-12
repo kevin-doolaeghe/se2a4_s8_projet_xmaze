@@ -21,6 +21,8 @@
 #define MAX_TAMPON_UDP 4096
 #define BROADCAST "255.255.255.255"
 
+#define MAX_PORT_LEN 10
+
 /** Prototypes **/
 
 int init_serveur_udp(char* service);

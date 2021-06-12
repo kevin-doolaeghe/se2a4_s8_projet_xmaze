@@ -75,7 +75,6 @@ typedef struct {
     union {
         coords_t p[4];
     } def;
-    int rayon;
 } objet_2d_t;
 
 /* Paquet d'envoi des objets graphiques */

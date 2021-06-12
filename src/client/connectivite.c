@@ -89,6 +89,7 @@ void envoi_trame_chat(int dialogue, int id, int commande)
 void reception_identite(char* message, int taille, char* ip)
 {
     if (quitter_client == false) {
+        p(MUTEX_CONN);
         if (connecte_au_serveur == false) {
             // Traduction de la trame
             pr_udp_identite_t trame;
@@ -123,8 +124,11 @@ void reception_identite(char* message, int taille, char* ip)
 
             destroy_server(&tmp);
         } else {
+            p(MUTEX_LIST);
             destroy_server_list(&liste_serveur);
+            v(MUTEX_LIST);
         }
+        v(MUTEX_CONN);
     }
 }
 
@@ -180,6 +184,7 @@ void gestion_evenements()
 
 void reception_graphique(char* message, int taille, char* ip)
 {
+    p(MUTEX_PLAY);
     if (partie_en_cours == true) {
         // Traduction de la trame
         pr_udp_graph_t trame;
@@ -194,4 +199,5 @@ void reception_graphique(char* message, int taille, char* ip)
         dessine_2D((objet2D*)trame.objets, trame.nb_objets);
         synchroniserFenetre();
     }
+    v(MUTEX_PLAY);
 }

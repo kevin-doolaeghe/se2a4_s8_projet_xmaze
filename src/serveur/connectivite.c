@@ -100,6 +100,10 @@ void deconnexion_client(int dialogue)
 #endif
 
     p(MUTEX_LIST);
+    client_t* client = get_client_by_fd(&client_list, dialogue);
+    if (client->id == ID_ADMIN && partie_en_cours == true)
+        arreter_partie();
+
     delete_client_from_list(&client_list, dialogue);
     order_list(&client_list);
 
@@ -125,6 +129,7 @@ void reception_message(char* message, int taille)
     printf("\t- ID: %d\n\t- Command: %d\n\t- Content: %s\n", trame.id_client, trame.commande, trame.message);
 #endif
 
+    p(MUTEX_LIST);
     client_t* client = get_client_by_id(&client_list, trame.id_client);
     if (client != NULL) {
         // Traitement du message recu
@@ -173,6 +178,7 @@ void reception_message(char* message, int taille)
                 arreter_partie();
         }
     }
+    v(MUTEX_LIST);
 }
 
 void envoi_trame_chat(int dialogue, int id, int commande)
@@ -203,13 +209,13 @@ void diffuser_message_chat(pr_tcp_chat_t* trame)
     ecrire_trame_chat(trame, reponse, taille);
 
     // Envoi de la trame
-    p(MUTEX_LIST);
+    // p(MUTEX_LIST); deja effectue
     pt_client_cell_t ptr = client_list;
     while (ptr != NULL) {
         envoi_message_tcp(ptr->client.fd, reponse, taille);
         ptr = ptr->next;
     }
-    v(MUTEX_LIST);
+    // v(MUTEX_LIST);
 }
 
 /**** Diffusion UDP ****/
@@ -256,7 +262,7 @@ void boucle_actualisation_jeu()
     while (quitter_serveur == false) {
         if (partie_en_cours == true) {
             // Gestion des tirs
-            // p(MUTEX_LIST);
+            p(MUTEX_LIST);
             ptr = client_list;
             while (ptr != NULL) {
                 if (ptr->client.missile.tir == TIR_ACTIF) {
@@ -303,7 +309,7 @@ void boucle_actualisation_jeu()
                                 diffuser_message_chat(&trame);
 
                                 // Remise au point de depart
-                                set_pos(&(ptr->client.position), 0, 0, 0, 0);
+                                set_pos(&(ptr->client.position), LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0);
 
                                 desactiver_tir(&(ptr->client));
 #ifdef DEBUG
@@ -321,7 +327,7 @@ void boucle_actualisation_jeu()
                 }
                 ptr = ptr->next;
             }
-            // v(MUTEX_LIST);
+            v(MUTEX_LIST);
         }
         usleep(ATTENTE_RAFRAICHISSEMENT);
     }
@@ -345,6 +351,7 @@ void reception_touche(char* message, int taille, char* ip)
         printf("touche: %d\n", trame.touches);
 #endif
 
+        p(MUTEX_LIST);
         client_t* client = get_client_by_id(&client_list, trame.id_client);
         int nb = dessin_vers_murs(laby, murs);
         mur* m2 = duplique_murs(murs, nb);
@@ -389,6 +396,7 @@ void reception_touche(char* message, int taille, char* ip)
                 client->position.angle = client->position.angle % 360;
         }
         free(m2);
+        v(MUTEX_LIST);
     }
 }
 
@@ -418,7 +426,7 @@ void calcul_graphique()
                 rotation_murs(m2, nb, angle);
                 tri_murs(m2, nb);
 
-                int nb_joueur = size_of_client_list(&client_list) - 1;
+                int nb_joueur = size_of_client_list(&client_list);
                 point* pj = malloc(nb_joueur * sizeof(point));
                 point* pt = malloc(nb_joueur * sizeof(point));
                 int nbj = 0;

@@ -122,7 +122,9 @@ void demarrer_jeu()
     printf("\nDémarrage du jeu!\n");
 
     // Demarrage de la partie
+    p(MUTEX_PLAY);
     partie_en_cours = true;
+    v(MUTEX_PLAY);
 
     // Ouverture de la fenetre
     unsigned char resultat = creerFenetre(LARGEUR, HAUTEUR, TITRE);

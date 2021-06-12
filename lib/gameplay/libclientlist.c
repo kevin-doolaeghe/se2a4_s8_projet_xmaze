@@ -87,6 +87,19 @@ client_t* get_client_by_id(client_list_t* list, int id)
     return NULL;
 }
 
+client_t* get_client_by_fd(client_list_t* list, int fd)
+{
+    pt_client_cell_t ptr = *list;
+
+    while (ptr != NULL) {
+        if (ptr->client.fd == fd)
+            return &(ptr->client);
+        ptr = ptr->next;
+    }
+
+    return NULL;
+}
+
 bool search_client_in_list(client_list_t* list, int fd)
 {
     pt_client_cell_t ptr = *list;

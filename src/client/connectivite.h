@@ -28,8 +28,6 @@
 #define MUTEX_IDTF 4
 #define MUTEX_SERV 5
 
-#define MAX_PORT_LEN 10
-
 /** Variables globales **/
 
 extern server_list_t liste_serveur;
