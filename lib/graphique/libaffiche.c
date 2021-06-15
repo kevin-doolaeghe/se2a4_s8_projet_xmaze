@@ -201,21 +201,9 @@ void projete_sphere(point* points, int nb, int rayon, objet2D* objets, int* no)
         int x = points[i].x;
         int y = points[i].y;
         int z = points[i].z;
-        int x1 = x + rayon;
-        int x2 = x - rayon;
-        int z1 = z + rayon;
-        int z2 = z + rayon;
 
-        if ((z1 <= 0 && z2 <= 0) || z <= 0)
+        if (z <= 0)
             continue;
-        if (z1 <= 0) {
-            points[i].x = x2 + (x1 - x2) * (1 - z2) / (z1 - z2);
-            points[i].z = 1;
-        }
-        if (z2 <= 0) {
-            points[i].x = x1 + (x2 - x1) * (1 - z1) / (z2 - z1);
-            points[i].z = 1;
-        }
 
         int px = LARGEUR / 2 + x * FOCALE / z;
         /*
