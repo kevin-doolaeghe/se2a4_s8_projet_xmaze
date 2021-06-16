@@ -22,7 +22,7 @@
 #define MUR_TAILLE 200
 #define MUR_HAUTEUR 200
 #define RAYON_TIR 10
-#define RAYON_JOUEUR 15
+#define RAYON_JOUEUR 20
 
 #define FOCALE (2 * MUR_TAILLE)
 
@@ -50,8 +50,9 @@ typedef struct {
 } point2D;
 
 typedef struct {
+    int type;
     point p[4];
-} mur;
+} objet3D;
 
 typedef struct {
     int type;
@@ -64,30 +65,27 @@ typedef struct {
 
 point soustraire_points(point p1, point p2);
 
-mur* duplique_murs(mur* murs, int nb);
-int compare_murs(const void* arg1, const void* arg2);
-void tri_murs(mur* murs, int n);
+objet3D* duplique_objets(objet3D* objets, int nb);
 
-int dessin_vers_murs(char* laby[], mur* murs);
+int compare_objets(const void* arg1, const void* arg2);
+void tri_objets(objet3D* objets, int nb);
 
-void decale_murs(mur* murs, int nb, point position);
-void decale_points(point* points, int nb, point position);
+int dessin_vers_objets(char* laby[], int largeur, int hauteur, objet3D* objets);
+void joueur_vers_objet(point* point, objet3D* objet);
+void tir_vers_objet(point* point, objet3D* objet);
+void point_vers_objet(point* point, int rayon, objet3D* objet);
 
-void rotation_murs(mur* murs, int nb, int angle);
-void rotation_points(point* points, int nb, int angle);
+void decale_objets(objet3D* objets, int nb, point position);
+void rotation_objets(objet3D* objets, int nb, int angle);
 
-void projete_murs(mur* murs, int nb, objet2D* objets, int* no);
-void projete_joueur(point* points, int nb, objet2D* objets, int* no);
-void projete_tir(point* points, int nb, objet2D* objets, int* no);
-void projete_sphere(point* points, int nb, int rayon, objet2D* objets, int* no);
+unsigned char collision_objets(objet3D* objets, int nb, point p, int r);
+
+void projete_objets(objet3D* src, int nb, objet2D* dst, int* no);
 
 unsigned char inter_seg_v(point2D a, point2D b, int x, int* y);
 unsigned char inter_seg_h(point2D a, point2D b, int* x, int y);
 void inter_poly_rect(point2D* orig, int no, point2D* result, int* nr);
 
 void dessine_2D(objet2D* objet, int no);
-
-unsigned char collision_murs(mur* murs, int nb, point p, int r);
-unsigned char collision_sphere(point pa, int ra, point pb, int rb);
 
 #endif

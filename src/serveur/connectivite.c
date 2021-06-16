@@ -4,7 +4,7 @@
 
 /** Variables **/
 
-mur murs[(LABY_X + 1) * LABY_Y + (LABY_Y + 1) * LABY_X];
+objet3D murs[(LABY_X + 1) * LABY_Y + (LABY_Y + 1) * LABY_X];
 
 char* laby[2 * LABY_Y + 1] = {
     " - - - - - - - - ",
@@ -255,8 +255,8 @@ void diffuser_identite()
 
 void boucle_actualisation_jeu()
 {
-    int nb = dessin_vers_murs(laby, murs);
-    mur* m2 = duplique_murs(murs, nb);
+    int nb = dessin_vers_objets(laby, LABY_X, LABY_Y, murs);
+    objet3D* m2 = duplique_objets(murs, nb);
 
     pt_client_cell_t ptr;
     while (quitter_serveur == false) {
@@ -273,13 +273,13 @@ void boucle_actualisation_jeu()
                     ptr->client.missile.position.z = ptr->client.missile.position.z + dz;
 
                     // Recuperation de la position du missile du client actuel
-                    point tir;
-                    memcpy(&tir, &(ptr->client.missile.position), sizeof(point));
+                    point p;
+                    memcpy(&p, &(ptr->client.missile.position), sizeof(point));
 
                     /* Verification des collisions */
 
-                    // Collisions avec les murs
-                    if (collision_murs(m2, nb, tir, RAYON_TIR)) {
+                    /* Collisions avec les murs */
+                    if (collision_objets(m2, nb, p, RAYON_TIR)) {
                         desactiver_tir(&(ptr->client));
 #ifdef DEBUG
                         printf("Collision du missile contre le mur.\n");
@@ -290,11 +290,13 @@ void boucle_actualisation_jeu()
                     pt_client_cell_t tmp = client_list;
                     while (tmp != NULL) {
                         if (tmp->client.id != ptr->client.id) {
-                            point pj, pt;
-                            memcpy(&pj, &(tmp->client.position), sizeof(point));
-                            memcpy(&pt, &(tmp->client.missile.position), sizeof(point));
+                            objet3D joueur, tir;
+                            joueur_vers_objet((point*)&(tmp->client.position), &joueur);
+                            joueur_vers_objet((point*)&(tmp->client.missile.position), &tir);
 
-                            if (collision_sphere(tir, RAYON_TIR, pj, RAYON_JOUEUR)) {
+                            if (collision_objets(&joueur, 1, p, RAYON_TIR)) {
+                                /* Collision avec un joueur */
+
                                 // Preparation du message
                                 pr_tcp_chat_t trame;
                                 char str[MAX_TAMPON_TCP];
@@ -309,13 +311,13 @@ void boucle_actualisation_jeu()
                                 diffuser_message_chat(&trame);
 
                                 // Remise au point de depart
-                                set_pos(&(ptr->client.position), LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0);
-
+                                set_pos(&(tmp->client.position), LABY_X / 2 * MUR_TAILLE, 0, MUR_TAILLE, 0);
                                 desactiver_tir(&(ptr->client));
 #ifdef DEBUG
                                 printf("Collision du missile contre un joueur.\n");
 #endif
-                            } else if (collision_sphere(tir, RAYON_TIR, pt, RAYON_TIR)) {
+                            } else if (collision_objets(&tir, 1, p, RAYON_TIR)) {
+                                /* Collision avec un missile */
                                 desactiver_tir(&(ptr->client));
 #ifdef DEBUG
                                 printf("Collision du missile contre un autre missile.\n");
@@ -353,8 +355,8 @@ void reception_touche(char* message, int taille, char* ip)
 
         p(MUTEX_LIST);
         client_t* client = get_client_by_id(&client_list, trame.id_client);
-        int nb = dessin_vers_murs(laby, murs);
-        mur* m2 = duplique_murs(murs, nb);
+        int nb = dessin_vers_objets(laby, LABY_X, LABY_Y, murs);
+        objet3D* m2 = duplique_objets(murs, nb);
         point p;
         int dx = MUR_TAILLE / 10 * sin(2 * M_PI * client->position.angle / 360);
         int dz = MUR_TAILLE / 10 * cos(2 * M_PI * client->position.angle / 360);
@@ -371,7 +373,7 @@ void reception_touche(char* message, int taille, char* ip)
                 p.x = client->position.x + dx;
                 p.y = client->position.y;
                 p.z = client->position.z + dz;
-                if (!collision_murs(m2, nb, p, RAYON_JOUEUR)) {
+                if (!collision_objets(m2, nb, p, RAYON_JOUEUR)) {
                     client->position.x += dx;
                     client->position.z += dz;
                 }
@@ -380,7 +382,7 @@ void reception_touche(char* message, int taille, char* ip)
                 p.x = client->position.x - dx;
                 p.y = client->position.y;
                 p.z = client->position.z - dz;
-                if (!collision_murs(m2, nb, p, RAYON_JOUEUR)) {
+                if (!collision_objets(m2, nb, p, RAYON_JOUEUR)) {
                     client->position.x -= dx;
                     client->position.z -= dz;
                 }
@@ -407,7 +409,8 @@ void calcul_graphique()
     pr_udp_graph_t trame;
     int taille;
 
-    int nb = dessin_vers_murs(laby, murs);
+    int nb_murs = dessin_vers_objets(laby, LABY_X, LABY_Y, murs);
+    int nb_joueurs, nb_tirs;
 
     pt_client_cell_t ptr;
     while (quitter_serveur == false) {
@@ -420,77 +423,70 @@ void calcul_graphique()
                 memcpy(&p, &(ptr->client.position), sizeof(point));
                 int angle = ptr->client.position.angle;
 
-                // Projection graphique des murs
-                mur* m2 = duplique_murs(murs, nb);
-                decale_murs(m2, nb, p);
-                rotation_murs(m2, nb, angle);
-                tri_murs(m2, nb);
+                // Recuperation des objets 3D
+                objet3D* objets3D = malloc((nb_murs + 2 * size_of_client_list(&client_list)) * sizeof(objet3D));
+                memcpy(objets3D, murs, nb_murs * sizeof(objet3D));
 
-                int nb_joueur = size_of_client_list(&client_list);
-                point* pj = malloc(nb_joueur * sizeof(point));
-                point* pt = malloc(nb_joueur * sizeof(point));
-                int nbj = 0;
-                int nbt = 0;
+                nb_joueurs = 0;
+                nb_tirs = 0;
+
                 pt_client_cell_t tmp = client_list;
                 while (tmp != NULL) {
-                    point joueur, tir;
-                    memcpy(&joueur, &(ptr->client.position), sizeof(point));
-                    memcpy(&tir, &(ptr->client.missile.position), sizeof(point));
-
                     if (tmp->client.id != ptr->client.id) {
-                        memcpy(&(pj[nbj]), &joueur, sizeof(point));
-                        nbj++;
+                        joueur_vers_objet((point*)&(tmp->client.position), &(objets3D[nb_murs + nb_joueurs]));
+                        nb_joueurs++;
                     }
                     if (tmp->client.missile.tir == TIR_ACTIF) {
-                        memcpy(&(pt[nbt]), &tir, sizeof(point));
-                        nbt++;
+                        tir_vers_objet((point*)&(tmp->client.missile.position), &(objets3D[nb_murs + nb_joueurs + nb_tirs]));
+                        nb_tirs++;
                     }
 
                     tmp = tmp->next;
                 }
 
 #ifdef DEBUG
-                printf("%d players\n", nbj);
-                printf("%d shoots\n", nbt);
+                // Joueur fictif
+                objets3D[nb_murs + nb_joueurs + nb_tirs].type = TYPE_SPH;
+                objets3D[nb_murs + nb_joueurs + nb_tirs].p[0].x = 1000;
+                objets3D[nb_murs + nb_joueurs + nb_tirs].p[0].y = 0;
+                objets3D[nb_murs + nb_joueurs + nb_tirs].p[0].z = 200;
+                objets3D[nb_murs + nb_joueurs + nb_tirs].p[1].x = RAYON_JOUEUR;
+                nb_joueurs++;
 #endif
 
-                decale_points(pj, nbj, p);
-                rotation_points(pj, nbj, angle);
+#ifdef DEBUG
+                printf("%d walls, %d players and %d shoots processed.\n", nb_murs, nb_joueurs, nb_tirs);
+#endif
 
-                decale_points(pt, nbt, p);
-                rotation_points(pt, nbt, angle);
+                // Projection graphique des murs
+                int nb = nb_murs + nb_joueurs + nb_tirs;
+                decale_objets(objets3D, nb, p);
+                rotation_objets(objets3D, nb, angle);
+                tri_objets(objets3D, nb);
 
                 // Projection graphique des joueurs et des tirs
-                objet2D* objets = malloc((nb + nbj + nbt) * sizeof(objet2D));
-                int no, nj, nt;
-                projete_murs(m2, nb, objets, &no);
-                projete_joueur(pj, nbj, &(objets[no]), &nj);
-                projete_tir(pt, nbt, &(objets[no + nj]), &nt);
-
-#ifdef DEBUG
-                printf("%d walls | %d players | %d shoots\n", no, nj, nt);
-#endif
+                objet2D* objets = malloc(nb * sizeof(objet2D));
+                int no;
+                projete_objets(objets3D, nb, objets, &no);
 
                 // Preparation de la trame
-                trame.nb_objets = no + nj + nt;
+                trame.nb_objets = no;
                 trame.objets = (objet_2d_t*)objets;
+                taille = sizeof(trame.nb_objets) + no * sizeof(objet2D);
+                char message[taille];
 
 #ifdef DEBUG
-                int nbm = 0;
-                int nbs = 0;
+                int nb1 = 0;
+                int nb2 = 0;
                 int i;
                 for (i = 0; i < trame.nb_objets; i++) {
                     if (trame.objets[i].type == TYPE_MUR)
-                        nbm++;
+                        nb1++;
                     if (trame.objets[i].type == TYPE_SPH)
-                        nbs++;
+                        nb2++;
                 }
-                printf("%d walls | ", nbm);
-                printf("%d players & shoots\n", nbs);
+                printf("%d walls and %d players & shoots to send.\n", nb1, nb2);
 #endif
-
-                taille = sizeof(trame.nb_objets) + (no + nj + nt) * sizeof(objet2D);
-                char message[taille];
 
                 // Ecriture de la trame
                 ecrire_trame_graphique(&trame, message, taille);
@@ -502,9 +498,7 @@ void calcul_graphique()
                 printf("Sending graphic of %d bytes.\n", taille);
 #endif
 
-                free(m2);
-                free(pj);
-                free(pt);
+                free(objets3D);
                 free(objets);
 
                 ptr = ptr->next;
