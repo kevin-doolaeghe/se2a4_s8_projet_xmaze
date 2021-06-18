@@ -20,6 +20,9 @@ void init_serveur()
     partie_en_cours = false;
     v(MUTEX_PLAY);
 
+    // Initialisation du labyrinthe
+    init_laby();
+
     // Demarrage des taches
     int chat_sock = init_serveur_tcp(PORT_CHAT_TCP);
     create_task((void* (*)(void*))thread_chat_connexion, (void*)&chat_sock, sizeof(chat_sock));

@@ -64,6 +64,7 @@ void diffuser_identite();
 
 /**** Actualisation jeu ****/
 
+void init_laby();
 void boucle_actualisation_jeu();
 
 /**** Touches UDP ****/

@@ -31,3 +31,9 @@ void copy_missile(missile_t* dst, missile_t* src)
     dst->tir = src->tir;
     copy_pos(&(src->position), &(src->position));
 }
+
+void print_missile(missile_t* missile)
+{
+    printf("tir: %d\n", missile->tir);
+    print_pos(&(missile->position));
+}

@@ -27,5 +27,6 @@ void set_missile(missile_t* missile, int tir, pos_t* position);
 void set_missile_tir(missile_t* missile, int tir);
 void set_missile_position(missile_t* missile, pos_t* position);
 void copy_missile(missile_t* dst, missile_t* src);
+void print_missile(missile_t* missile);
 
 #endif

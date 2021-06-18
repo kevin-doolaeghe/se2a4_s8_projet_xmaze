@@ -42,7 +42,9 @@ int compare_objets(const void* arg1, const void* arg2)
         cx1 = objet1->p[0].x;
         cz1 = objet1->p[0].z;
     } else {
-        printf("objet1 could not be recognized during comparaison\n");
+#ifdef DEBUG
+        fprintf(stderr, "objet1 could not be recognized during comparaison\n");
+#endif
     }
 
     if (objet2->type == TYPE_MUR) {
@@ -52,7 +54,9 @@ int compare_objets(const void* arg1, const void* arg2)
         cx2 = objet2->p[0].x;
         cz2 = objet2->p[0].z;
     } else {
-        printf("objet2 could not be recognized during comparaison\n");
+#ifdef DEBUG
+        fprintf(stderr, "objet2 could not be recognized during comparaison\n");
+#endif
     }
 
     int d1 = abs(cx1) + abs(cz1);
@@ -188,15 +192,15 @@ unsigned char collision_objets(objet3D* objets, int nb, point p, int r)
     for (i = 0; i < nb; i++) {
         switch (objets[i].type) {
         case TYPE_MUR:
-            p0 = objets[i].p[0];
-            p1 = objets[i].p[2];
+            memcpy(&p0, &(objets[i].p[0]), sizeof(point));
+            memcpy(&p1, &(objets[i].p[2]), sizeof(point));
             if (p.x >= p0.x - r && p.z >= p0.z - r && p.x <= p1.x + r && p.z <= p1.z + r)
                 return 1;
             break;
         case TYPE_SPH:
-            p0 = objets[i].p[0];
+            memcpy(&p0, &(objets[i].p[0]), sizeof(point));
             rayon = objets[i].p[1].x;
-            if ((p.x - p0.x) * (p.x - p0.x) + (p.z - p0.z) * (p.z - p0.z) <= r + rayon)
+            if ((p.x - p0.x) * (p.x - p0.x) + (p.z - p0.z) * (p.z - p0.z) <= (r + rayon) * (r + rayon))
                 return 1;
             break;
         }

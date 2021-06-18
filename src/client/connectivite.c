@@ -58,6 +58,7 @@ void reception_message_chat(char* message, int taille)
         arreter_jeu();
         break;
     case CMD_DISC_ID:
+        printf("%s\n", trame.message);
         if (trame.id_client == id)
             deconnexion_serveur();
         break;

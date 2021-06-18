@@ -106,4 +106,7 @@ void print_client(client_t* client)
 
     printf("messages:\n");
     print_str_list(&(client->message_list));
+
+    printf("missile:\n");
+    print_missile(&(client->missile));
 }
